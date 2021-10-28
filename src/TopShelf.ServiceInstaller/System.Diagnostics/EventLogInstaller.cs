@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.ComponentModel;
 using System.Configuration.Install;
 using System.Runtime.InteropServices;
@@ -12,6 +12,16 @@ namespace System.Diagnostics
 
         private UninstallAction uninstallAction;
 
+        /// <summary>Gets or sets the number of categories in the category resource file.</summary>
+        /// <returns>The number of categories in the category resource file. The default value is zero.</returns>
+        [ComVisible(false)]
+        [ResDescription("Desc_CategoryCount")]
+        public int CategoryCount
+        {
+            get => sourceData.CategoryCount;
+            set => sourceData.CategoryCount = value;
+        }
+
         /// <summary>Gets or sets the path of the resource file that contains category strings for the source.</summary>
         /// <returns>The path of the category resource file. The default is an empty string ("").</returns>
         [TypeConverter("System.Diagnostics.Design.StringValueConverter, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
@@ -22,16 +32,6 @@ namespace System.Diagnostics
         {
             get => sourceData.CategoryResourceFile;
             set => sourceData.CategoryResourceFile = value;
-        }
-
-        /// <summary>Gets or sets the number of categories in the category resource file.</summary>
-        /// <returns>The number of categories in the category resource file. The default value is zero.</returns>
-        [ComVisible(false)]
-        [ResDescription("Desc_CategoryCount")]
-        public int CategoryCount
-        {
-            get => sourceData.CategoryCount;
-            set => sourceData.CategoryCount = value;
         }
 
         /// <summary>Gets or sets the name of the log to set the source to.</summary>

@@ -1,28 +1,53 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace System.ServiceProcess
 {
     public partial class NativeMethods
     {
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern bool ChangeServiceConfig2(IntPtr serviceHandle, uint infoLevel, ref SERVICE_DESCRIPTION serviceDesc);
+
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern bool ChangeServiceConfig2(IntPtr serviceHandle, uint infoLevel, ref SERVICE_DELAYED_AUTOSTART_INFO serviceDesc);
+
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern IntPtr CreateService(IntPtr databaseHandle, string serviceName, string displayName, int access, int serviceType, int startType, int errorControl, string binaryPath, string loadOrderGroup, IntPtr pTagId, string dependencies, string servicesStartName, string password);
+
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern bool DeleteService(IntPtr serviceHandle);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern bool GetComputerName(StringBuilder lpBuffer, ref int nSize);
+
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern bool LookupAccountName(string systemName, string accountName, byte[] sid, int[] sidLen, char[] refDomainName, int[] domNameLen, [In][Out] int[] sidNameUse);
+
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
+        public static extern int LsaAddAccountRights(IntPtr policyHandle, byte[] accountSid, LSA_UNICODE_STRING userRights, int countOfRights);
+
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
+        public static extern int LsaEnumerateAccountRights(IntPtr policyHandle, byte[] accountSid, out IntPtr pLsaUnicodeStringUserRights, out int RightsCount);
+
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
+        public static extern int LsaOpenPolicy(LSA_UNICODE_STRING systemName, IntPtr pointerObjectAttributes, int desiredAccess, out IntPtr pointerPolicyHandle);
+
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
+        public static extern int LsaRemoveAccountRights(IntPtr policyHandle, byte[] accountSid, bool allRights, LSA_UNICODE_STRING userRights, int countOfRights);
+
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern IntPtr OpenService(IntPtr databaseHandle, string serviceName, int access);
+
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        public class LSA_UNICODE_STRING_withPointer
+        public struct SERVICE_DELAYED_AUTOSTART_INFO
         {
-            public short length;
-
-            public short maximumLength;
-
-            public IntPtr pwstr = (IntPtr)0;
+            public bool fDelayedAutostart;
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        public class LSA_UNICODE_STRING
+        public struct SERVICE_DESCRIPTION
         {
-            public short length;
-
-            public short maximumLength;
-
-            public string buffer;
+            public IntPtr description;
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -40,51 +65,23 @@ namespace System.ServiceProcess
 
             public IntPtr pointerSecurityQualityOfService = (IntPtr)0;
         }
-
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        public struct SERVICE_DELAYED_AUTOSTART_INFO
+        public class LSA_UNICODE_STRING
         {
-            public bool fDelayedAutostart;
-        }
+            public short length;
 
+            public short maximumLength;
+
+            public string buffer;
+        }
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        public struct SERVICE_DESCRIPTION
+        public class LSA_UNICODE_STRING_withPointer
         {
-            public IntPtr description;
+            public short length;
+
+            public short maximumLength;
+
+            public IntPtr pwstr = (IntPtr)0;
         }
-
-        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern bool ChangeServiceConfig2(IntPtr serviceHandle, uint infoLevel, ref SERVICE_DESCRIPTION serviceDesc);
-
-        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern bool ChangeServiceConfig2(IntPtr serviceHandle, uint infoLevel, ref SERVICE_DELAYED_AUTOSTART_INFO serviceDesc);
-
-        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern IntPtr CreateService(IntPtr databaseHandle, string serviceName, string displayName, int access, int serviceType, int startType, int errorControl, string binaryPath, string loadOrderGroup, IntPtr pTagId, string dependencies, string servicesStartName, string password);
-
-        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern bool LookupAccountName(string systemName, string accountName, byte[] sid, int[] sidLen, char[] refDomainName, int[] domNameLen, [In][Out] int[] sidNameUse);
-
-        [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
-        public static extern int LsaAddAccountRights(IntPtr policyHandle, byte[] accountSid, LSA_UNICODE_STRING userRights, int countOfRights);
-
-        [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
-        public static extern int LsaEnumerateAccountRights(IntPtr policyHandle, byte[] accountSid, out IntPtr pLsaUnicodeStringUserRights, out int RightsCount);
-
-        [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
-        public static extern int LsaOpenPolicy(LSA_UNICODE_STRING systemName, IntPtr pointerObjectAttributes, int desiredAccess, out IntPtr pointerPolicyHandle);
-
-        [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
-        public static extern int LsaRemoveAccountRights(IntPtr policyHandle, byte[] accountSid, bool allRights, LSA_UNICODE_STRING userRights, int countOfRights);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern bool GetComputerName(StringBuilder lpBuffer, ref int nSize);
-
-        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern bool DeleteService(IntPtr serviceHandle);
-
-        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern IntPtr OpenService(IntPtr databaseHandle, string serviceName, int access);
-
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
@@ -11,18 +11,6 @@ namespace System.Configuration.Install
         private InstallerCollection installers;
 
         public InstallContext Context { get; set; }
-        public InstallerCollection Installers
-        {
-            get
-            {
-                if (installers == null)
-                {
-                    installers = new InstallerCollection(this);
-                }
-
-                return installers;
-            }
-        }
 
         [ResDescription("Desc_Installer_HelpText")]
         public virtual string HelpText
@@ -40,6 +28,19 @@ namespace System.Configuration.Install
                     }
                 }
                 return stringBuilder.ToString();
+            }
+        }
+
+        public InstallerCollection Installers
+        {
+            get
+            {
+                if (installers == null)
+                {
+                    installers = new InstallerCollection(this);
+                }
+
+                return installers;
             }
         }
 
@@ -76,6 +77,7 @@ namespace System.Configuration.Install
                 }
             }
         }
+
         public virtual void Commit(IDictionary savedState)
         {
             if (savedState == null)
@@ -361,18 +363,6 @@ namespace System.Configuration.Install
         private InstallEventHandler beforeRollbackHandler;
         private InstallEventHandler beforeUninstallHandler;
 
-        public event InstallEventHandler Committed
-        {
-            add
-            {
-                afterCommitHandler = (InstallEventHandler)Delegate.Combine(afterCommitHandler, value);
-            }
-            remove
-            {
-                afterCommitHandler = (InstallEventHandler)Delegate.Remove(afterCommitHandler, value);
-            }
-        }
-
         /// <summary>Occurs after the <see cref="M:System.Configuration.Install.Installer.Install(System.Collections.IDictionary)" /> methods of all the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property have run.</summary>
         public event InstallEventHandler AfterInstall
         {
@@ -409,19 +399,6 @@ namespace System.Configuration.Install
             remove
             {
                 afterUninstallHandler = (InstallEventHandler)Delegate.Remove(afterUninstallHandler, value);
-            }
-        }
-
-        /// <summary>Occurs before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property committ their installations.</summary>
-        public event InstallEventHandler Committing
-        {
-            add
-            {
-                beforeCommitHandler = (InstallEventHandler)Delegate.Combine(beforeCommitHandler, value);
-            }
-            remove
-            {
-                beforeCommitHandler = (InstallEventHandler)Delegate.Remove(beforeCommitHandler, value);
             }
         }
 
@@ -463,7 +440,31 @@ namespace System.Configuration.Install
                 beforeUninstallHandler = (InstallEventHandler)Delegate.Remove(beforeUninstallHandler, value);
             }
         }
-        protected virtual void OnCommitted(IDictionary savedState) => afterCommitHandler?.Invoke(this, new InstallEventArgs(savedState));
+
+        public event InstallEventHandler Committed
+        {
+            add
+            {
+                afterCommitHandler = (InstallEventHandler)Delegate.Combine(afterCommitHandler, value);
+            }
+            remove
+            {
+                afterCommitHandler = (InstallEventHandler)Delegate.Remove(afterCommitHandler, value);
+            }
+        }
+
+        /// <summary>Occurs before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property committ their installations.</summary>
+        public event InstallEventHandler Committing
+        {
+            add
+            {
+                beforeCommitHandler = (InstallEventHandler)Delegate.Combine(beforeCommitHandler, value);
+            }
+            remove
+            {
+                beforeCommitHandler = (InstallEventHandler)Delegate.Remove(beforeCommitHandler, value);
+            }
+        }
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.AfterInstall" /> event.</summary>
         /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer after all the installers contained in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property have completed their installations. </param>
@@ -477,10 +478,6 @@ namespace System.Configuration.Install
         /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer after all the installers contained in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are uninstalled. </param>
         protected virtual void OnAfterUninstall(IDictionary savedState) => afterUninstallHandler?.Invoke(this, new InstallEventArgs(savedState));
 
-        /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.Committing" /> event.</summary>
-        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are committed. </param>
-        protected virtual void OnCommitting(IDictionary savedState) => beforeCommitHandler?.Invoke(this, new InstallEventArgs(savedState));
-
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.BeforeInstall" /> event.</summary>
         /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are installed. This <see cref="T:System.Collections.IDictionary" /> object should be empty at this point. </param>
         protected virtual void OnBeforeInstall(IDictionary savedState) => beforeInstallHandler?.Invoke(this, new InstallEventArgs(savedState));
@@ -492,13 +489,14 @@ namespace System.Configuration.Install
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.BeforeUninstall" /> event.</summary>
         /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property uninstall their installations. </param>
         protected virtual void OnBeforeUninstall(IDictionary savedState) => beforeUninstallHandler?.Invoke(this, new InstallEventArgs(savedState));
-        #endregion
 
-        private void WriteEventHandlerError(string severity, string eventName, Exception e)
-        {
-            Context.LogMessage(Res.GetString("InstallLogError", severity, eventName, base.GetType().FullName));
-            Installer.LogException(e, Context);
-        }
+        protected virtual void OnCommitted(IDictionary savedState) => afterCommitHandler?.Invoke(this, new InstallEventArgs(savedState));
+
+        /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.Committing" /> event.</summary>
+        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are committed. </param>
+        protected virtual void OnCommitting(IDictionary savedState) => beforeCommitHandler?.Invoke(this, new InstallEventArgs(savedState));
+
+        #endregion Event Handlers
 
         internal static void LogException(Exception e, InstallContext context)
         {
@@ -522,15 +520,6 @@ namespace System.Configuration.Install
             }
         }
 
-        private bool IsWrappedException(Exception e)
-        {
-            if (e is InstallException && e.Source == "WrappedExceptionSource")
-            {
-                return e.TargetSite.ReflectedType == typeof(Installer);
-            }
-            return false;
-        }
-
         internal bool InstallerTreeContains(Installer target)
         {
             if (Installers.Contains(target))
@@ -547,5 +536,19 @@ namespace System.Configuration.Install
             return false;
         }
 
+        private bool IsWrappedException(Exception e)
+        {
+            if (e is InstallException && e.Source == "WrappedExceptionSource")
+            {
+                return e.TargetSite.ReflectedType == typeof(Installer);
+            }
+            return false;
+        }
+
+        private void WriteEventHandlerError(string severity, string eventName, Exception e)
+        {
+            Context.LogMessage(Res.GetString("InstallLogError", severity, eventName, base.GetType().FullName));
+            Installer.LogException(e, Context);
+        }
     }
 }

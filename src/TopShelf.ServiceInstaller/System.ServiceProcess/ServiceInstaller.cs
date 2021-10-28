@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.ComponentModel;
 using System.Configuration.Install;
 using System.Globalization;
@@ -10,44 +10,38 @@ namespace System.ServiceProcess
 {
     public class ServiceInstaller : ComponentInstaller
     {
-
-        private const string NetworkServiceName = "NT AUTHORITY\\NetworkService";
-
         private const string LocalServiceName = "NT AUTHORITY\\LocalService";
-
+        private const string NetworkServiceName = "NT AUTHORITY\\NetworkService";
         //private EventLogInstaller eventLogInstaller;
 
-        private string serviceName = "";
-
-        private string displayName = "";
-
+        private static bool environmentChecked;
+        private static bool isWin9x;
+        private bool delayedStartMode;
         private string description = "";
-
+        private string displayName = "";
+        private string serviceName = "";
         private string[] servicesDependedOn = new string[0];
 
         private ServiceStartMode startType = ServiceStartMode.Manual;
 
-        private bool delayedStartMode;
-
-        private static bool environmentChecked;
-
-        private static bool isWin9x;
-
-        /// <summary>Indicates the friendly name that identifies the service to the user.</summary>
-        /// <returns>The name associated with the service, used frequently for interactive tools.</returns>
-        [DefaultValue("")]
-        [ServiceProcessDescription("ServiceInstallerDisplayName")]
-        public string DisplayName
+        /// <summary>Initializes a new instance of the <see cref="T:System.ServiceProcess.ServiceInstaller" /> class.</summary>
+        public ServiceInstaller()
         {
-            get => displayName;
-            set
-            {
-                if (value == null)
-                {
-                    value = "";
-                }
-                displayName = value;
-            }
+            //this.eventLogInstaller = new EventLogInstaller();
+            //this.eventLogInstaller.Log = "Application";
+            //this.eventLogInstaller.Source = "";
+            //this.eventLogInstaller.UninstallAction = UninstallAction.Remove;
+            //base.Installers.Add(this.eventLogInstaller);
+        }
+
+        /// <summary>Gets or sets a value that indicates whether the service should be delayed from starting until other automatically started services are running.</summary>
+        /// <returns>true to delay automatic start of the service; otherwise, false. The default is false.</returns>
+        [DefaultValue(false)]
+        [ServiceProcessDescription("ServiceInstallerDelayedAutoStart")]
+        public bool DelayedAutoStart
+        {
+            get => delayedStartMode;
+            set => delayedStartMode = value;
         }
 
         /// <summary>Gets or sets the description for the service.</summary>
@@ -68,19 +62,20 @@ namespace System.ServiceProcess
             }
         }
 
-        /// <summary>Indicates the services that must be running for this service to run.</summary>
-        /// <returns>An array of services that must be running before the service associated with this installer can run.</returns>
-        [ServiceProcessDescription("ServiceInstallerServicesDependedOn")]
-        public string[] ServicesDependedOn
+        /// <summary>Indicates the friendly name that identifies the service to the user.</summary>
+        /// <returns>The name associated with the service, used frequently for interactive tools.</returns>
+        [DefaultValue("")]
+        [ServiceProcessDescription("ServiceInstallerDisplayName")]
+        public string DisplayName
         {
-            get => servicesDependedOn;
+            get => displayName;
             set
             {
                 if (value == null)
                 {
-                    value = new string[0];
+                    value = "";
                 }
-                servicesDependedOn = value;
+                displayName = value;
             }
         }
 
@@ -108,6 +103,22 @@ namespace System.ServiceProcess
             }
         }
 
+        /// <summary>Indicates the services that must be running for this service to run.</summary>
+        /// <returns>An array of services that must be running before the service associated with this installer can run.</returns>
+        [ServiceProcessDescription("ServiceInstallerServicesDependedOn")]
+        public string[] ServicesDependedOn
+        {
+            get => servicesDependedOn;
+            set
+            {
+                if (value == null)
+                {
+                    value = new string[0];
+                }
+                servicesDependedOn = value;
+            }
+        }
+
         /// <summary>Indicates how and when this service is started.</summary>
         /// <returns>A <see cref="T:System.ServiceProcess.ServiceStartMode" /> that represents the way the service is started. The default is Manual, which specifies that the service will not automatically start after reboot.</returns>
         /// <exception cref="T:System.ComponentModel.InvalidEnumArgumentException">The start mode is not a value of the <see cref="T:System.ServiceProcess.ServiceStartMode" /> enumeration.</exception>
@@ -132,45 +143,6 @@ namespace System.ServiceProcess
                 }
                 throw new ArgumentException(Res.GetString("ServiceStartType", value));
             }
-        }
-
-        /// <summary>Gets or sets a value that indicates whether the service should be delayed from starting until other automatically started services are running.</summary>
-        /// <returns>true to delay automatic start of the service; otherwise, false. The default is false.</returns>
-        [DefaultValue(false)]
-        [ServiceProcessDescription("ServiceInstallerDelayedAutoStart")]
-        public bool DelayedAutoStart
-        {
-            get => delayedStartMode;
-            set => delayedStartMode = value;
-        }
-
-        /// <summary>Initializes a new instance of the <see cref="T:System.ServiceProcess.ServiceInstaller" /> class.</summary>
-        public ServiceInstaller()
-        {
-            //this.eventLogInstaller = new EventLogInstaller();
-            //this.eventLogInstaller.Log = "Application";
-            //this.eventLogInstaller.Source = "";
-            //this.eventLogInstaller.UninstallAction = UninstallAction.Remove;
-            //base.Installers.Add(this.eventLogInstaller);
-        }
-
-        internal static void CheckEnvironment()
-        {
-            if (ServiceInstaller.environmentChecked)
-            {
-                if (!ServiceInstaller.isWin9x)
-                {
-                    return;
-                }
-                throw new PlatformNotSupportedException(Res.GetString("CantControlOnWin9x"));
-            }
-            ServiceInstaller.isWin9x = (Environment.OSVersion.Platform != PlatformID.Win32NT);
-            ServiceInstaller.environmentChecked = true;
-            if (!ServiceInstaller.isWin9x)
-            {
-                return;
-            }
-            throw new PlatformNotSupportedException(Res.GetString("CantInstallOnWin9x"));
         }
 
         /// <summary>Copies properties from an instance of <see cref="T:System.ServiceProcess.ServiceBase" /> to this installer.</summary>
@@ -232,9 +204,11 @@ namespace System.ServiceProcess
                     case ServiceAccount.LocalService:
                         servicesStartName = "NT AUTHORITY\\LocalService";
                         break;
+
                     case ServiceAccount.NetworkService:
                         servicesStartName = "NT AUTHORITY\\NetworkService";
                         break;
+
                     case ServiceAccount.User:
                         servicesStartName = serviceProcessInstaller.Username;
                         password = serviceProcessInstaller.Password;
@@ -358,6 +332,73 @@ namespace System.ServiceProcess
             return serviceInstaller.ServiceName == ServiceName;
         }
 
+        /// <summary>Rolls back service application information written to the registry by the installation procedure. This method is meant to be used by installation tools, which process the appropriate methods automatically.</summary>
+        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the context information associated with the installation. </param>
+        /// <PermissionSet>
+        ///   <IPermission class="System.Security.Permissions.FileIOPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Unrestricted="true" />
+        ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode" />
+        ///   <IPermission class="System.ServiceProcess.ServiceControllerPermission, System.ServiceProcess, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" version="1" Unrestricted="true" />
+        /// </PermissionSet>
+        public override void Rollback(IDictionary savedState)
+        {
+            base.Rollback(savedState);
+            var obj = savedState["installed"];
+            if (obj != null && (bool)obj)
+            {
+                RemoveService();
+            }
+        }
+
+        /// <summary>Uninstalls the service by removing information about it from the registry.</summary>
+        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the context information associated with the installation. </param>
+        /// <exception cref="T:System.ComponentModel.Win32Exception">The Service Control Manager could not be opened.-or- The system could not get a handle to the service. </exception>
+        /// <PermissionSet>
+        ///   <IPermission class="System.Security.Permissions.FileIOPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Unrestricted="true" />
+        ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode" />
+        ///   <IPermission class="System.ServiceProcess.ServiceControllerPermission, System.ServiceProcess, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" version="1" Unrestricted="true" />
+        /// </PermissionSet>
+        public override void Uninstall(IDictionary savedState)
+        {
+            base.Uninstall(savedState);
+            RemoveService();
+        }
+
+        internal static void CheckEnvironment()
+        {
+            if (ServiceInstaller.environmentChecked)
+            {
+                if (!ServiceInstaller.isWin9x)
+                {
+                    return;
+                }
+                throw new PlatformNotSupportedException(Res.GetString("CantControlOnWin9x"));
+            }
+            ServiceInstaller.isWin9x = (Environment.OSVersion.Platform != PlatformID.Win32NT);
+            ServiceInstaller.environmentChecked = true;
+            if (!ServiceInstaller.isWin9x)
+            {
+                return;
+            }
+            throw new PlatformNotSupportedException(Res.GetString("CantInstallOnWin9x"));
+        }
+
+        private static bool ValidateServiceName(string name)
+        {
+            if (name != null && name.Length != 0 && name.Length <= 80)
+            {
+                var array = name.ToCharArray();
+                for (var i = 0; i < array.Length; i++)
+                {
+                    if (array[i] < ' ' || array[i] == '/' || array[i] == '\\')
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
         private void RemoveService()
         {
             base.Context.LogMessage(Res.GetString("ServiceRemoving", ServiceName));
@@ -410,23 +451,6 @@ namespace System.ServiceProcess
             Thread.Sleep(5000);
         }
 
-        /// <summary>Rolls back service application information written to the registry by the installation procedure. This method is meant to be used by installation tools, which process the appropriate methods automatically.</summary>
-        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the context information associated with the installation. </param>
-        /// <PermissionSet>
-        ///   <IPermission class="System.Security.Permissions.FileIOPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Unrestricted="true" />
-        ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode" />
-        ///   <IPermission class="System.ServiceProcess.ServiceControllerPermission, System.ServiceProcess, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" version="1" Unrestricted="true" />
-        /// </PermissionSet>
-        public override void Rollback(IDictionary savedState)
-        {
-            base.Rollback(savedState);
-            var obj = savedState["installed"];
-            if (obj != null && (bool)obj)
-            {
-                RemoveService();
-            }
-        }
-
         private bool ShouldSerializeServicesDependedOn()
         {
             if (servicesDependedOn != null && servicesDependedOn.Length != 0)
@@ -435,38 +459,5 @@ namespace System.ServiceProcess
             }
             return false;
         }
-
-        /// <summary>Uninstalls the service by removing information about it from the registry.</summary>
-        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the context information associated with the installation. </param>
-        /// <exception cref="T:System.ComponentModel.Win32Exception">The Service Control Manager could not be opened.-or- The system could not get a handle to the service. </exception>
-        /// <PermissionSet>
-        ///   <IPermission class="System.Security.Permissions.FileIOPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Unrestricted="true" />
-        ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode" />
-        ///   <IPermission class="System.ServiceProcess.ServiceControllerPermission, System.ServiceProcess, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" version="1" Unrestricted="true" />
-        /// </PermissionSet>
-        public override void Uninstall(IDictionary savedState)
-        {
-            base.Uninstall(savedState);
-            RemoveService();
-        }
-
-        private static bool ValidateServiceName(string name)
-        {
-            if (name != null && name.Length != 0 && name.Length <= 80)
-            {
-                var array = name.ToCharArray();
-                for (var i = 0; i < array.Length; i++)
-                {
-                    if (array[i] < ' ' || array[i] == '/' || array[i] == '\\')
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            return false;
-        }
-
     }
 }
-

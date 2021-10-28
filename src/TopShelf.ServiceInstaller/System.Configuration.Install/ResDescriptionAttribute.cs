@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
 namespace System.Configuration.Install
 {
@@ -6,6 +6,11 @@ namespace System.Configuration.Install
     internal sealed class ResDescriptionAttribute : DescriptionAttribute
     {
         private bool replaced;
+
+        public ResDescriptionAttribute(string description)
+            : base(description)
+        {
+        }
 
         public override string Description
         {
@@ -18,11 +23,6 @@ namespace System.Configuration.Install
                 }
                 return base.Description;
             }
-        }
-
-        public ResDescriptionAttribute(string description)
-            : base(description)
-        {
         }
     }
 }
