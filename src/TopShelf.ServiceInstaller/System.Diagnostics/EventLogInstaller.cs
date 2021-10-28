@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.ComponentModel;
 using System.Configuration.Install;
 using System.Runtime.InteropServices;
@@ -9,7 +8,7 @@ namespace System.Diagnostics
 {
     public class EventLogInstaller : ComponentInstaller
     {
-        private EventSourceCreationData sourceData = new EventSourceCreationData(null, null);
+        private readonly EventSourceCreationData sourceData = new EventSourceCreationData(null, null);
 
         private UninstallAction uninstallAction;
 
@@ -21,14 +20,8 @@ namespace System.Diagnostics
         [ResDescription("Desc_CategoryResourceFile")]
         public string CategoryResourceFile
         {
-            get
-            {
-                return this.sourceData.CategoryResourceFile;
-            }
-            set
-            {
-                this.sourceData.CategoryResourceFile = value;
-            }
+            get => sourceData.CategoryResourceFile;
+            set => sourceData.CategoryResourceFile = value;
         }
 
         /// <summary>Gets or sets the number of categories in the category resource file.</summary>
@@ -37,14 +30,8 @@ namespace System.Diagnostics
         [ResDescription("Desc_CategoryCount")]
         public int CategoryCount
         {
-            get
-            {
-                return this.sourceData.CategoryCount;
-            }
-            set
-            {
-                this.sourceData.CategoryCount = value;
-            }
+            get => sourceData.CategoryCount;
+            set => sourceData.CategoryCount = value;
         }
 
         /// <summary>Gets or sets the name of the log to set the source to.</summary>
@@ -55,16 +42,13 @@ namespace System.Diagnostics
         {
             get
             {
-                if (this.sourceData.LogName == null && this.sourceData.Source != null)
+                if (sourceData.LogName == null && sourceData.Source != null)
                 {
-                    this.sourceData.LogName = EventLog.LogNameFromSourceName(this.sourceData.Source, ".");
+                    sourceData.LogName = EventLog.LogNameFromSourceName(sourceData.Source, ".");
                 }
-                return this.sourceData.LogName;
+                return sourceData.LogName;
             }
-            set
-            {
-                this.sourceData.LogName = value;
-            }
+            set => sourceData.LogName = value;
         }
 
         /// <summary>Gets or sets the path of the resource file that contains message formatting strings for the source.</summary>
@@ -75,14 +59,8 @@ namespace System.Diagnostics
         [ResDescription("Desc_MessageResourceFile")]
         public string MessageResourceFile
         {
-            get
-            {
-                return this.sourceData.MessageResourceFile;
-            }
-            set
-            {
-                this.sourceData.MessageResourceFile = value;
-            }
+            get => sourceData.MessageResourceFile;
+            set => sourceData.MessageResourceFile = value;
         }
 
         /// <summary>Gets or sets the path of the resource file that contains message parameter strings for the source.</summary>
@@ -93,14 +71,8 @@ namespace System.Diagnostics
         [ResDescription("Desc_ParameterResourceFile")]
         public string ParameterResourceFile
         {
-            get
-            {
-                return this.sourceData.ParameterResourceFile;
-            }
-            set
-            {
-                this.sourceData.ParameterResourceFile = value;
-            }
+            get => sourceData.ParameterResourceFile;
+            set => sourceData.ParameterResourceFile = value;
         }
 
         /// <summary>Gets or sets the source name to register with the log.</summary>
@@ -109,14 +81,8 @@ namespace System.Diagnostics
         [ResDescription("Desc_Source")]
         public string Source
         {
-            get
-            {
-                return this.sourceData.Source;
-            }
-            set
-            {
-                this.sourceData.Source = value;
-            }
+            get => sourceData.Source;
+            set => sourceData.Source = value;
         }
 
         /// <summary>Gets or sets a value that indicates whether the Installutil.exe (Installer Tool) should remove the event log or leave it in its installed state at uninstall time.</summary>
@@ -127,17 +93,14 @@ namespace System.Diagnostics
         [ResDescription("Desc_UninstallAction")]
         public UninstallAction UninstallAction
         {
-            get
-            {
-                return this.uninstallAction;
-            }
+            get => uninstallAction;
             set
             {
                 if (!Enum.IsDefined(typeof(UninstallAction), value))
                 {
                     throw new InvalidEnumArgumentException("value", (int)value, typeof(UninstallAction));
                 }
-                this.uninstallAction = value;
+                uninstallAction = value;
             }
         }
 
@@ -146,15 +109,15 @@ namespace System.Diagnostics
         /// <exception cref="T:System.ArgumentException">The specified component is not an <see cref="T:System.Diagnostics.EventLog" />.-or- The <see cref="P:System.Diagnostics.EventLog.Log" /> or <see cref="P:System.Diagnostics.EventLog.Source" /> property of the specified component is either null or empty. </exception>
         public override void CopyFromComponent(IComponent component)
         {
-            EventLog eventLog = component as EventLog;
+            var eventLog = component as EventLog;
             if (eventLog == null)
             {
                 throw new ArgumentException(Res.GetString("NotAnEventLog"));
             }
             if (eventLog.Log != null && !(eventLog.Log == string.Empty) && eventLog.Source != null && !(eventLog.Source == string.Empty))
             {
-                this.Log = eventLog.Log;
-                this.Source = eventLog.Source;
+                Log = eventLog.Log;
+                Source = eventLog.Source;
                 return;
             }
             throw new ArgumentException(Res.GetString("IncompleteEventLog"));
@@ -167,21 +130,21 @@ namespace System.Diagnostics
         public override void Install(IDictionary stateSaver)
         {
             base.Install(stateSaver);
-            base.Context.LogMessage(Res.GetString("CreatingEventLog", this.Source, this.Log));
+            base.Context.LogMessage(Res.GetString("CreatingEventLog", Source, Log));
             if (Environment.OSVersion.Platform != PlatformID.Win32NT)
             {
                 throw new PlatformNotSupportedException(Res.GetString("WinNTRequired"));
             }
             stateSaver["baseInstalledAndPlatformOK"] = true;
-            bool flag = EventLog.Exists(this.Log, ".");
+            var flag = EventLog.Exists(Log, ".");
             stateSaver["logExists"] = flag;
-            bool flag2 = EventLog.SourceExists(this.Source, ".");
+            var flag2 = EventLog.SourceExists(Source, ".");
             stateSaver["alreadyRegistered"] = flag2;
-            if (flag2 && EventLog.LogNameFromSourceName(this.Source, ".") == this.Log)
+            if (flag2 && EventLog.LogNameFromSourceName(Source, ".") == Log)
             {
                 return;
             }
-            EventLog.CreateEventSource(this.sourceData);
+            EventLog.CreateEventSource(sourceData);
         }
 
         /// <summary>Determines whether an installer and another specified installer refer to the same source.</summary>
@@ -189,12 +152,12 @@ namespace System.Diagnostics
         /// <param name="otherInstaller">The installer to compare. </param>
         public override bool IsEquivalentInstaller(ComponentInstaller otherInstaller)
         {
-            EventLogInstaller eventLogInstaller = otherInstaller as EventLogInstaller;
+            var eventLogInstaller = otherInstaller as EventLogInstaller;
             if (eventLogInstaller == null)
             {
                 return false;
             }
-            return eventLogInstaller.Source == this.Source;
+            return eventLogInstaller.Source == Source;
         }
 
         /// <summary>Restores the computer to the state it was in before the installation by rolling back the event log information that the installation procedure wrote to the registry.</summary>
@@ -202,20 +165,20 @@ namespace System.Diagnostics
         public override void Rollback(IDictionary savedState)
         {
             base.Rollback(savedState);
-            base.Context.LogMessage(Res.GetString("RestoringEventLog", this.Source));
+            base.Context.LogMessage(Res.GetString("RestoringEventLog", Source));
             if (savedState["baseInstalledAndPlatformOK"] != null)
             {
                 if (!(bool)savedState["logExists"])
                 {
-                    EventLog.Delete(this.Log, ".");
+                    EventLog.Delete(Log, ".");
                 }
                 else
                 {
-                    object obj = savedState["alreadyRegistered"];
-                    bool flag = obj != null && (bool)obj;
-                    if (!flag && EventLog.SourceExists(this.Source, "."))
+                    var obj = savedState["alreadyRegistered"];
+                    var flag = obj != null && (bool)obj;
+                    if (!flag && EventLog.SourceExists(Source, "."))
                     {
-                        EventLog.DeleteEventSource(this.Source, ".");
+                        EventLog.DeleteEventSource(Source, ".");
                     }
                 }
             }
@@ -226,36 +189,36 @@ namespace System.Diagnostics
         public override void Uninstall(IDictionary savedState)
         {
             base.Uninstall(savedState);
-            if (this.UninstallAction == UninstallAction.Remove)
+            if (UninstallAction == UninstallAction.Remove)
             {
-                base.Context.LogMessage(Res.GetString("RemovingEventLog", this.Source));
-                if (EventLog.SourceExists(this.Source, "."))
+                base.Context.LogMessage(Res.GetString("RemovingEventLog", Source));
+                if (EventLog.SourceExists(Source, "."))
                 {
-                    if (string.Compare(this.Log, this.Source, StringComparison.OrdinalIgnoreCase) != 0)
+                    if (string.Compare(Log, Source, StringComparison.OrdinalIgnoreCase) != 0)
                     {
-                        EventLog.DeleteEventSource(this.Source, ".");
+                        EventLog.DeleteEventSource(Source, ".");
                     }
                 }
                 else
                 {
-                    base.Context.LogMessage(Res.GetString("LocalSourceNotRegisteredWarning", this.Source));
+                    base.Context.LogMessage(Res.GetString("LocalSourceNotRegisteredWarning", Source));
                 }
-                RegistryKey registryKey = Registry.LocalMachine;
+                var registryKey = Registry.LocalMachine;
                 RegistryKey registryKey2 = null;
                 try
                 {
                     registryKey = registryKey.OpenSubKey("SYSTEM\\CurrentControlSet\\Services\\EventLog", false);
                     if (registryKey != null)
                     {
-                        registryKey2 = registryKey.OpenSubKey(this.Log, false);
+                        registryKey2 = registryKey.OpenSubKey(Log, false);
                     }
                     if (registryKey2 != null)
                     {
-                        string[] subKeyNames = registryKey2.GetSubKeyNames();
-                        if (subKeyNames == null || subKeyNames.Length == 0 || (subKeyNames.Length == 1 && string.Compare(subKeyNames[0], this.Log, StringComparison.OrdinalIgnoreCase) == 0))
+                        var subKeyNames = registryKey2.GetSubKeyNames();
+                        if (subKeyNames == null || subKeyNames.Length == 0 || (subKeyNames.Length == 1 && string.Compare(subKeyNames[0], Log, StringComparison.OrdinalIgnoreCase) == 0))
                         {
-                            base.Context.LogMessage(Res.GetString("DeletingEventLog", this.Log));
-                            EventLog.Delete(this.Log, ".");
+                            base.Context.LogMessage(Res.GetString("DeletingEventLog", Log));
+                            EventLog.Delete(Log, ".");
                         }
                     }
                 }

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0-windows</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Description>Helper classes to host Core applications as Windows services.</Description>
+    <PackageTags>windows;service;.net;core;netstandard</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Topshelf\Topshelf.csproj" />
+  </ItemGroup>
+
+</Project>

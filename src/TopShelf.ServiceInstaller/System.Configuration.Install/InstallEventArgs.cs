@@ -13,9 +13,6 @@ namespace System.Configuration.Install
         {
         }
 
-        public InstallEventArgs(IDictionary savedSate)
-        {
-            this.SavedSate = savedSate;
-        }
+        public InstallEventArgs(IDictionary savedSate) => SavedSate = savedSate;
     }
 }

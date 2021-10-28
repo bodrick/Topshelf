@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace System.Configuration.Install
 {
@@ -18,12 +15,12 @@ namespace System.Configuration.Install
         {
             get
             {
-                if (this.installers == null)
+                if (installers == null)
                 {
-                    this.installers = new InstallerCollection(this);
+                    installers = new InstallerCollection(this);
                 }
 
-                return this.installers;
+                return installers;
             }
         }
 
@@ -32,10 +29,10 @@ namespace System.Configuration.Install
         {
             get
             {
-                StringBuilder stringBuilder = new StringBuilder();
-                for (int i = 0; i < this.Installers.Count; i++)
+                var stringBuilder = new StringBuilder();
+                for (var i = 0; i < Installers.Count; i++)
                 {
-                    string helpText = this.Installers[i].HelpText;
+                    var helpText = Installers[i].HelpText;
                     if (helpText.Length > 0)
                     {
                         stringBuilder.Append("\r\n");
@@ -50,34 +47,31 @@ namespace System.Configuration.Install
         [ResDescription("Desc_Installer_Parent")]
         public Installer Parent
         {
-            get
-            {
-                return this.parent;
-            }
+            get => parent;
             set
             {
                 if (value == this)
                 {
                     throw new InvalidOperationException(Res.GetString("InstallBadParent"));
                 }
-                if (value != this.parent)
+                if (value != parent)
                 {
-                    if (value != null && this.InstallerTreeContains(value))
+                    if (value != null && InstallerTreeContains(value))
                     {
                         throw new InvalidOperationException(Res.GetString("InstallRecursiveParent"));
                     }
-                    if (this.parent != null)
+                    if (parent != null)
                     {
-                        int num = this.parent.Installers.IndexOf(this);
+                        var num = parent.Installers.IndexOf(this);
                         if (num != -1)
                         {
-                            this.parent.Installers.RemoveAt(num);
+                            parent.Installers.RemoveAt(num);
                         }
                     }
-                    this.parent = value;
-                    if (this.parent != null && !this.parent.Installers.Contains(this))
+                    parent = value;
+                    if (parent != null && !parent.Installers.Contains(this))
                     {
-                        this.parent.Installers.Add(this);
+                        parent.Installers.Add(this);
                     }
                 }
             }
@@ -93,35 +87,35 @@ namespace System.Configuration.Install
                 Exception ex = null;
                 try
                 {
-                    this.OnCommitting(savedState);
+                    OnCommitting(savedState);
                 }
                 catch (Exception ex2)
                 {
-                    this.WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnCommitting", ex2);
-                    this.Context.LogMessage(Res.GetString("InstallCommitException"));
+                    WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnCommitting", ex2);
+                    Context.LogMessage(Res.GetString("InstallCommitException"));
                     ex = ex2;
                 }
-                int num = (int)savedState["_reserved_lastInstallerAttempted"];
-                IDictionary[] array = (IDictionary[])savedState["_reserved_nestedSavedStates"];
-                if (num + 1 == array.Length && num < this.Installers.Count)
+                var num = (int)savedState["_reserved_lastInstallerAttempted"];
+                var array = (IDictionary[])savedState["_reserved_nestedSavedStates"];
+                if (num + 1 == array.Length && num < Installers.Count)
                 {
-                    for (int i = 0; i < this.Installers.Count; i++)
+                    for (var i = 0; i < Installers.Count; i++)
                     {
-                        this.Installers[i].Context = this.Context;
+                        Installers[i].Context = Context;
                     }
-                    for (int j = 0; j <= num; j++)
+                    for (var j = 0; j <= num; j++)
                     {
                         try
                         {
-                            this.Installers[j].Commit(array[j]);
+                            Installers[j].Commit(array[j]);
                         }
                         catch (Exception ex3)
                         {
-                            if (!this.IsWrappedException(ex3))
+                            if (!IsWrappedException(ex3))
                             {
-                                this.Context.LogMessage(Res.GetString("InstallLogCommitException", this.Installers[j].ToString()));
-                                Installer.LogException(ex3, this.Context);
-                                this.Context.LogMessage(Res.GetString("InstallCommitException"));
+                                Context.LogMessage(Res.GetString("InstallLogCommitException", Installers[j].ToString()));
+                                Installer.LogException(ex3, Context);
+                                Context.LogMessage(Res.GetString("InstallCommitException"));
                             }
                             ex = ex3;
                         }
@@ -130,23 +124,25 @@ namespace System.Configuration.Install
                     savedState.Remove("_reserved_lastInstallerAttempted");
                     try
                     {
-                        this.OnCommitted(savedState);
+                        OnCommitted(savedState);
                     }
                     catch (Exception ex4)
                     {
-                        this.WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnCommitted", ex4);
-                        this.Context.LogMessage(Res.GetString("InstallCommitException"));
+                        WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnCommitted", ex4);
+                        Context.LogMessage(Res.GetString("InstallCommitException"));
                         ex = ex4;
                     }
                     if (ex == null)
                     {
                         return;
                     }
-                    Exception ex5 = ex;
-                    if (!this.IsWrappedException(ex))
+                    var ex5 = ex;
+                    if (!IsWrappedException(ex))
                     {
-                        ex5 = new InstallException(Res.GetString("InstallCommitException"), ex);
-                        ex5.Source = "WrappedExceptionSource";
+                        ex5 = new InstallException(Res.GetString("InstallCommitException"), ex)
+                        {
+                            Source = "WrappedExceptionSource"
+                        };
                     }
                     throw ex5;
                 }
@@ -163,24 +159,24 @@ namespace System.Configuration.Install
             }
             try
             {
-                this.OnBeforeInstall(stateSaver);
+                OnBeforeInstall(stateSaver);
             }
             catch (Exception ex)
             {
-                this.WriteEventHandlerError(Res.GetString("InstallSeverityError"), "OnBeforeInstall", ex);
+                WriteEventHandlerError(Res.GetString("InstallSeverityError"), "OnBeforeInstall", ex);
                 throw new InvalidOperationException(Res.GetString("InstallEventException", "OnBeforeInstall", base.GetType().FullName), ex);
             }
-            int num = -1;
-            List<IDictionary> arrayList = new List<IDictionary>();
+            var num = -1;
+            var arrayList = new List<IDictionary>();
             try
             {
-                for (int i = 0; i < this.Installers.Count; i++)
+                for (var i = 0; i < Installers.Count; i++)
                 {
-                    this.Installers[i].Context = this.Context;
+                    Installers[i].Context = Context;
                 }
-                for (int j = 0; j < this.Installers.Count; j++)
+                for (var j = 0; j < Installers.Count; j++)
                 {
-                    Installer installer = this.Installers[j];
+                    var installer = Installers[j];
                     IDictionary dictionary = new Hashtable();
                     try
                     {
@@ -200,11 +196,11 @@ namespace System.Configuration.Install
             }
             try
             {
-                this.OnAfterInstall(stateSaver);
+                OnAfterInstall(stateSaver);
             }
             catch (Exception ex2)
             {
-                this.WriteEventHandlerError(Res.GetString("InstallSeverityError"), "OnAfterInstall", ex2);
+                WriteEventHandlerError(Res.GetString("InstallSeverityError"), "OnAfterInstall", ex2);
                 throw new InvalidOperationException(Res.GetString("InstallEventException", "OnAfterInstall", base.GetType().FullName), ex2);
             }
         }
@@ -220,58 +216,60 @@ namespace System.Configuration.Install
                 Exception ex = null;
                 try
                 {
-                    this.OnBeforeRollback(savedState);
+                    OnBeforeRollback(savedState);
                 }
                 catch (Exception ex2)
                 {
-                    this.WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnBeforeRollback", ex2);
-                    this.Context.LogMessage(Res.GetString("InstallRollbackException"));
+                    WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnBeforeRollback", ex2);
+                    Context.LogMessage(Res.GetString("InstallRollbackException"));
                     ex = ex2;
                 }
-                int num = (int)savedState["_reserved_lastInstallerAttempted"];
-                IDictionary[] array = (IDictionary[])savedState["_reserved_nestedSavedStates"];
-                if (num + 1 == array.Length && num < this.Installers.Count)
+                var num = (int)savedState["_reserved_lastInstallerAttempted"];
+                var array = (IDictionary[])savedState["_reserved_nestedSavedStates"];
+                if (num + 1 == array.Length && num < Installers.Count)
                 {
-                    for (int num2 = this.Installers.Count - 1; num2 >= 0; num2--)
+                    for (var num2 = Installers.Count - 1; num2 >= 0; num2--)
                     {
-                        this.Installers[num2].Context = this.Context;
+                        Installers[num2].Context = Context;
                     }
-                    for (int num3 = num; num3 >= 0; num3--)
+                    for (var num3 = num; num3 >= 0; num3--)
                     {
                         try
                         {
-                            this.Installers[num3].Rollback(array[num3]);
+                            Installers[num3].Rollback(array[num3]);
                         }
                         catch (Exception ex3)
                         {
-                            if (!this.IsWrappedException(ex3))
+                            if (!IsWrappedException(ex3))
                             {
-                                this.Context.LogMessage(Res.GetString("InstallLogRollbackException", this.Installers[num3].ToString()));
-                                Installer.LogException(ex3, this.Context);
-                                this.Context.LogMessage(Res.GetString("InstallRollbackException"));
+                                Context.LogMessage(Res.GetString("InstallLogRollbackException", Installers[num3].ToString()));
+                                Installer.LogException(ex3, Context);
+                                Context.LogMessage(Res.GetString("InstallRollbackException"));
                             }
                             ex = ex3;
                         }
                     }
                     try
                     {
-                        this.OnAfterRollback(savedState);
+                        OnAfterRollback(savedState);
                     }
                     catch (Exception ex4)
                     {
-                        this.WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnAfterRollback", ex4);
-                        this.Context.LogMessage(Res.GetString("InstallRollbackException"));
+                        WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnAfterRollback", ex4);
+                        Context.LogMessage(Res.GetString("InstallRollbackException"));
                         ex = ex4;
                     }
                     if (ex == null)
                     {
                         return;
                     }
-                    Exception ex5 = ex;
-                    if (!this.IsWrappedException(ex))
+                    var ex5 = ex;
+                    if (!IsWrappedException(ex))
                     {
-                        ex5 = new InstallException(Res.GetString("InstallRollbackException"), ex);
-                        ex5.Source = "WrappedExceptionSource";
+                        ex5 = new InstallException(Res.GetString("InstallRollbackException"), ex)
+                        {
+                            Source = "WrappedExceptionSource"
+                        };
                     }
                     throw ex5;
                 }
@@ -285,72 +283,74 @@ namespace System.Configuration.Install
             Exception ex = null;
             try
             {
-                this.OnBeforeUninstall(savedState);
+                OnBeforeUninstall(savedState);
             }
             catch (Exception ex2)
             {
-                this.WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnBeforeUninstall", ex2);
-                this.Context.LogMessage(Res.GetString("InstallUninstallException"));
+                WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnBeforeUninstall", ex2);
+                Context.LogMessage(Res.GetString("InstallUninstallException"));
                 ex = ex2;
             }
             IDictionary[] array;
             if (savedState != null)
             {
                 array = (IDictionary[])savedState["_reserved_nestedSavedStates"];
-                if (array != null && array.Length == this.Installers.Count)
+                if (array != null && array.Length == Installers.Count)
                 {
                     goto IL_0091;
                 }
                 throw new ArgumentException(Res.GetString("InstallDictionaryCorrupted", "savedState"));
             }
-            array = new IDictionary[this.Installers.Count];
+            array = new IDictionary[Installers.Count];
             goto IL_0091;
             IL_0091:
-            for (int num = this.Installers.Count - 1; num >= 0; num--)
+            for (var num = Installers.Count - 1; num >= 0; num--)
             {
-                this.Installers[num].Context = this.Context;
+                Installers[num].Context = Context;
             }
-            for (int num2 = this.Installers.Count - 1; num2 >= 0; num2--)
+            for (var num2 = Installers.Count - 1; num2 >= 0; num2--)
             {
                 try
                 {
-                    this.Installers[num2].Uninstall(array[num2]);
+                    Installers[num2].Uninstall(array[num2]);
                 }
                 catch (Exception ex3)
                 {
-                    if (!this.IsWrappedException(ex3))
+                    if (!IsWrappedException(ex3))
                     {
-                        this.Context.LogMessage(Res.GetString("InstallLogUninstallException", this.Installers[num2].ToString()));
-                        Installer.LogException(ex3, this.Context);
-                        this.Context.LogMessage(Res.GetString("InstallUninstallException"));
+                        Context.LogMessage(Res.GetString("InstallLogUninstallException", Installers[num2].ToString()));
+                        Installer.LogException(ex3, Context);
+                        Context.LogMessage(Res.GetString("InstallUninstallException"));
                     }
                     ex = ex3;
                 }
             }
             try
             {
-                this.OnAfterUninstall(savedState);
+                OnAfterUninstall(savedState);
             }
             catch (Exception ex4)
             {
-                this.WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnAfterUninstall", ex4);
-                this.Context.LogMessage(Res.GetString("InstallUninstallException"));
+                WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnAfterUninstall", ex4);
+                Context.LogMessage(Res.GetString("InstallUninstallException"));
                 ex = ex4;
             }
             if (ex == null)
             {
                 return;
             }
-            Exception ex5 = ex;
-            if (!this.IsWrappedException(ex))
+            var ex5 = ex;
+            if (!IsWrappedException(ex))
             {
-                ex5 = new InstallException(Res.GetString("InstallUninstallException"), ex);
-                ex5.Source = "WrappedExceptionSource";
+                ex5 = new InstallException(Res.GetString("InstallUninstallException"), ex)
+                {
+                    Source = "WrappedExceptionSource"
+                };
             }
             throw ex5;
         }
 
-#region Event Handlers
+        #region Event Handlers
 
         private InstallEventHandler afterCommitHandler;
         private InstallEventHandler afterInstallHandler;
@@ -365,11 +365,11 @@ namespace System.Configuration.Install
         {
             add
             {
-                this.afterCommitHandler = (InstallEventHandler)Delegate.Combine(this.afterCommitHandler, value);
+                afterCommitHandler = (InstallEventHandler)Delegate.Combine(afterCommitHandler, value);
             }
             remove
             {
-                this.afterCommitHandler = (InstallEventHandler)Delegate.Remove(this.afterCommitHandler, value);
+                afterCommitHandler = (InstallEventHandler)Delegate.Remove(afterCommitHandler, value);
             }
         }
 
@@ -378,11 +378,11 @@ namespace System.Configuration.Install
         {
             add
             {
-                this.afterInstallHandler = (InstallEventHandler)Delegate.Combine(this.afterInstallHandler, value);
+                afterInstallHandler = (InstallEventHandler)Delegate.Combine(afterInstallHandler, value);
             }
             remove
             {
-                this.afterInstallHandler = (InstallEventHandler)Delegate.Remove(this.afterInstallHandler, value);
+                afterInstallHandler = (InstallEventHandler)Delegate.Remove(afterInstallHandler, value);
             }
         }
 
@@ -391,11 +391,11 @@ namespace System.Configuration.Install
         {
             add
             {
-                this.afterRollbackHandler = (InstallEventHandler)Delegate.Combine(this.afterRollbackHandler, value);
+                afterRollbackHandler = (InstallEventHandler)Delegate.Combine(afterRollbackHandler, value);
             }
             remove
             {
-                this.afterRollbackHandler = (InstallEventHandler)Delegate.Remove(this.afterRollbackHandler, value);
+                afterRollbackHandler = (InstallEventHandler)Delegate.Remove(afterRollbackHandler, value);
             }
         }
 
@@ -404,11 +404,11 @@ namespace System.Configuration.Install
         {
             add
             {
-                this.afterUninstallHandler = (InstallEventHandler)Delegate.Combine(this.afterUninstallHandler, value);
+                afterUninstallHandler = (InstallEventHandler)Delegate.Combine(afterUninstallHandler, value);
             }
             remove
             {
-                this.afterUninstallHandler = (InstallEventHandler)Delegate.Remove(this.afterUninstallHandler, value);
+                afterUninstallHandler = (InstallEventHandler)Delegate.Remove(afterUninstallHandler, value);
             }
         }
 
@@ -417,11 +417,11 @@ namespace System.Configuration.Install
         {
             add
             {
-                this.beforeCommitHandler = (InstallEventHandler)Delegate.Combine(this.beforeCommitHandler, value);
+                beforeCommitHandler = (InstallEventHandler)Delegate.Combine(beforeCommitHandler, value);
             }
             remove
             {
-                this.beforeCommitHandler = (InstallEventHandler)Delegate.Remove(this.beforeCommitHandler, value);
+                beforeCommitHandler = (InstallEventHandler)Delegate.Remove(beforeCommitHandler, value);
             }
         }
 
@@ -430,11 +430,11 @@ namespace System.Configuration.Install
         {
             add
             {
-                this.beforeInstallHandler = (InstallEventHandler)Delegate.Combine(this.beforeInstallHandler, value);
+                beforeInstallHandler = (InstallEventHandler)Delegate.Combine(beforeInstallHandler, value);
             }
             remove
             {
-                this.beforeInstallHandler = (InstallEventHandler)Delegate.Remove(this.beforeInstallHandler, value);
+                beforeInstallHandler = (InstallEventHandler)Delegate.Remove(beforeInstallHandler, value);
             }
         }
 
@@ -443,11 +443,11 @@ namespace System.Configuration.Install
         {
             add
             {
-                this.beforeRollbackHandler = (InstallEventHandler)Delegate.Combine(this.beforeRollbackHandler, value);
+                beforeRollbackHandler = (InstallEventHandler)Delegate.Combine(beforeRollbackHandler, value);
             }
             remove
             {
-                this.beforeRollbackHandler = (InstallEventHandler)Delegate.Remove(this.beforeRollbackHandler, value);
+                beforeRollbackHandler = (InstallEventHandler)Delegate.Remove(beforeRollbackHandler, value);
             }
         }
 
@@ -456,77 +456,53 @@ namespace System.Configuration.Install
         {
             add
             {
-                this.beforeUninstallHandler = (InstallEventHandler)Delegate.Combine(this.beforeUninstallHandler, value);
+                beforeUninstallHandler = (InstallEventHandler)Delegate.Combine(beforeUninstallHandler, value);
             }
             remove
             {
-                this.beforeUninstallHandler = (InstallEventHandler)Delegate.Remove(this.beforeUninstallHandler, value);
+                beforeUninstallHandler = (InstallEventHandler)Delegate.Remove(beforeUninstallHandler, value);
             }
         }
-        protected virtual void OnCommitted(IDictionary savedState)
-        {
-            this.afterCommitHandler?.Invoke(this, new InstallEventArgs(savedState));
-        }
+        protected virtual void OnCommitted(IDictionary savedState) => afterCommitHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.AfterInstall" /> event.</summary>
         /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer after all the installers contained in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property have completed their installations. </param>
-        protected virtual void OnAfterInstall(IDictionary savedState)
-        {
-            this.afterInstallHandler?.Invoke(this, new InstallEventArgs(savedState));
-        }
+        protected virtual void OnAfterInstall(IDictionary savedState) => afterInstallHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.AfterRollback" /> event.</summary>
         /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer after the installers contained in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are rolled back. </param>
-        protected virtual void OnAfterRollback(IDictionary savedState)
-        {
-            this.afterRollbackHandler?.Invoke(this, new InstallEventArgs(savedState));
-        }
+        protected virtual void OnAfterRollback(IDictionary savedState) => afterRollbackHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.AfterUninstall" /> event.</summary>
         /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer after all the installers contained in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are uninstalled. </param>
-        protected virtual void OnAfterUninstall(IDictionary savedState)
-        {
-            this.afterUninstallHandler?.Invoke(this, new InstallEventArgs(savedState));
-        }
+        protected virtual void OnAfterUninstall(IDictionary savedState) => afterUninstallHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.Committing" /> event.</summary>
         /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are committed. </param>
-        protected virtual void OnCommitting(IDictionary savedState)
-        {
-            this.beforeCommitHandler?.Invoke(this, new InstallEventArgs(savedState));
-        }
+        protected virtual void OnCommitting(IDictionary savedState) => beforeCommitHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.BeforeInstall" /> event.</summary>
         /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are installed. This <see cref="T:System.Collections.IDictionary" /> object should be empty at this point. </param>
-        protected virtual void OnBeforeInstall(IDictionary savedState)
-        {
-            this.beforeInstallHandler?.Invoke(this, new InstallEventArgs(savedState));
-        }
+        protected virtual void OnBeforeInstall(IDictionary savedState) => beforeInstallHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.BeforeRollback" /> event.</summary>
         /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are rolled back. </param>
-        protected virtual void OnBeforeRollback(IDictionary savedState)
-        {
-            this.beforeRollbackHandler?.Invoke(this, new InstallEventArgs(savedState));
-        }
+        protected virtual void OnBeforeRollback(IDictionary savedState) => beforeRollbackHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.BeforeUninstall" /> event.</summary>
         /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property uninstall their installations. </param>
-        protected virtual void OnBeforeUninstall(IDictionary savedState)
-        {
-            this.beforeUninstallHandler?.Invoke(this, new InstallEventArgs(savedState));
-        }
-#endregion
+        protected virtual void OnBeforeUninstall(IDictionary savedState) => beforeUninstallHandler?.Invoke(this, new InstallEventArgs(savedState));
+        #endregion
 
         private void WriteEventHandlerError(string severity, string eventName, Exception e)
         {
-            this.Context.LogMessage(Res.GetString("InstallLogError", severity, eventName, base.GetType().FullName));
-            Installer.LogException(e, this.Context);
+            Context.LogMessage(Res.GetString("InstallLogError", severity, eventName, base.GetType().FullName));
+            Installer.LogException(e, Context);
         }
 
         internal static void LogException(Exception e, InstallContext context)
         {
-            bool flag = true;
+            var flag = true;
             while (e != null)
             {
                 if (flag)
@@ -557,11 +533,11 @@ namespace System.Configuration.Install
 
         internal bool InstallerTreeContains(Installer target)
         {
-            if (this.Installers.Contains(target))
+            if (Installers.Contains(target))
             {
                 return true;
             }
-            foreach (Installer installer in this.Installers)
+            foreach (var installer in Installers)
             {
                 if (installer.InstallerTreeContains(target))
                 {

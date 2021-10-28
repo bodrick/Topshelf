@@ -3,25 +3,17 @@
 
   <PropertyGroup>
     <Product>Topshelf</Product>
-    <Copyright>Copyright 2007-2018 Chris Patterson, Dru Sellers, Travis Smith, et. al.</Copyright>
+    <CurrentYear>$([System.DateTime]::Now.ToString(yyyy))</CurrentYear>
+    <Copyright>Copyright 2007-$(CurrentYear) Chris Patterson, Dru Sellers, Travis Smith, et. al.</Copyright>
     <Authors>Chris Patterson;Dru Sellers;Travis Smith</Authors>
     <LangVersion>latest</LangVersion>
+    <Features>strict</Features>
+    <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <WarningLevel>4</WarningLevel>
-    <NoWarn>CS1587,CS1591,CS1998,CS0675,CS1998,CS3008,CS3001,NU5105</NoWarn>
+    <!-- <NoWarn>CS1587,CS1591,CS1998,CS0675,CS1998,CS3008,CS3001,NU5105</NoWarn> -->
     <DebugSymbols>True</DebugSymbols>
     <DebugType>portable</DebugType>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugType>full</DebugType>
-    <DefineConstants>DEBUG;TRACE;$(DefineConstants)</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <Optimize>true</Optimize>
-    <DefineConstants>TRACE;$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(MSBuildProjectName.Contains(Tests))' == false">

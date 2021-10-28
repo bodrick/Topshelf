@@ -11,9 +11,9 @@ namespace System.Configuration.Install
         {
             get
             {
-                if (!this.replaced)
+                if (!replaced)
                 {
-                    this.replaced = true;
+                    replaced = true;
                     base.DescriptionValue = Res.GetString(base.Description);
                 }
                 return base.Description;

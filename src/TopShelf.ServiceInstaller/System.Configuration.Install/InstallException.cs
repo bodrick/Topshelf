@@ -5,10 +5,7 @@ namespace System.Configuration.Install
     [Serializable]
     internal class InstallException : SystemException
     {
-        public InstallException()
-        {
-            base.HResult = -2146232057;
-        }
+        public InstallException() => base.HResult = -2146232057;
 
         public InstallException(string message) : base(message)
         {

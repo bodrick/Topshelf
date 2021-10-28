@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace System.Configuration.Install
 {
     public class InstallContext
     {
-        private StringDictionary parameters;
-
-        public StringDictionary Parameters => this.parameters;
+        private readonly StringDictionary parameters;
 
         public InstallContext() : this(null, null)
         {
@@ -21,16 +15,18 @@ namespace System.Configuration.Install
 
         public InstallContext(string logFilePath, string[] commandLine)
         {
-            this.parameters = InstallContext.ParseCommandLine(commandLine);
-            if (this.Parameters["logfile"] == null && logFilePath != null)
+            parameters = InstallContext.ParseCommandLine(commandLine);
+            if (Parameters["logfile"] == null && logFilePath != null)
             {
-                this.Parameters["logfile"] = logFilePath;
+                Parameters["logfile"] = logFilePath;
             }
         }
 
+        public StringDictionary Parameters => parameters;
+
         public bool IsParameterTrue(string paramName)
         {
-            string text = this.Parameters[paramName.ToLower(CultureInfo.InvariantCulture)];
+            var text = Parameters[paramName.ToLower(CultureInfo.InvariantCulture)];
             if (text == null)
             {
                 return false;
@@ -49,21 +45,21 @@ namespace System.Configuration.Install
         {
             try
             {
-                this.LogMessageHelper(message);
+                LogMessageHelper(message);
             }
             catch (Exception)
             {
                 try
                 {
-                    this.Parameters["logfile"] = Path.Combine(Path.GetTempPath(), Path.GetFileName(this.Parameters["logfile"]));
-                    this.LogMessageHelper(message);
+                    Parameters["logfile"] = Path.Combine(Path.GetTempPath(), Path.GetFileName(Parameters["logfile"]));
+                    LogMessageHelper(message);
                 }
                 catch (Exception)
                 {
-                    this.Parameters["logfile"] = null;
+                    Parameters["logfile"] = null;
                 }
             }
-            if (!this.IsParameterTrue("LogToConsole") && this.Parameters["logtoconsole"] != null)
+            if (!IsParameterTrue("LogToConsole") && Parameters["logtoconsole"] != null)
             {
                 return;
             }
@@ -75,9 +71,9 @@ namespace System.Configuration.Install
             StreamWriter streamWriter = null;
             try
             {
-                if (!string.IsNullOrEmpty(this.Parameters["logfile"]))
+                if (!string.IsNullOrEmpty(Parameters["logfile"]))
                 {
-                    streamWriter = new StreamWriter(this.Parameters["logfile"], true, Encoding.UTF8);
+                    streamWriter = new StreamWriter(Parameters["logfile"], true, Encoding.UTF8);
                     streamWriter.WriteLine(message);
                 }
             }
@@ -92,18 +88,18 @@ namespace System.Configuration.Install
 
         protected static StringDictionary ParseCommandLine(string[] args)
         {
-            StringDictionary stringDictionary = new StringDictionary();
+            var stringDictionary = new StringDictionary();
             if (args == null)
             {
                 return stringDictionary;
             }
-            for (int i = 0; i < args.Length; i++)
+            for (var i = 0; i < args.Length; i++)
             {
                 if (args[i].StartsWith("/", StringComparison.Ordinal) || args[i].StartsWith("-", StringComparison.Ordinal))
                 {
                     args[i] = args[i].Substring(1);
                 }
-                int num = args[i].IndexOf('=');
+                var num = args[i].IndexOf('=');
                 if (num < 0)
                 {
                     stringDictionary[args[i].ToLower(CultureInfo.InvariantCulture)] = "";

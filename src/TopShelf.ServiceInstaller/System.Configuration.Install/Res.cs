@@ -1,7 +1,6 @@
 ﻿namespace System.Configuration.Install
 {
     // System.Configuration.Install.Res
-    using System.Configuration.Install;
     using System.Globalization;
     using System.Resources;
     using System.Threading;
@@ -200,52 +199,37 @@
 
         private static Res loader;
 
-        private ResourceManager resources;
+        private readonly ResourceManager resources;
 
-        private static CultureInfo Culture
-        {
-            get
-            {
-                return null;
-            }
-        }
+        private static CultureInfo Culture => null;
 
-        public static ResourceManager Resources
-        {
-            get
-            {
-                return Res.GetLoader().resources;
-            }
-        }
+        public static ResourceManager Resources => Res.GetLoader().resources;
 
-        internal Res()
-        {
-            this.resources = new ResourceManager("System.Configuration.Install", base.GetType().Assembly);
-        }
+        internal Res() => resources = new ResourceManager("System.Configuration.Install", base.GetType().Assembly);
 
         private static Res GetLoader()
         {
             if (Res.loader == null)
             {
-                Res value = new Res();
-                Interlocked.CompareExchange<Res>(ref Res.loader, value, (Res)null);
+                var value = new Res();
+                Interlocked.CompareExchange<Res>(ref Res.loader, value, null);
             }
             return Res.loader;
         }
 
         public static string GetString(string name, params object[] args)
         {
-            Res res = Res.GetLoader();
+            var res = Res.GetLoader();
             if (res == null)
             {
                 return null;
             }
-            string @string = res.resources.GetString(name, Res.Culture);
+            var @string = res.resources.GetString(name, Res.Culture);
             if (args != null && args.Length != 0)
             {
-                for (int i = 0; i < args.Length; i++)
+                for (var i = 0; i < args.Length; i++)
                 {
-                    string text = args[i] as string;
+                    var text = args[i] as string;
                     if (text != null && text.Length > 1024)
                     {
                         args[i] = text.Substring(0, 1021) + "...";
@@ -258,7 +242,7 @@
 
         public static string GetString(string name)
         {
-            Res res = Res.GetLoader();
+            var res = Res.GetLoader();
             if (res == null)
             {
                 return null;
@@ -274,7 +258,7 @@
 
         public static object GetObject(string name)
         {
-            Res res = Res.GetLoader();
+            var res = Res.GetLoader();
             if (res == null)
             {
                 return null;

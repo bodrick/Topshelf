@@ -6,10 +6,7 @@ namespace System.Configuration.Install
     {
         private readonly Installer owner;
 
-        internal InstallerCollection(Installer owner)
-        {
-            this.owner = owner;
-        }
+        internal InstallerCollection(Installer owner) => this.owner = owner;
 
         public void AddRange(IEnumerable<Installer> value)
         {
@@ -17,20 +14,20 @@ namespace System.Configuration.Install
             {
                 throw new ArgumentNullException("value");
             }
-            foreach(var item in value)
+            foreach (var item in value)
             {
-                this.Add(item);
+                Add(item);
             }
         }
 
         protected override void InsertItem(int index, Installer item)
         {
-            if (item == this.owner)
+            if (item == owner)
             {
                 throw new ArgumentException(Res.GetString("CantAddSelf"));
             }
 
-            item.parent = this.owner;
+            item.parent = owner;
             base.InsertItem(index, item);
         }
 
@@ -42,7 +39,7 @@ namespace System.Configuration.Install
 
         protected override void SetItem(int index, Installer item)
         {
-            if (item == this.owner)
+            if (item == owner)
             {
                 throw new ArgumentException(Res.GetString("CantAddSelf"));
             }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace System.Configuration.Install
 {
@@ -16,9 +11,6 @@ namespace System.Configuration.Install
         /// <summary>Determines if the specified installer installs the same object as this installer.</summary>
         /// <returns>true if this installer and the installer specified by the <paramref name="otherInstaller" /> parameter install the same object; otherwise, false.</returns>
         /// <param name="otherInstaller">The installer to compare. </param>
-        public virtual bool IsEquivalentInstaller(ComponentInstaller otherInstaller)
-        {
-            return false;
-        }
+        public virtual bool IsEquivalentInstaller(ComponentInstaller otherInstaller) => false;
     }
 }

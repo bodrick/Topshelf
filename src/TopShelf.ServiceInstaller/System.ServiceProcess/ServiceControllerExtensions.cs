@@ -1,9 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace System.ServiceProcess
 {
     public static class ServiceControllerExtensions
@@ -14,12 +8,11 @@ namespace System.ServiceProcess
             {
                 return false;
             }
-            if (serviceName.Length <= 80 && serviceName.Length != 0)
+            if (serviceName.Length is <= 80 and not 0)
             {
-                char[] array = serviceName.ToCharArray();
-                foreach (char c in array)
+                foreach (var c in serviceName)
                 {
-                    if (c == '\\' || c == '/')
+                    if (c is '\\' or '/')
                     {
                         return false;
                     }

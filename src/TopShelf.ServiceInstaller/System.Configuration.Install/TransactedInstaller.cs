@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections;
 
 namespace System.Configuration.Install
 {
@@ -18,7 +13,7 @@ namespace System.Configuration.Install
             base.Context.LogMessage(Environment.NewLine + Res.GetString("InstallInfoTransacted"));
             try
             {
-                bool flag = true;
+                var flag = true;
                 try
                 {
                     base.Context.LogMessage(Environment.NewLine + Res.GetString("InstallInfoBeginInstall"));
@@ -32,7 +27,7 @@ namespace System.Configuration.Install
                     base.Context.LogMessage(Environment.NewLine + Res.GetString("InstallInfoBeginRollback"));
                     try
                     {
-                        this.Rollback(savedState);
+                        Rollback(savedState);
                     }
                     catch (Exception)
                     {
@@ -45,7 +40,7 @@ namespace System.Configuration.Install
                     base.Context.LogMessage(Environment.NewLine + Res.GetString("InstallInfoBeginCommit"));
                     try
                     {
-                        this.Commit(savedState);
+                        Commit(savedState);
                     }
                     finally
                     {

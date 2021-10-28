@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace System.Configuration.Install
 {
@@ -16,11 +11,11 @@ namespace System.Configuration.Install
 
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            StandardValuesCollection standardValues = base.GetStandardValues(context);
-            object instance = context.Instance;
-            int i = 0;
-            int num = 0;
-            object[] array = new object[standardValues.Count - 1];
+            var standardValues = base.GetStandardValues(context);
+            var instance = context.Instance;
+            var i = 0;
+            var num = 0;
+            var array = new object[standardValues.Count - 1];
             for (; i < standardValues.Count; i++)
             {
                 if (standardValues[i] != instance)
