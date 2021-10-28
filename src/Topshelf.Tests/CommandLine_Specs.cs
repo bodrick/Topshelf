@@ -1,29 +1,29 @@
-﻿// Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+// Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using NUnit.Framework;
+using Topshelf.Hosts;
+using Topshelf.Runtime;
+
 namespace Topshelf.Tests
 {
-    using System;
-    using Hosts;
-    using NUnit.Framework;
-    using Runtime;
-
     [TestFixture]
     public class Passing_install
     {
         [Test]
         public void Should_create_an_install_host()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyCommandLine("install");
@@ -31,10 +31,11 @@ namespace Topshelf.Tests
 
             Assert.IsInstanceOf<InstallHost>(host);
         }
+
         [Test]
         public void Should_create_an_install_host_without_being_case_sensitive()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("Install");
@@ -42,6 +43,7 @@ namespace Topshelf.Tests
 
             Assert.IsInstanceOf<InstallHost>(host);
         }
+
         [Test]
         public void Should_throw_an_exception_on_an_invalid_command_line()
         {
@@ -52,7 +54,6 @@ namespace Topshelf.Tests
                         x.Service<MyService>();
                         x.ApplyCommandLine("explode");
                     });
-                    
                 });
 
             Assert.IsTrue(exception.Message.Contains("explode"));
@@ -61,7 +62,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_an_install_host_with_service_name()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyCommandLine("install -servicename \"Joe\"");
@@ -76,7 +77,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_an_install_host_with_service_name_no_quotes()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("install -servicename Joe");
@@ -91,7 +92,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_an_install_host_with_display_name()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyCommandLine("install -displayname \"Joe\"");
@@ -105,7 +106,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_an_install_host_with_display_name_and_instance_name()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("install -displayname \"Joe\" -instance \"42\"");
@@ -119,7 +120,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_an_install_host_with_display_name_and_instance_name_no_quotes()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("install -displayname Joe -instance 42");
@@ -133,7 +134,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_an_install_host_with_display_name_with_instance_name()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("install -displayname \"Joe (Instance: 42)\" -instance \"42\"");
@@ -147,7 +148,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_an_install_host_with_display_name_with_instance_name_no_quotes()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("install -displayname \"Joe (Instance: 42)\" -instance 42");
@@ -161,7 +162,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_an_install_host_with_description()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyCommandLine("install -description \"Joe is good\"");
@@ -175,7 +176,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_an_install_host_with_service_name_and_instance_name()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("install -servicename \"Joe\" -instance \"42\"");
@@ -191,7 +192,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_an_install_host_with_service_name_and_instance_name_no_quotes()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("install -servicename Joe -instance 42");
@@ -207,7 +208,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_and_install_host_with_service_name_containing_space()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("install -servicename \"Joe's Service\" -instance \"42\"");
@@ -223,7 +224,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_an_install_host_to_start_automatically()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("install --autostart");
@@ -237,7 +238,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_an_install_host_to_start_manually()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("install --manual");
@@ -251,7 +252,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_an_install_host_to_start_manually_without_being_case_sensitive()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("InstAll --ManuAl");
@@ -265,7 +266,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_an_install_host_to_set_disabled()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("install --disabled");
@@ -277,10 +278,11 @@ namespace Topshelf.Tests
         }
 
 #if !NET35
+
         [Test]
         public void Should_create_an_install_host_to_start_delayed()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("install --delayed");
@@ -290,11 +292,13 @@ namespace Topshelf.Tests
             var installHost = (InstallHost)host;
             Assert.AreEqual(HostStartMode.AutomaticDelayed, installHost.InstallSettings.StartMode);
         }
+
 #endif
+
         [Test]
         public void Should_create_an_uninstall_host()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("uninstall");
@@ -306,7 +310,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_a_start_host()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("start");
@@ -318,7 +322,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_create_a_stop_host()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
                 x.ApplyCommandLine("stop");
@@ -330,9 +334,9 @@ namespace Topshelf.Tests
         [Test]
         public void Extensible_the_command_line_should_be_yes()
         {
-            bool isSuperfly = false;
-            
-            Host host = HostFactory.New(x =>
+            var isSuperfly = false;
+
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
 
@@ -348,8 +352,8 @@ namespace Topshelf.Tests
         public void Need_to_handle_crazy_special_characters_in_arguments()
         {
             string password = null;
-            
-            Host host = HostFactory.New(x =>
+
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
 
@@ -365,8 +369,8 @@ namespace Topshelf.Tests
         public void Need_to_handle_crazy_special_characters_in_argument()
         {
             string password = null;
-            
-            Host host = HostFactory.New(x =>
+
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
 
@@ -383,7 +387,7 @@ namespace Topshelf.Tests
         {
             string password = null;
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
             {
                 x.Service<MyService>();
 
@@ -399,8 +403,8 @@ namespace Topshelf.Tests
         public void Extensible_the_command_line_should_be_yet_again()
         {
             string volumeLevel = null;
-            
-            Host host = HostFactory.New(x =>
+
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
 
@@ -413,22 +417,19 @@ namespace Topshelf.Tests
         }
 
         [Test]
-        public void Should_require_password_option_when_specifying_username()
-        {
-            Assert.Throws<Topshelf.HostConfigurationException>(() =>
-            {
-                Host host = HostFactory.New(x =>
-                {
-                    x.Service<MyService>();
-                    x.ApplyCommandLine("install -username \"Joe\"");
-                });
-            });
-        }
+        public void Should_require_password_option_when_specifying_username() => Assert.Throws<Topshelf.HostConfigurationException>(() =>
+                                                                               {
+                                                                                   var host = HostFactory.New(x =>
+                                                                                   {
+                                                                                       x.Service<MyService>();
+                                                                                       x.ApplyCommandLine("install -username \"Joe\"");
+                                                                                   });
+                                                                               });
 
         [Test]
         public void Will_allow_blank_password_when_specifying_username()
         {
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyCommandLine("install -username \"Joe\" -password \"\"");
@@ -440,27 +441,15 @@ namespace Topshelf.Tests
             Assert.AreEqual("", installHost.InstallSettings.Credentials.Password);
         }
 
-        class MyService : ServiceControl
+        private class MyService : ServiceControl
         {
-            public bool Start(HostControl hostControl)
-            {
-                throw new NotImplementedException();
-            }
+            public bool Start(HostControl hostControl) => throw new NotImplementedException();
 
-            public bool Stop(HostControl hostControl)
-            {
-                throw new NotImplementedException();
-            }
+            public bool Stop(HostControl hostControl) => throw new NotImplementedException();
 
-            public bool Pause(HostControl hostControl)
-            {
-                throw new NotImplementedException();
-            }
+            public bool Pause(HostControl hostControl) => throw new NotImplementedException();
 
-            public bool Continue(HostControl hostControl)
-            {
-                throw new NotImplementedException();
-            }
+            public bool Continue(HostControl hostControl) => throw new NotImplementedException();
         }
     }
 }

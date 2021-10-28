@@ -1,17 +1,27 @@
+using System;
+using System.Collections.Generic;
+
 namespace Topshelf.Caching
 {
-    using System;
-    using System.Collections.Generic;
-
     /// <summary>
     /// A cache implementation that extends the capability of most dictionary style classes to
     /// have a more complete set of methods commonly used in a dictionary scenario.
     /// </summary>
     /// <typeparam name="TKey">The key type of the cache</typeparam>
     /// <typeparam name="TValue">The value type of the cache</typeparam>
-    interface Cache<TKey, TValue> :
+    internal interface Cache<TKey, TValue> :
         ReadCache<TKey, TValue>
     {
+        /// <summary>
+        /// Sets the callback that is called when a duplicate value is added to the cache
+        /// </summary>
+        CacheItemCallback<TKey, TValue> DuplicateValueAdded { set; }
+
+        /// <summary>
+        /// Specifies a selector that returns the key from a value which is used when a value is added to the cache
+        /// </summary>
+        KeySelector<TKey, TValue> KeySelector { set; }
+
         /// <summary>
         /// Sets the missing value provider used by the cache to create requested values that do not exist in the cache
         /// </summary>
@@ -28,22 +38,37 @@ namespace Topshelf.Caching
         CacheItemCallback<TKey, TValue> ValueRemovedCallback { set; }
 
         /// <summary>
-        /// Sets the callback that is called when a duplicate value is added to the cache
-        /// </summary>
-        CacheItemCallback<TKey, TValue> DuplicateValueAdded { set; }
-
-        /// <summary>
-        /// Specifies a selector that returns the key from a value which is used when a value is added to the cache
-        /// </summary>
-        KeySelector<TKey, TValue> KeySelector { set; }
-
-        /// <summary>
         /// References a value in the cache, returning a newly created or existing value for the specified key, and
         /// adding a new or replacing an existing value in the cache
         /// </summary>
         /// <param name="key">The key references the value</param>
         /// <returns>The value from the cache</returns>
         TValue this[TKey key] { get; set; }
+
+        /// <summary>
+        /// Adds a value to the cache using the specified key. If the key already exists in the cache, an exception is thrown.
+        /// </summary>
+        /// <param name="key">The key referencing the value</param>
+        /// <param name="value">The value</param>
+        void Add(TKey key, TValue value);
+
+        /// <summary>
+        /// Adds a value to the cache using the KeySelector to extract the key from the value. If the key already exists
+        /// in the cache, an exception is thrown.
+        /// </summary>
+        /// <param name="value">The value</param>
+        void AddValue(TValue value);
+
+        /// <summary>
+        /// Removes all items from the cache
+        /// </summary>
+        void Clear();
+
+        /// <summary>
+        /// Fills the cache from a list of values, using the KeySelector to extract the key for each value.
+        /// </summary>
+        /// <param name="values"></param>
+        void Fill(IEnumerable<TValue> values);
 
         /// <summary>
         /// Get the value for the specified key
@@ -77,28 +102,6 @@ namespace Topshelf.Caching
         TValue GetValue(TKey key, Func<TValue> defaultValueProvider);
 
         /// <summary>
-        /// Gets a value for the specified key if it exists
-        /// </summary>
-        /// <param name="key">The key referencing the value in the cache</param>
-        /// <param name="value">The value if it exists in the cache, otherwise the default value</param>
-        /// <returns>True if the item was in the cache, otherwise false</returns>
-        bool TryGetValue(TKey key, out TValue value);
-
-        /// <summary>
-        /// Adds a value to the cache using the specified key. If the key already exists in the cache, an exception is thrown.
-        /// </summary>
-        /// <param name="key">The key referencing the value</param>
-        /// <param name="value">The value</param>
-        void Add(TKey key, TValue value);
-
-        /// <summary>
-        /// Adds a value to the cache using the KeySelector to extract the key from the value. If the key already exists
-        /// in the cache, an exception is thrown.
-        /// </summary>
-        /// <param name="value">The value</param>
-        void AddValue(TValue value);
-
-        /// <summary>
         /// Remove an existing value from the cache
         /// </summary>
         /// <param name="key">The key referencing the value</param>
@@ -111,15 +114,12 @@ namespace Topshelf.Caching
         void RemoveValue(TValue value);
 
         /// <summary>
-        /// Removes all items from the cache
+        /// Gets a value for the specified key if it exists
         /// </summary>
-        void Clear();
-
-        /// <summary>
-        /// Fills the cache from a list of values, using the KeySelector to extract the key for each value.
-        /// </summary>
-        /// <param name="values"></param>
-        void Fill(IEnumerable<TValue> values);
+        /// <param name="key">The key referencing the value in the cache</param>
+        /// <param name="value">The value if it exists in the cache, otherwise the default value</param>
+        /// <returns>True if the item was in the cache, otherwise false</returns>
+        bool TryGetValue(TKey key, out TValue value);
 
         /// <summary>
         /// Calls the callback with the value matching the specified key

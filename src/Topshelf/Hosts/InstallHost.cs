@@ -1,37 +1,35 @@
 // Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Topshelf.Logging;
+using Topshelf.Runtime;
+
 namespace Topshelf.Hosts
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.ServiceProcess;
-    using Logging;
-    using Runtime;
-
     public class InstallHost :
         Host
     {
-        static readonly LogWriter _log = HostLogger.Get<InstallHost>();
-
-        readonly HostEnvironment _environment;
-        readonly InstallHostSettings _installSettings;
-        readonly IEnumerable<Action<InstallHostSettings>> _postActions;
-        readonly IEnumerable<Action<InstallHostSettings>> _preActions;
-        readonly IEnumerable<Action<InstallHostSettings>> _postRollbackActions;
-        readonly IEnumerable<Action<InstallHostSettings>> _preRollbackActions;
-        readonly HostSettings _settings;
-        readonly bool _sudo;
+        private static readonly LogWriter _log = HostLogger.Get<InstallHost>();
+        private readonly HostEnvironment _environment;
+        private readonly InstallHostSettings _installSettings;
+        private readonly IEnumerable<Action<InstallHostSettings>> _postActions;
+        private readonly IEnumerable<Action<InstallHostSettings>> _postRollbackActions;
+        private readonly IEnumerable<Action<InstallHostSettings>> _preActions;
+        private readonly IEnumerable<Action<InstallHostSettings>> _preRollbackActions;
+        private readonly HostSettings _settings;
+        private readonly bool _sudo;
 
         public InstallHost(HostEnvironment environment, HostSettings settings, HostStartMode startMode,
             IEnumerable<string> dependencies,
@@ -53,15 +51,9 @@ namespace Topshelf.Hosts
             _sudo = sudo;
         }
 
-        public InstallHostSettings InstallSettings
-        {
-            get { return _installSettings; }
-        }
+        public InstallHostSettings InstallSettings => _installSettings;
 
-        public HostSettings Settings
-        {
-            get { return _settings; }
-        }
+        public HostSettings Settings => _settings;
 
         public TopshelfExitCode Run()
         {
@@ -76,7 +68,9 @@ namespace Topshelf.Hosts
                 if (_sudo)
                 {
                     if (_environment.RunAsAdministrator())
+                    {
                         return TopshelfExitCode.Ok;
+                    }
                 }
 
                 _log.ErrorFormat("The {0} service can only be installed as an administrator", _settings.ServiceName);
@@ -90,45 +84,45 @@ namespace Topshelf.Hosts
             return TopshelfExitCode.Ok;
         }
 
-        void ExecutePreActions(InstallHostSettings settings)
+        private void ExecutePostActions()
         {
-            foreach (Action<InstallHostSettings> action in _preActions)
+            foreach (var action in _postActions)
             {
                 action(_installSettings);
             }
         }
 
-        void ExecutePostActions()
+        private void ExecutePostRollbackActions()
         {
-            foreach (Action<InstallHostSettings> action in _postActions)
+            foreach (var action in _postRollbackActions)
             {
                 action(_installSettings);
             }
         }
 
-        void ExecutePreRollbackActions()
+        private void ExecutePreActions(InstallHostSettings settings)
         {
-            foreach (Action<InstallHostSettings> action in _preRollbackActions)
+            foreach (var action in _preActions)
             {
                 action(_installSettings);
             }
         }
 
-        void ExecutePostRollbackActions()
+        private void ExecutePreRollbackActions()
         {
-            foreach (Action<InstallHostSettings> action in _postRollbackActions)
+            foreach (var action in _preRollbackActions)
             {
                 action(_installSettings);
             }
         }
 
-        class InstallServiceSettingsImpl :
+        private class InstallServiceSettingsImpl :
             InstallHostSettings
         {
+            private readonly string[] _dependencies;
+            private readonly HostSettings _settings;
+            private readonly HostStartMode _startMode;
             private Credentials _credentials;
-            readonly string[] _dependencies;
-            readonly HostSettings _settings;
-            readonly HostStartMode _startMode;
 
             public InstallServiceSettingsImpl(HostSettings settings, Credentials credentials, HostStartMode startMode,
                 string[] dependencies)
@@ -139,94 +133,36 @@ namespace Topshelf.Hosts
                 _dependencies = dependencies;
             }
 
-            public string Name
-            {
-                get { return _settings.Name; }
-            }
-
-            public string DisplayName
-            {
-                get { return _settings.DisplayName; }
-            }
-
-            public string Description
-            {
-                get { return _settings.Description; }
-            }
-
-            public string InstanceName
-            {
-                get { return _settings.InstanceName; }
-            }
-
-            public string ServiceName
-            {
-                get { return _settings.ServiceName; }
-            }
-
-            public bool CanPauseAndContinue
-            {
-                get { return _settings.CanPauseAndContinue; }
-            }
-
-            public bool CanShutdown
-            {
-                get { return _settings.CanShutdown; }
-            }
-
-            public bool CanSessionChanged
-            {
-                get { return _settings.CanSessionChanged; }
-            }
+            public bool CanHandleCtrlBreak => _settings.CanHandleCtrlBreak;
 
             /// <summary>
             /// True if the service handles power change events
             /// </summary>
-            public bool CanHandlePowerEvent
-            {
-                get { return _settings.CanHandlePowerEvent; }
-            }
+            public bool CanHandlePowerEvent => _settings.CanHandlePowerEvent;
+
+            public bool CanPauseAndContinue => _settings.CanPauseAndContinue;
+            public bool CanSessionChanged => _settings.CanSessionChanged;
+            public bool CanShutdown => _settings.CanShutdown;
 
             public Credentials Credentials
             {
-                get { return _credentials; }
-                set { _credentials = value; }
+                get => _credentials;
+                set => _credentials = value;
             }
 
-            public string[] Dependencies
-            {
-                get { return _dependencies; }
-            }
+            public string[] Dependencies => _dependencies;
+            public string Description => _settings.Description;
+            public string DisplayName => _settings.DisplayName;
+            public Action<Exception> ExceptionCallback => _settings.ExceptionCallback;
+            public string InstanceName => _settings.InstanceName;
+            public string Name => _settings.Name;
+            public string ServiceName => _settings.ServiceName;
+            public HostStartMode StartMode => _startMode;
 
-            public HostStartMode StartMode
-            {
-                get { return _startMode; }
-            }
+            public TimeSpan StartTimeOut => _settings.StartTimeOut;
 
-            public TimeSpan StartTimeOut
-            {
-              get { return _settings.StartTimeOut; }
-            }
-            
-            public TimeSpan StopTimeOut
-            {
-              get { return _settings.StopTimeOut; }
-            }
-
-            public Action<Exception> ExceptionCallback
-            {
-                get { return _settings.ExceptionCallback; }
-            }
-
-            public UnhandledExceptionPolicyCode UnhandledExceptionPolicy
-            {
-              get { return _settings.UnhandledExceptionPolicy; }
-            }
-
-            public bool CanHandleCtrlBreak
-            {
-                get { return _settings.CanHandleCtrlBreak; }
-            }
+            public TimeSpan StopTimeOut => _settings.StopTimeOut;
+            public UnhandledExceptionPolicyCode UnhandledExceptionPolicy => _settings.UnhandledExceptionPolicy;
         }
     }
 }

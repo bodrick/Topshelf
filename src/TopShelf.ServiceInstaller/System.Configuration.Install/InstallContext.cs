@@ -7,22 +7,20 @@ namespace System.Configuration.Install
 {
     public class InstallContext
     {
-        private readonly StringDictionary parameters;
-
         public InstallContext() : this(null, null)
         {
         }
 
         public InstallContext(string logFilePath, string[] commandLine)
         {
-            parameters = InstallContext.ParseCommandLine(commandLine);
+            Parameters = ParseCommandLine(commandLine);
             if (Parameters["logfile"] == null && logFilePath != null)
             {
                 Parameters["logfile"] = logFilePath;
             }
         }
 
-        public StringDictionary Parameters => parameters;
+        public StringDictionary Parameters { get; }
 
         public bool IsParameterTrue(string paramName)
         {

@@ -109,29 +109,29 @@ namespace System.ServiceProcess
 
         private readonly ResourceManager resources;
 
-        internal Res() => resources = new ResourceManager("System.ServiceProcess", base.GetType().Assembly);
+        internal Res() => resources = new ResourceManager("System.ServiceProcess", GetType().Assembly);
 
-        public static ResourceManager Resources => Res.GetLoader().resources;
+        public static ResourceManager Resources => GetLoader().resources;
         private static CultureInfo Culture => null;
 
         public static object GetObject(string name)
         {
-            var res = Res.GetLoader();
+            var res = GetLoader();
             if (res == null)
             {
                 return null;
             }
-            return res.resources.GetObject(name, Res.Culture);
+            return res.resources.GetObject(name, Culture);
         }
 
         public static string GetString(string name, params object[] args)
         {
-            var res = Res.GetLoader();
+            var res = GetLoader();
             if (res == null)
             {
                 return null;
             }
-            var @string = res.resources.GetString(name, Res.Culture);
+            var @string = res.resources.GetString(name, Culture);
             if (args != null && args.Length != 0)
             {
                 for (var i = 0; i < args.Length; i++)
@@ -149,28 +149,28 @@ namespace System.ServiceProcess
 
         public static string GetString(string name)
         {
-            var res = Res.GetLoader();
+            var res = GetLoader();
             if (res == null)
             {
                 return null;
             }
-            return res.resources.GetString(name, Res.Culture);
+            return res.resources.GetString(name, Culture);
         }
 
         public static string GetString(string name, out bool usedFallback)
         {
             usedFallback = false;
-            return Res.GetString(name);
+            return GetString(name);
         }
 
         private static Res GetLoader()
         {
-            if (Res.loader == null)
+            if (loader == null)
             {
                 var value = new Res();
-                Interlocked.CompareExchange<Res>(ref Res.loader, value, null);
+                Interlocked.CompareExchange<Res>(ref loader, value, null);
             }
-            return Res.loader;
+            return loader;
         }
     }
 }

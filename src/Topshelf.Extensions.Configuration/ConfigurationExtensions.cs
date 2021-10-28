@@ -1,25 +1,25 @@
-﻿// Copyright 2007-2014 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+// Copyright 2007-2014 Chris Patterson, Dru Sellers, Travis Smith, et. al.
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using Microsoft.Extensions.Configuration;
+using Topshelf.HostConfigurators;
+using Topshelf.Options;
+using Topshelf.Runtime.Windows;
+
 namespace Topshelf.Configuration
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using Microsoft.Extensions.Configuration;
-    using Topshelf.HostConfigurators;
-    using Topshelf.Options;
-    using Topshelf.Runtime.Windows;
-
     /// <summary>
     /// Provides Topshelf extensions for Microsoft extensions for configuration.
     /// </summary>
@@ -44,6 +44,27 @@ namespace Topshelf.Configuration
 
             configurator.ApplyOptions(options);
         }
+
+        /// <summary>
+        /// Applies the configuration options.
+        /// </summary>
+        /// <param name="configurator">The host configurator.</param>
+        /// <param name="options">The configuration options.</param>
+        public static void ApplyOptions(this HostConfigurator configurator, IEnumerable<Option> options)
+        {
+            foreach (var option in options)
+            {
+                option.ApplyTo(configurator);
+            }
+        }
+
+        /// <summary>
+        /// Gets the default Topshelf configuration section.
+        /// </summary>
+        /// <param name="configuration">The configuration.</param>
+        /// <returns>The default Topshelf configuration section.</returns>
+        public static IConfigurationSection GetTopshelfSection(this IConfiguration configuration)
+            => configuration.GetSection("Topshelf");
 
         /// <summary>
         /// Parses the specified configuration.
@@ -186,6 +207,7 @@ namespace Topshelf.Configuration
                                         TimeSpan.FromMinutes(
                                             recoveryActionSecion.GetSection("Delay").Get<int>())));
                                 break;
+
                             case "RestartSystem":
                                 serviceRecoveryOptions.AddAction(
                                     new RestartSystemRecoveryAction(
@@ -193,6 +215,7 @@ namespace Topshelf.Configuration
                                             recoveryActionSecion.GetSection("Delay").Get<int>()),
                                             recoveryActionSecion.GetSection("Message").Value));
                                 break;
+
                             case "RunProgram":
                                 serviceRecoveryOptions.AddAction(
                                     new RunProgramRecoveryAction(
@@ -209,26 +232,5 @@ namespace Topshelf.Configuration
 
             return options;
         }
-
-        /// <summary>
-        /// Applies the configuration options.
-        /// </summary>
-        /// <param name="configurator">The host configurator.</param>
-        /// <param name="options">The configuration options.</param>
-        public static void ApplyOptions(this HostConfigurator configurator, IEnumerable<Option> options)
-        {
-            foreach (var option in options)
-            {
-                option.ApplyTo(configurator);
-            }
-        }
-
-        /// <summary>
-        /// Gets the default Topshelf configuration section.
-        /// </summary>
-        /// <param name="configuration">The configuration.</param>
-        /// <returns>The default Topshelf configuration section.</returns>
-        public static IConfigurationSection GetTopshelfSection(this IConfiguration configuration)
-            => configuration.GetSection("Topshelf");
     }
 }

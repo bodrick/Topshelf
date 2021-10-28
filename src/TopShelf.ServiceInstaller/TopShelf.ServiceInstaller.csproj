@@ -9,6 +9,7 @@
   <PropertyGroup>
     <PackageTags>Topshelf</PackageTags>
     <Description>$(Description)</Description>
+    <RootNamespace />
   </PropertyGroup>
 
   <ItemGroup>

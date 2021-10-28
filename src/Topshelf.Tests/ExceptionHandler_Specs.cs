@@ -1,26 +1,66 @@
-﻿// Copyright 2007-2013 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+// Copyright 2007-2013 Chris Patterson, Dru Sellers, Travis Smith, et. al.
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using NUnit.Framework;
+
 namespace Topshelf.Tests
 {
-    using System;
-    using NUnit.Framework;
-
-
     [TestFixture]
     public class Exception_callback
     {
         private static readonly string StartExceptionMessage = "Throw on Start Requested";
         private static readonly string StopExceptionMessage = "Throw on Stop Requested";
+
+        [Test]
+        public void Should_be_called_when_exception_thrown_in_construct_using()
+        {
+            var sawException = false;
+
+            var exitCode = HostFactory.Run(x =>
+            {
+                x.UseTestHost();
+
+                x.Service<ExceptionThrowingService>(s =>
+                {
+                    s.ConstructUsing(() => throw new Exception($"Unable to resolve {nameof(ExceptionThrowingService)} from DI container"));
+                    s.WhenStarted((es, hc) => true);
+                    s.WhenStopped((es, hc) => true);
+                });
+
+                x.OnException(_ => sawException = true);
+            });
+
+            Assert.IsTrue(sawException);
+            Assert.AreEqual(TopshelfExitCode.AbnormalExit, exitCode);
+        }
+
+        [Test]
+        public void Should_be_called_when_exception_thrown_in_constructor()
+        {
+            var sawException = false;
+
+            var exitCode = HostFactory.Run(x =>
+            {
+                x.UseTestHost();
+
+                x.Service<ServiceThrowingExceptionInConstructor>();
+
+                x.OnException(_ => sawException = true);
+            });
+
+            Assert.IsTrue(sawException);
+            Assert.AreEqual(TopshelfExitCode.AbnormalExit, exitCode);
+        }
 
         [Test]
         public void Should_be_called_when_exception_thrown_in_Start_method()
@@ -125,67 +165,15 @@ namespace Topshelf.Tests
             });
 
             Assert.AreEqual(TopshelfExitCode.ServiceControlRequestFailed, exitCode);
-
         }
-
-        [Test]
-        public void Should_be_called_when_exception_thrown_in_constructor()
-        {
-            var sawException = false;
-
-            var exitCode = HostFactory.Run(x =>
-            {
-                x.UseTestHost();
-
-                x.Service<ServiceThrowingExceptionInConstructor>();
-
-                x.OnException(_ => sawException = true);
-            });
-
-            Assert.IsTrue(sawException);
-            Assert.AreEqual(TopshelfExitCode.AbnormalExit, exitCode);
-        }
-
-        [Test]
-        public void Should_be_called_when_exception_thrown_in_construct_using()
-        {
-            var sawException = false;
-
-            var exitCode = HostFactory.Run(x =>
-            {
-                x.UseTestHost();
-
-                x.Service<ExceptionThrowingService>(s =>
-                {
-                    s.ConstructUsing(() => throw new Exception($"Unable to resolve {nameof(ExceptionThrowingService)} from DI container"));
-                    s.WhenStarted((es,hc) => true);
-                    s.WhenStopped((es, hc) => true);
-                });
-
-                x.OnException(_ => sawException = true);
-            });
-
-            Assert.IsTrue(sawException);
-            Assert.AreEqual(TopshelfExitCode.AbnormalExit, exitCode);
-        }
-
-        class ServiceThrowingExceptionInConstructor : ServiceControl
-        {
-            public ServiceThrowingExceptionInConstructor()
-                => throw new Exception("Exception from constructor");
-
-        public bool Start(HostControl hostControl) => true;
-
-        public bool Stop(HostControl hostControl) => true;
-    }
 
         /// <summary>
         /// A simple service that can be configured to throw exceptions while starting or stopping.
         /// </summary>
-        class ExceptionThrowingService : ServiceControl
+        private class ExceptionThrowingService : ServiceControl
         {
-            readonly bool _throwOnStart;
-            readonly bool _throwOnStop;
+            private readonly bool _throwOnStart;
+            private readonly bool _throwOnStop;
 
             public ExceptionThrowingService(bool throwOnStart, bool throwOnStop)
             {
@@ -212,6 +200,15 @@ namespace Topshelf.Tests
 
                 return true;
             }
+        }
+        private class ServiceThrowingExceptionInConstructor : ServiceControl
+        {
+            public ServiceThrowingExceptionInConstructor()
+                => throw new Exception("Exception from constructor");
+
+            public bool Start(HostControl hostControl) => true;
+
+            public bool Stop(HostControl hostControl) => true;
         }
     }
 }

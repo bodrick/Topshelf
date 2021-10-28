@@ -1,33 +1,31 @@
-﻿// Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+// Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using System.Collections.Generic;
+using Topshelf.Logging;
+using Topshelf.Runtime;
+
 namespace Topshelf.Hosts
 {
-    using System;
-    using System.Collections.Generic;
-    using Logging;
-    using Runtime;
-
     public class UninstallHost :
         Host
     {
-        static readonly LogWriter _log = HostLogger.Get<UninstallHost>();
-
-        readonly HostEnvironment _environment;
-        readonly IEnumerable<Action> _postActions;
-        readonly IEnumerable<Action> _preActions;
-        readonly HostSettings _settings;
-        readonly bool _sudo;
-
+        private static readonly LogWriter _log = HostLogger.Get<UninstallHost>();
+        private readonly HostEnvironment _environment;
+        private readonly IEnumerable<Action> _postActions;
+        private readonly IEnumerable<Action> _preActions;
+        private readonly HostSettings _settings;
+        private readonly bool _sudo;
 
         public UninstallHost(HostEnvironment environment, HostSettings settings, IEnumerable<Action> preActions,
             IEnumerable<Action> postActions,
@@ -53,7 +51,9 @@ namespace Topshelf.Hosts
                 if (_sudo)
                 {
                     if (_environment.RunAsAdministrator())
+                    {
                         return TopshelfExitCode.Ok;
+                    }
                 }
 
                 _log.ErrorFormat("The {0} service can only be uninstalled as an administrator", _settings.ServiceName);
@@ -67,17 +67,17 @@ namespace Topshelf.Hosts
             return TopshelfExitCode.Ok;
         }
 
-        void ExecutePreActions()
+        private void ExecutePostActions()
         {
-            foreach (Action action in _preActions)
+            foreach (var action in _postActions)
             {
                 action();
             }
         }
 
-        void ExecutePostActions()
+        private void ExecutePreActions()
         {
-            foreach (Action action in _postActions)
+            foreach (var action in _preActions)
             {
                 action();
             }

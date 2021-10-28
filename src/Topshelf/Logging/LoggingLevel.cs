@@ -1,20 +1,20 @@
 // Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System.Collections.Generic;
+using System.Diagnostics;
+
 namespace Topshelf.Logging
 {
-    using System.Collections.Generic;
-    using System.Diagnostics;
-
     public class LoggingLevel
     {
         public static readonly LoggingLevel All = new LoggingLevel("All", 6, SourceLevels.All, TraceEventType.Verbose);
@@ -27,13 +27,12 @@ namespace Topshelf.Logging
 
         public static readonly LoggingLevel None = new LoggingLevel("None", 0, SourceLevels.Off, TraceEventType.Critical);
         public static readonly LoggingLevel Warn = new LoggingLevel("Warn", 3, SourceLevels.Warning, TraceEventType.Warning);
+        private readonly int _index;
+        private readonly string _name;
+        private readonly SourceLevels _sourceLevel;
+        private readonly TraceEventType _traceEventType;
 
-        readonly int _index;
-        readonly string _name;
-        readonly SourceLevels _sourceLevel;
-        readonly TraceEventType _traceEventType;
-
-        LoggingLevel(string name, int index, SourceLevels sourceLevel, TraceEventType traceEventType)
+        private LoggingLevel(string name, int index, SourceLevels sourceLevel, TraceEventType traceEventType)
         {
             _name = name;
             _index = index;
@@ -55,45 +54,9 @@ namespace Topshelf.Logging
             }
         }
 
-        public TraceEventType TraceEventType
-        {
-            get { return _traceEventType; }
-        }
-
-        public string Name
-        {
-            get { return _name; }
-        }
-
-        public SourceLevels SourceLevel
-        {
-            get { return _sourceLevel; }
-        }
-
-        public override string ToString()
-        {
-            return _name;
-        }
-
-        public static bool operator >(LoggingLevel left, LoggingLevel right)
-        {
-            return right != null && (left != null && left._index > right._index);
-        }
-
-        public static bool operator <(LoggingLevel left, LoggingLevel right)
-        {
-            return right != null && (left != null && left._index < right._index);
-        }
-
-        public static bool operator >=(LoggingLevel left, LoggingLevel right)
-        {
-            return right != null && (left != null && left._index >= right._index);
-        }
-
-        public static bool operator <=(LoggingLevel left, LoggingLevel right)
-        {
-            return right != null && (left != null && left._index <= right._index);
-        }
+        public string Name => _name;
+        public SourceLevels SourceLevel => _sourceLevel;
+        public TraceEventType TraceEventType => _traceEventType;
 
         public static LoggingLevel FromSourceLevels(SourceLevels level)
         {
@@ -101,19 +64,35 @@ namespace Topshelf.Logging
             {
                 case SourceLevels.Information:
                     return Info;
+
                 case SourceLevels.Verbose:
                     return Debug;
+
                 case ~SourceLevels.Off:
                     return Debug;
+
                 case SourceLevels.Critical:
                     return Fatal;
+
                 case SourceLevels.Error:
                     return Error;
+
                 case SourceLevels.Warning:
                     return Warn;
+
                 default:
                     return None;
             }
         }
+
+        public static bool operator <(LoggingLevel left, LoggingLevel right) => right != null && (left != null && left._index < right._index);
+
+        public static bool operator <=(LoggingLevel left, LoggingLevel right) => right != null && (left != null && left._index <= right._index);
+
+        public static bool operator >(LoggingLevel left, LoggingLevel right) => right != null && (left != null && left._index > right._index);
+
+        public static bool operator >=(LoggingLevel left, LoggingLevel right) => right != null && (left != null && left._index >= right._index);
+
+        public override string ToString() => _name;
     }
 }

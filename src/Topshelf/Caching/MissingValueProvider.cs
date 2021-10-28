@@ -1,4 +1,4 @@
 namespace Topshelf.Caching
 {
-    delegate TValue MissingValueProvider<TKey, TValue>(TKey key);
+    internal delegate TValue MissingValueProvider<TKey, TValue>(TKey key);
 }

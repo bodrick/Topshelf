@@ -1,29 +1,29 @@
-﻿// Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+// Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
+using NUnit.Framework;
+using Topshelf.Configuration;
+using Topshelf.HostConfigurators;
+using Topshelf.Hosts;
+using Topshelf.Options;
+using Topshelf.Runtime;
+using Topshelf.Runtime.Windows;
+
 namespace Topshelf.Extensions.Configuration.Tests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Hosts;
-    using Microsoft.Extensions.Configuration;
-    using NUnit.Framework;
-    using Runtime;
-    using Topshelf.Configuration;
-    using Topshelf.HostConfigurators;
-    using Topshelf.Options;
-    using Topshelf.Runtime.Windows;
-
     [TestFixture]
     public class Passing_install
     {
@@ -38,7 +38,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -62,7 +62,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -86,7 +86,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -110,7 +110,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -133,7 +133,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -157,7 +157,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -183,7 +183,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -208,7 +208,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -231,7 +231,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -254,7 +254,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -267,6 +267,7 @@ namespace Topshelf.Extensions.Configuration.Tests
         }
 
 #if !NET35
+
         [Test]
         public void Should_create_an_install_host_to_start_delayed()
         {
@@ -278,7 +279,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -289,6 +290,7 @@ namespace Topshelf.Extensions.Configuration.Tests
             var installHost = (InstallHost)host;
             Assert.AreEqual(HostStartMode.AutomaticDelayed, installHost.InstallSettings.StartMode);
         }
+
 #endif
 
         [Test]
@@ -304,7 +306,7 @@ namespace Topshelf.Extensions.Configuration.Tests
 
             Assert.Throws<Topshelf.HostConfigurationException>(() =>
             {
-                Host host = HostFactory.New(x =>
+                var host = HostFactory.New(x =>
                     {
                         x.Service<MyService>();
                         x.ApplyConfiguration(configuration);
@@ -325,7 +327,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -349,7 +351,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -373,7 +375,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -397,7 +399,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -421,7 +423,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -444,7 +446,7 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .Build()
                 .GetSection("topshelf");
 
-            Host host = HostFactory.New(x =>
+            var host = HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
@@ -502,30 +504,18 @@ namespace Topshelf.Extensions.Configuration.Tests
             Assert.AreEqual(TimeSpan.FromMinutes(8901).TotalMilliseconds, runProgramRecoveryAction.Delay);
         }
 
-        class MyService : ServiceControl
+        private class MyService : ServiceControl
         {
-            public bool Start(HostControl hostControl)
-            {
-                throw new NotImplementedException();
-            }
+            public bool Start(HostControl hostControl) => throw new NotImplementedException();
 
-            public bool Stop(HostControl hostControl)
-            {
-                throw new NotImplementedException();
-            }
+            public bool Stop(HostControl hostControl) => throw new NotImplementedException();
 
-            public bool Pause(HostControl hostControl)
-            {
-                throw new NotImplementedException();
-            }
+            public bool Pause(HostControl hostControl) => throw new NotImplementedException();
 
-            public bool Continue(HostControl hostControl)
-            {
-                throw new NotImplementedException();
-            }
+            public bool Continue(HostControl hostControl) => throw new NotImplementedException();
         }
 
-        class MyHostConfigurator : HostConfigurator
+        private class MyHostConfigurator : HostConfigurator
         {
             public HostBuilderConfigurator Configuratior { get; private set; }
 
@@ -533,105 +523,45 @@ namespace Topshelf.Extensions.Configuration.Tests
 
             UnhandledExceptionPolicyCode HostConfigurator.UnhandledExceptionPolicy { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-            public void AddCommandLineDefinition(string name, Action<string> callback)
-            {
-                throw new NotImplementedException();
-            }
+            public void AddCommandLineDefinition(string name, Action<string> callback) => throw new NotImplementedException();
 
-            public void AddCommandLineSwitch(string name, Action<bool> callback)
-            {
-                throw new NotImplementedException();
-            }
+            public void AddCommandLineSwitch(string name, Action<bool> callback) => throw new NotImplementedException();
 
-            public void AddConfigurator(HostBuilderConfigurator configurator)
-            {
-                this.Configuratior = configurator;
-            }
+            public void AddConfigurator(HostBuilderConfigurator configurator) => Configuratior = configurator;
 
-            public void ApplyCommandLine()
-            {
-                throw new NotImplementedException();
-            }
+            public void ApplyCommandLine() => throw new NotImplementedException();
 
-            public void ApplyCommandLine(string commandLine)
-            {
-                throw new NotImplementedException();
-            }
+            public void ApplyCommandLine(string commandLine) => throw new NotImplementedException();
 
-            public void EnablePauseAndContinue()
-            {
-                throw new NotImplementedException();
-            }
+            public void EnablePauseAndContinue() => throw new NotImplementedException();
 
-            public void EnableSessionChanged()
-            {
-                throw new NotImplementedException();
-            }
+            public void EnableSessionChanged() => throw new NotImplementedException();
 
-            public void EnablePowerEvents()
-            {
-                throw new NotImplementedException();
-            }
+            public void EnablePowerEvents() => throw new NotImplementedException();
 
-            public void EnableHandleCtrlBreak()
-            {
-                throw new NotImplementedException();
-            }
+            public void EnableHandleCtrlBreak() => throw new NotImplementedException();
 
-            public void EnableShutdown()
-            {
-                throw new NotImplementedException();
-            }
+            public void EnableShutdown() => throw new NotImplementedException();
 
-            public void OnException(Action<Exception> callback)
-            {
-                throw new NotImplementedException();
-            }
+            public void OnException(Action<Exception> callback) => throw new NotImplementedException();
 
-            public void SetDescription(string description)
-            {
-                throw new NotImplementedException();
-            }
+            public void SetDescription(string description) => throw new NotImplementedException();
 
-            public void SetDisplayName(string name)
-            {
-                throw new NotImplementedException();
-            }
+            public void SetDisplayName(string name) => throw new NotImplementedException();
 
-            public void SetInstanceName(string instanceName)
-            {
-                throw new NotImplementedException();
-            }
+            public void SetInstanceName(string instanceName) => throw new NotImplementedException();
 
-            public void SetServiceName(string name)
-            {
-                throw new NotImplementedException();
-            }
+            public void SetServiceName(string name) => throw new NotImplementedException();
 
-            public void SetStartTimeout(TimeSpan startTimeOut)
-            {
-                throw new NotImplementedException();
-            }
+            public void SetStartTimeout(TimeSpan startTimeOut) => throw new NotImplementedException();
 
-            public void SetStopTimeout(TimeSpan stopTimeOut)
-            {
-                throw new NotImplementedException();
-            }
+            public void SetStopTimeout(TimeSpan stopTimeOut) => throw new NotImplementedException();
 
-            public void UseEnvironmentBuilder(EnvironmentBuilderFactory environmentBuilderFactory)
-            {
-                throw new NotImplementedException();
-            }
+            public void UseEnvironmentBuilder(EnvironmentBuilderFactory environmentBuilderFactory) => throw new NotImplementedException();
 
-            public void UseHostBuilder(HostBuilderFactory hostBuilderFactory)
-            {
-                throw new NotImplementedException();
-            }
+            public void UseHostBuilder(HostBuilderFactory hostBuilderFactory) => throw new NotImplementedException();
 
-            public void UseServiceBuilder(ServiceBuilderFactory serviceBuilderFactory)
-            {
-                throw new NotImplementedException();
-            }
+            public void UseServiceBuilder(ServiceBuilderFactory serviceBuilderFactory) => throw new NotImplementedException();
         }
     }
 }

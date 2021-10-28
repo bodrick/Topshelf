@@ -1,28 +1,28 @@
-﻿// Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+// Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using Topshelf.Hosts;
+using Topshelf.Runtime;
+
 namespace Topshelf.Builders
 {
-    using System;
-    using Hosts;
-    using Runtime;
-
     public class HelpBuilder :
         HostBuilder
     {
-        readonly HostEnvironment _environment;
-        readonly HostSettings _settings;
-        string _prefixText;
-        bool _systemHelpTextOnly;
+        private readonly HostEnvironment _environment;
+        private readonly HostSettings _settings;
+        private string _prefixText;
+        private bool _systemHelpTextOnly;
 
         public HelpBuilder(HostEnvironment environment, HostSettings settings)
         {
@@ -30,19 +30,13 @@ namespace Topshelf.Builders
             _environment = environment;
         }
 
-        public HostEnvironment Environment
-        {
-            get { return _environment; }
-        }
+        public HostEnvironment Environment => _environment;
 
-        public HostSettings Settings
-        {
-            get { return _settings; }
-        }
+        public HostSettings Settings => _settings;
 
         public Host Build(ServiceBuilder serviceBuilder)
         {
-            string prefixText = _systemHelpTextOnly
+            var prefixText = _systemHelpTextOnly
                                     ? null
                                     : _prefixText;
 
@@ -53,7 +47,9 @@ namespace Topshelf.Builders
             where T : class, HostBuilder
         {
             if (callback == null)
+            {
                 throw new ArgumentNullException("callback");
+            }
 
             var self = this as T;
             if (self != null)
@@ -62,14 +58,8 @@ namespace Topshelf.Builders
             }
         }
 
-        public void SetAdditionalHelpText(string prefixText)
-        {
-            _prefixText = prefixText;
-        }
+        public void SetAdditionalHelpText(string prefixText) => _prefixText = prefixText;
 
-        public void SystemHelpTextOnly()
-        {
-            _systemHelpTextOnly = true;
-        }
+        public void SystemHelpTextOnly() => _systemHelpTextOnly = true;
     }
 }

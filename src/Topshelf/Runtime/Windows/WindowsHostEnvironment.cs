@@ -1,38 +1,134 @@
 // Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using System.ComponentModel;
+using System.Configuration.Install;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security.Principal;
+using System.ServiceProcess;
+using Topshelf.HostConfigurators;
+using Topshelf.Logging;
+
 namespace Topshelf.Runtime.Windows
 {
-    using System;
-    using System.ComponentModel;
-    using System.Configuration.Install;
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Reflection;
-    using System.Runtime.InteropServices;
-    using System.Security.Principal;
-    using System.ServiceProcess;
-    using Logging;
-    using HostConfigurators;
-
     public class WindowsHostEnvironment :
         HostEnvironment
     {
-        readonly LogWriter _log = HostLogger.Get(typeof(WindowsHostEnvironment));
-        private HostConfigurator _hostConfigurator;
+        private readonly HostConfigurator _hostConfigurator;
+        private readonly LogWriter _log = HostLogger.Get(typeof(WindowsHostEnvironment));
 
-        public WindowsHostEnvironment(HostConfigurator configurator)
+        public WindowsHostEnvironment(HostConfigurator configurator) => _hostConfigurator = configurator;
+
+        public string CommandLine => CommandLineParser.CommandLine.GetUnparsedCommandLine();
+
+        public bool IsAdministrator
         {
-            _hostConfigurator = configurator;
+            get
+            {
+                var identity = WindowsIdentity.GetCurrent();
+
+                var principal = new WindowsPrincipal(identity);
+
+                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+        }
+
+        public bool IsRunningAsAService
+        {
+            get
+            {
+                try
+                {
+                    var process = GetParent(Process.GetCurrentProcess());
+                    if (process != null && process.ProcessName == "services")
+                    {
+                        _log.Debug("Started by the Windows services process");
+                        return true;
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    // again, mono seems to fail with this, let's just return false okay?
+                }
+                return false;
+            }
+        }
+
+        public Host CreateServiceHost(HostSettings settings, ServiceHandle serviceHandle) => new WindowsServiceHost(this, settings, serviceHandle, _hostConfigurator);
+
+        public void InstallService(InstallHostSettings settings, Action<InstallHostSettings> beforeInstall, Action afterInstall, Action beforeRollback, Action afterRollback)
+        {
+            using (var installer = new HostServiceInstaller(settings))
+            {
+                Action<InstallEventArgs> before = x =>
+                    {
+                        if (beforeInstall != null)
+                        {
+                            beforeInstall(settings);
+                            installer.ServiceProcessInstaller.Username = settings.Credentials.Username;
+                            installer.ServiceProcessInstaller.Account = settings.Credentials.Account;
+
+                            var gMSA = false;
+                            // Group Managed Service Account (gMSA) workaround per
+                            // https://connect.microsoft.com/VisualStudio/feedback/details/795196/service-process-installer-should-support-virtual-service-accounts
+                            if (settings.Credentials.Account == ServiceAccount.User &&
+                                settings.Credentials.Username != null &&
+                                ((gMSA = settings.Credentials.Username.EndsWith("$", StringComparison.InvariantCulture)) ||
+                                string.Equals(settings.Credentials.Username, "NT SERVICE\\" + settings.ServiceName, StringComparison.InvariantCulture)))
+                            {
+                                _log.InfoFormat(gMSA ? "Installing as gMSA {0}." : "Installing as virtual service account", settings.Credentials.Username);
+                                installer.ServiceProcessInstaller.Password = null;
+                                installer.ServiceProcessInstaller
+                                    .GetType()
+                                    .GetField("haveLoginInfo", BindingFlags.Instance | BindingFlags.NonPublic)
+                                    .SetValue(installer.ServiceProcessInstaller, true);
+                            }
+                            else
+                            {
+                                installer.ServiceProcessInstaller.Password = settings.Credentials.Password;
+                            }
+                        }
+                    };
+
+                Action<InstallEventArgs> after = x =>
+                    {
+                        if (afterInstall != null)
+                        {
+                            afterInstall();
+                        }
+                    };
+
+                Action<InstallEventArgs> before2 = x =>
+                    {
+                        if (beforeRollback != null)
+                        {
+                            beforeRollback();
+                        }
+                    };
+
+                Action<InstallEventArgs> after2 = x =>
+                    {
+                        if (afterRollback != null)
+                        {
+                            afterRollback();
+                        }
+                    };
+
+                installer.InstallService(before, after, before2, after2);
+            }
         }
 
         public bool IsServiceInstalled(string serviceName)
@@ -41,7 +137,7 @@ namespace Topshelf.Runtime.Windows
             {
                 return false;
             }
-            
+
             return IsServiceListed(serviceName);
         }
 
@@ -50,6 +146,53 @@ namespace Topshelf.Runtime.Windows
             using (var sc = new ServiceController(serviceName))
             {
                 return sc.Status == ServiceControllerStatus.Stopped;
+            }
+        }
+
+        public bool RunAsAdministrator()
+        {
+            if (Environment.OSVersion.Version.Major == 6)
+            {
+                var commandLine = CommandLine.Replace("--sudo", "");
+
+                var startInfo = new ProcessStartInfo(Assembly.GetEntryAssembly().Location, commandLine)
+                {
+                    Verb = "runas",
+                    UseShellExecute = true,
+                    CreateNoWindow = true,
+                };
+
+                try
+                {
+                    HostLogger.Shutdown();
+
+                    var process = Process.Start(startInfo);
+                    process.WaitForExit();
+
+                    return true;
+                }
+                catch (Win32Exception ex)
+                {
+                    _log.Debug("Process Start Exception", ex);
+                }
+            }
+
+            return false;
+        }
+
+        public void SendServiceCommand(string serviceName, int command)
+        {
+            using (var sc = new ServiceController(serviceName))
+            {
+                if (sc.Status == ServiceControllerStatus.Running)
+                {
+                    sc.ExecuteCommand(command);
+                }
+                else
+                {
+                    _log.WarnFormat("The {0} service can't be commanded now as it has the status {1}. Try again later...",
+                        serviceName, sc.Status.ToString());
+                }
             }
         }
 
@@ -111,152 +254,6 @@ namespace Topshelf.Runtime.Windows
             }
         }
 
-        public string CommandLine
-        {
-            get { return CommandLineParser.CommandLine.GetUnparsedCommandLine(); }
-        }
-
-        public bool IsAdministrator
-        {
-            get
-            {
-                WindowsIdentity identity = WindowsIdentity.GetCurrent();
-
-                var principal = new WindowsPrincipal(identity);
-
-                return principal.IsInRole(WindowsBuiltInRole.Administrator);
-            }
-        }
-
-        public bool IsRunningAsAService
-        {
-            get
-            {
-                try
-                {
-                    Process process = GetParent(Process.GetCurrentProcess());
-                    if (process != null && process.ProcessName == "services")
-                    {
-                        _log.Debug("Started by the Windows services process");
-                        return true;
-                    }
-                }
-                catch (InvalidOperationException)
-                {
-                    // again, mono seems to fail with this, let's just return false okay?
-                }
-                return false;
-            }
-        }
-
-        public bool RunAsAdministrator()
-        {
-            if (Environment.OSVersion.Version.Major == 6)
-            {
-                string commandLine = CommandLine.Replace("--sudo", "");
-
-                var startInfo = new ProcessStartInfo(Assembly.GetEntryAssembly().Location, commandLine)
-                    {
-                        Verb = "runas",
-                        UseShellExecute = true,
-                        CreateNoWindow = true,
-                    };
-
-                try
-                {
-                    HostLogger.Shutdown();
-
-                    Process process = Process.Start(startInfo);
-                    process.WaitForExit();
-
-                    return true;
-                }
-                catch (Win32Exception ex)
-                {
-                    _log.Debug("Process Start Exception", ex);
-                }
-            }
-
-            return false;
-        }
-
-        public Host CreateServiceHost(HostSettings settings, ServiceHandle serviceHandle)
-        {
-            return new WindowsServiceHost(this, settings, serviceHandle, this._hostConfigurator);
-        }
-
-        public void SendServiceCommand(string serviceName, int command)
-        {
-            using (var sc = new ServiceController(serviceName))
-            {
-                if (sc.Status == ServiceControllerStatus.Running)
-                {
-                    sc.ExecuteCommand(command);
-                }
-                else
-                {
-                    _log.WarnFormat("The {0} service can't be commanded now as it has the status {1}. Try again later...",
-                        serviceName, sc.Status.ToString());
-                }
-            }
-        }
-
-        public void InstallService(InstallHostSettings settings, Action<InstallHostSettings> beforeInstall, Action afterInstall, Action beforeRollback, Action afterRollback)
-        {
-            using (var installer = new HostServiceInstaller(settings))
-            {
-                Action<InstallEventArgs> before = x =>
-                    {
-                        if (beforeInstall != null)
-                        {
-                            beforeInstall(settings);
-                            installer.ServiceProcessInstaller.Username = settings.Credentials.Username;
-                            installer.ServiceProcessInstaller.Account = settings.Credentials.Account;
-
-                            bool gMSA = false;
-                            // Group Managed Service Account (gMSA) workaround per
-                            // https://connect.microsoft.com/VisualStudio/feedback/details/795196/service-process-installer-should-support-virtual-service-accounts
-                            if (settings.Credentials.Account == ServiceAccount.User &&
-                                settings.Credentials.Username != null &&
-                                ((gMSA = settings.Credentials.Username.EndsWith("$", StringComparison.InvariantCulture)) ||
-                                string.Equals(settings.Credentials.Username, "NT SERVICE\\" + settings.ServiceName, StringComparison.InvariantCulture)))
-                            {
-                                _log.InfoFormat(gMSA ? "Installing as gMSA {0}." : "Installing as virtual service account", settings.Credentials.Username);
-                                installer.ServiceProcessInstaller.Password = null;
-                                installer.ServiceProcessInstaller
-                                    .GetType()
-                                    .GetField("haveLoginInfo", BindingFlags.Instance | BindingFlags.NonPublic)
-                                    .SetValue(installer.ServiceProcessInstaller, true);
-                            }
-                            else
-                            {
-                                installer.ServiceProcessInstaller.Password = settings.Credentials.Password;
-                            }
-                        }
-                    };
-
-                Action<InstallEventArgs> after = x =>
-                    {
-                        if (afterInstall != null)
-                            afterInstall();
-                    };
-
-                Action<InstallEventArgs> before2 = x =>
-                    {
-                        if (beforeRollback != null)
-                            beforeRollback();
-                    };
-
-                Action<InstallEventArgs> after2 = x =>
-                    {
-                        if (afterRollback != null)
-                            afterRollback();
-                    };
-
-                installer.InstallService(before, after, before2, after2);
-            }
-        }
-
         public void UninstallService(HostSettings settings, Action beforeUninstall, Action afterUninstall)
         {
             using (var installer = new HostServiceInstaller(settings))
@@ -264,51 +261,64 @@ namespace Topshelf.Runtime.Windows
                 Action<InstallEventArgs> before = x =>
                     {
                         if (beforeUninstall != null)
+                        {
                             beforeUninstall();
+                        }
                     };
 
                 Action<InstallEventArgs> after = x =>
                     {
                         if (afterUninstall != null)
+                        {
                             afterUninstall();
+                        }
                     };
 
                 installer.UninstallService(before, after);
             }
         }
 
-
-        Process GetParent(Process child)
+        private Process GetParent(Process child)
         {
             if (child == null)
+            {
                 throw new ArgumentNullException("child");
+            }
 
             try
             {
-                int parentPid = 0;
+                var parentPid = 0;
 
-                IntPtr hnd = Kernel32.CreateToolhelp32Snapshot(Kernel32.TH32CS_SNAPPROCESS, 0);
+                var hnd = Kernel32.CreateToolhelp32Snapshot(Kernel32.TH32CS_SNAPPROCESS, 0);
 
                 if (hnd == IntPtr.Zero)
+                {
                     return null;
+                }
 
                 var processInfo = new Kernel32.PROCESSENTRY32
-                    {
-                        dwSize = (uint)Marshal.SizeOf(typeof(Kernel32.PROCESSENTRY32))
-                    };
+                {
+                    dwSize = (uint)Marshal.SizeOf(typeof(Kernel32.PROCESSENTRY32))
+                };
 
                 if (Kernel32.Process32First(hnd, ref processInfo) == false)
+                {
                     return null;
+                }
 
                 do
                 {
                     if (child.Id == processInfo.th32ProcessID)
+                    {
                         parentPid = (int)processInfo.th32ParentProcessID;
+                    }
                 }
                 while (parentPid == 0 && Kernel32.Process32Next(hnd, ref processInfo));
 
                 if (parentPid > 0)
+                {
                     return Process.GetProcessById(parentPid);
+                }
             }
             catch (Exception ex)
             {
@@ -317,9 +327,9 @@ namespace Topshelf.Runtime.Windows
             return null;
         }
 
-        bool IsServiceListed(string serviceName)
+        private bool IsServiceListed(string serviceName)
         {
-            bool result = false;
+            var result = false;
 
             try
             {

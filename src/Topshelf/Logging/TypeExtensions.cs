@@ -1,15 +1,11 @@
+using System;
+
 namespace Topshelf.Logging
 {
-    using System;
-
-    static class TypeExtensions
+    internal static class TypeExtensions
     {
-        static readonly TypeNameFormatter _typeNameFormatter = new TypeNameFormatter();
+        private static readonly TypeNameFormatter _typeNameFormatter = new TypeNameFormatter();
 
-
-        public static string GetTypeName(this Type type)
-        {
-            return _typeNameFormatter.GetTypeName(type);
-        }
+        public static string GetTypeName(this Type type) => _typeNameFormatter.GetTypeName(type);
     }
 }

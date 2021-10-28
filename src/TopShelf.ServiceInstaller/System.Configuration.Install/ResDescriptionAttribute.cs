@@ -19,7 +19,7 @@ namespace System.Configuration.Install
                 if (!replaced)
                 {
                     replaced = true;
-                    base.DescriptionValue = Res.GetString(base.Description);
+                    DescriptionValue = Res.GetString(base.Description);
                 }
                 return base.Description;
             }

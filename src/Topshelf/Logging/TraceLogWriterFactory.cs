@@ -1,28 +1,28 @@
 // Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using System.Diagnostics;
+using Topshelf.Caching;
+
 namespace Topshelf.Logging
 {
-    using System;
-    using System.Diagnostics;
-    using Caching;
-
     public class TraceLogWriterFactory :
         LogWriterFactory
     {
-        readonly Cache<string, TraceLogWriter> _logs;
-        readonly Cache<string, TraceSource> _sources;
-        TraceListener _listener;
-        readonly TraceSource _defaultSource;
+        private readonly TraceSource _defaultSource;
+        private readonly Cache<string, TraceLogWriter> _logs;
+        private readonly Cache<string, TraceSource> _sources;
+        private TraceListener _listener;
 
         public TraceLogWriterFactory()
         {
@@ -30,16 +30,13 @@ namespace Topshelf.Logging
             _sources = new DictionaryCache<string, TraceSource>(CreateTraceSource);
 
             _defaultSource = new TraceSource("Default", SourceLevels.Information);
-            
+
             _listener = AddDefaultConsoleTraceListener(_defaultSource);
 
             _sources.Get("Topshelf");
         }
 
-        public LogWriter Get(string name)
-        {
-            return _logs[name];
-        }
+        public LogWriter Get(string name) => _logs[name];
 
         public void Shutdown()
         {
@@ -55,41 +52,36 @@ namespace Topshelf.Logging
             }
         }
 
-        static TraceListener AddDefaultConsoleTraceListener(TraceSource source)
+        private static TraceListener AddDefaultConsoleTraceListener(TraceSource source)
         {
-            var listener = new TopshelfConsoleTraceListener();
-            listener.Name = "Topshelf";
+            var listener = new TopshelfConsoleTraceListener
+            {
+                Name = "Topshelf"
+            };
 
             source.Listeners.Add(listener);
 
             return listener;
         }
 
-        TraceLogWriter CreateTraceLog(string name)
+        private static bool IsSourceConfigured(TraceSource source) => source.Listeners.Count != 1
+                   || !(source.Listeners[0] is DefaultTraceListener)
+                   || source.Listeners[0].Name != "Default";
+
+        private static string ShortenName(string name)
         {
-            return new TraceLogWriter(_sources[name]);
+            var length = name.LastIndexOf('.');
+
+            return length != -1
+                       ? name.Substring(0, length)
+                       : null;
         }
 
-        TraceSource CreateTraceSource(string name)
-        {
-            LoggingLevel logLevel = LoggingLevel.Info;
-            SourceLevels sourceLevel = logLevel.SourceLevel;
-            var source = new TraceSource(name, sourceLevel);
-            if (IsSourceConfigured(source))
-            {
-                return source;
-            }
-
-            ConfigureTraceSource(source, name, sourceLevel);
-
-            return source;
-        }
-
-        void ConfigureTraceSource(TraceSource source, string name, SourceLevels sourceLevel)
+        private void ConfigureTraceSource(TraceSource source, string name, SourceLevels sourceLevel)
         {
             var defaultSource = _defaultSource;
 
-            for (string parentName = ShortenName(name);
+            for (var parentName = ShortenName(name);
                  !string.IsNullOrEmpty(parentName);
                  parentName = ShortenName(parentName))
             {
@@ -104,23 +96,26 @@ namespace Topshelf.Logging
             source.Switch = defaultSource.Switch;
             source.Listeners.Clear();
             foreach (TraceListener listener in defaultSource.Listeners)
+            {
                 source.Listeners.Add(listener);
+            }
         }
 
-        static bool IsSourceConfigured(TraceSource source)
-        {
-            return source.Listeners.Count != 1
-                   || !(source.Listeners[0] is DefaultTraceListener)
-                   || source.Listeners[0].Name != "Default";
-        }
+        private TraceLogWriter CreateTraceLog(string name) => new TraceLogWriter(_sources[name]);
 
-        static string ShortenName(string name)
+        private TraceSource CreateTraceSource(string name)
         {
-            int length = name.LastIndexOf('.');
+            var logLevel = LoggingLevel.Info;
+            var sourceLevel = logLevel.SourceLevel;
+            var source = new TraceSource(name, sourceLevel);
+            if (IsSourceConfigured(source))
+            {
+                return source;
+            }
 
-            return length != -1
-                       ? name.Substring(0, length)
-                       : null;
+            ConfigureTraceSource(source, name, sourceLevel);
+
+            return source;
         }
     }
 }

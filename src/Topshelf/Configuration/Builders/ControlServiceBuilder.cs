@@ -1,26 +1,26 @@
 // Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using Topshelf.Runtime;
+
 namespace Topshelf.Builders
 {
-    using System;
-    using Runtime;
-
     public class ControlServiceBuilder<T> :
         ServiceBuilder
         where T : class, ServiceControl
     {
-        readonly ServiceEvents _serviceEvents;
-        readonly Func<HostSettings, T> _serviceFactory;
+        private readonly ServiceEvents _serviceEvents;
+        private readonly Func<HostSettings, T> _serviceFactory;
 
         public ControlServiceBuilder(Func<HostSettings, T> serviceFactory, ServiceEvents serviceEvents)
         {
@@ -32,7 +32,7 @@ namespace Topshelf.Builders
         {
             try
             {
-                T service = _serviceFactory(settings);
+                var service = _serviceFactory(settings);
 
                 return new ControlServiceHandle(service, _serviceEvents);
             }
@@ -42,48 +42,16 @@ namespace Topshelf.Builders
             }
         }
 
-        class ControlServiceHandle :
+        private class ControlServiceHandle :
             ServiceHandle
         {
-            readonly T _service;
-            readonly ServiceEvents _serviceEvents;
+            private readonly T _service;
+            private readonly ServiceEvents _serviceEvents;
 
             public ControlServiceHandle(T service, ServiceEvents serviceEvents)
             {
                 _service = service;
                 _serviceEvents = serviceEvents;
-            }
-
-            public void Dispose()
-            {
-                var disposable = _service as IDisposable;
-                if (disposable != null)
-                    disposable.Dispose();
-            }
-
-            public bool Start(HostControl hostControl)
-            {
-                _serviceEvents.BeforeStart(hostControl);
-                bool started = _service.Start(hostControl);
-                if (started)
-                    _serviceEvents.AfterStart(hostControl);
-                return started;
-            }
-
-            public bool Stop(HostControl hostControl)
-            {
-                _serviceEvents.BeforeStop(hostControl);
-                bool stopped = _service.Stop(hostControl);
-                if (stopped)
-                    _serviceEvents.AfterStop(hostControl);
-                return stopped;
-            }
-
-            public bool Pause(HostControl hostControl)
-            {
-                var service = _service as ServiceSuspend;
-
-                return service != null && service.Pause(hostControl);
             }
 
             public bool Continue(HostControl hostControl)
@@ -93,22 +61,29 @@ namespace Topshelf.Builders
                 return service != null && service.Continue(hostControl);
             }
 
-            public void Shutdown(HostControl hostControl)
+            public void CustomCommand(HostControl hostControl, int command)
             {
-                var serviceShutdown = _service as ServiceShutdown;
-                if (serviceShutdown != null)
+                var customCommand = _service as ServiceCustomCommand;
+                if (customCommand != null)
                 {
-                    serviceShutdown.Shutdown(hostControl);
+                    customCommand.CustomCommand(hostControl, command);
                 }
             }
 
-            public void SessionChanged(HostControl hostControl, SessionChangedArguments arguments)
+            public void Dispose()
             {
-                var sessionChange = _service as ServiceSessionChange;
-                if (sessionChange != null)
+                var disposable = _service as IDisposable;
+                if (disposable != null)
                 {
-                    sessionChange.SessionChange(hostControl, arguments);
+                    disposable.Dispose();
                 }
+            }
+
+            public bool Pause(HostControl hostControl)
+            {
+                var service = _service as ServiceSuspend;
+
+                return service != null && service.Pause(hostControl);
             }
 
             public bool PowerEvent(HostControl hostControl, PowerEventArguments arguments)
@@ -122,13 +97,46 @@ namespace Topshelf.Builders
                 return false;
             }
 
-            public void CustomCommand(HostControl hostControl, int command)
+            public void SessionChanged(HostControl hostControl, SessionChangedArguments arguments)
             {
-                var customCommand = _service as ServiceCustomCommand;
-                if (customCommand != null)
+                var sessionChange = _service as ServiceSessionChange;
+                if (sessionChange != null)
                 {
-                    customCommand.CustomCommand(hostControl, command);
+                    sessionChange.SessionChange(hostControl, arguments);
                 }
+            }
+
+            public void Shutdown(HostControl hostControl)
+            {
+                var serviceShutdown = _service as ServiceShutdown;
+                if (serviceShutdown != null)
+                {
+                    serviceShutdown.Shutdown(hostControl);
+                }
+            }
+
+            public bool Start(HostControl hostControl)
+            {
+                _serviceEvents.BeforeStart(hostControl);
+                var started = _service.Start(hostControl);
+                if (started)
+                {
+                    _serviceEvents.AfterStart(hostControl);
+                }
+
+                return started;
+            }
+
+            public bool Stop(HostControl hostControl)
+            {
+                _serviceEvents.BeforeStop(hostControl);
+                var stopped = _service.Stop(hostControl);
+                if (stopped)
+                {
+                    _serviceEvents.AfterStop(hostControl);
+                }
+
+                return stopped;
             }
         }
     }

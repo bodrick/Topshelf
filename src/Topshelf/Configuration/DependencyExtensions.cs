@@ -1,29 +1,34 @@
-﻿// Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+// Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using Topshelf.Constants;
+using Topshelf.HostConfigurators;
+
 namespace Topshelf
 {
-    using System;
-    using Constants;
-    using HostConfigurators;
-
     public static class DependencyExtensions
     {
         public static HostConfigurator AddDependency(this HostConfigurator configurator, string name)
         {
             if (configurator == null)
+            {
                 throw new ArgumentNullException(nameof(configurator));
+            }
+
             if (name == null)
+            {
                 throw new ArgumentNullException(nameof(name));
+            }
 
             var dependencyConfigurator = new DependencyHostConfigurator(name);
 
@@ -32,29 +37,14 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator DependsOn(this HostConfigurator configurator, string name)
-        {
-            return AddDependency(configurator, name);
-        }
+        public static HostConfigurator DependsOn(this HostConfigurator configurator, string name) => AddDependency(configurator, name);
 
-        public static HostConfigurator DependsOnMsmq(this HostConfigurator configurator)
-        {
-            return AddDependency(configurator, KnownServiceNames.Msmq);
-        }
+        public static HostConfigurator DependsOnEventLog(this HostConfigurator configurator) => AddDependency(configurator, KnownServiceNames.EventLog);
 
-        public static HostConfigurator DependsOnMsSql(this HostConfigurator configurator)
-        {
-            return AddDependency(configurator, KnownServiceNames.SqlServer);
-        }
+        public static HostConfigurator DependsOnIis(this HostConfigurator configurator) => AddDependency(configurator, KnownServiceNames.IIS);
 
-        public static HostConfigurator DependsOnEventLog(this HostConfigurator configurator)
-        {
-            return AddDependency(configurator, KnownServiceNames.EventLog);
-        }
+        public static HostConfigurator DependsOnMsmq(this HostConfigurator configurator) => AddDependency(configurator, KnownServiceNames.Msmq);
 
-        public static HostConfigurator DependsOnIis(this HostConfigurator configurator)
-        {
-            return AddDependency(configurator, KnownServiceNames.IIS);
-        }
+        public static HostConfigurator DependsOnMsSql(this HostConfigurator configurator) => AddDependency(configurator, KnownServiceNames.SqlServer);
     }
 }

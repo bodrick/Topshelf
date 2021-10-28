@@ -15,7 +15,7 @@ namespace System.ServiceProcess
         private string username;
 
         /// <summary>Gets or sets the type of account under which to run this service application.</summary>
-        /// <returns>A <see cref="T:System.ServiceProcess.ServiceAccount" /> that defines the type of account under which the system runs this service. The default is User.</returns>
+        /// <returns>A <see cref="ServiceAccount" /> that defines the type of account under which the system runs this service. The default is User.</returns>
         /// <PermissionSet>
         ///   <IPermission class="System.Security.Permissions.EnvironmentPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Unrestricted="true" />
         ///   <IPermission class="System.Security.Permissions.FileIOPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Unrestricted="true" />
@@ -51,11 +51,11 @@ namespace System.ServiceProcess
         {
             get
             {
-                if (ServiceProcessInstaller.helpPrinted)
+                if (helpPrinted)
                 {
                     return base.HelpText;
                 }
-                ServiceProcessInstaller.helpPrinted = true;
+                helpPrinted = true;
                 return Res.GetString("HelpText") + "\r\n" + base.HelpText;
             }
         }
@@ -115,15 +115,15 @@ namespace System.ServiceProcess
             }
         }
 
-        /// <summary>Implements the base class <see cref="M:System.Configuration.Install.ComponentInstaller.CopyFromComponent(System.ComponentModel.IComponent)" /> method with no <see cref="T:System.ServiceProcess.ServiceProcessInstaller" /> class-specific behavior.</summary>
-        /// <param name="comp">The <see cref="T:System.ComponentModel.IComponent" /> that represents the service process. </param>
+        /// <summary>Implements the base class <see cref="M:System.Configuration.Install.ComponentInstaller.CopyFromComponent(System.ComponentModel.IComponent)" /> method with no <see cref="ServiceProcessInstaller" /> class-specific behavior.</summary>
+        /// <param name="comp">The <see cref="IComponent" /> that represents the service process. </param>
         public override void CopyFromComponent(IComponent comp)
         {
         }
 
         /// <summary>Writes service application information to the registry. This method is meant to be used by installation tools, which call the appropriate methods automatically.</summary>
-        /// <param name="stateSaver">An <see cref="T:System.Collections.IDictionary" /> that contains the context information associated with the installation. </param>
-        /// <exception cref="T:System.ArgumentException">The <paramref name="stateSaver" /> is null. </exception>
+        /// <param name="stateSaver">An <see cref="IDictionary" /> that contains the context information associated with the installation. </param>
+        /// <exception cref="ArgumentException">The <paramref name="stateSaver" /> is null. </exception>
         /// <PermissionSet>
         ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode" />
         ///   <IPermission class="System.Security.Permissions.UIPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Unrestricted="true" />
@@ -163,10 +163,10 @@ namespace System.ServiceProcess
                     try
                     {
                         var accountSid = GetAccountSid(Username);
-                        flag = ServiceProcessInstaller.AccountHasRight(intPtr, accountSid, "SeServiceLogonRight");
+                        flag = AccountHasRight(intPtr, accountSid, "SeServiceLogonRight");
                         if (!flag)
                         {
-                            ServiceProcessInstaller.GrantAccountRight(intPtr, accountSid, "SeServiceLogonRight");
+                            GrantAccountRight(intPtr, accountSid, "SeServiceLogonRight");
                         }
                     }
                     finally
@@ -183,8 +183,8 @@ namespace System.ServiceProcess
         }
 
         /// <summary>Rolls back service application information written to the registry by the installation procedure. This method is meant to be used by installation tools, which process the appropriate methods automatically.</summary>
-        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the context information associated with the installation. </param>
-        /// <exception cref="T:System.ArgumentException">The <paramref name="savedState" /> is null.-or- The <paramref name="savedState" /> is corrupted or non-existent. </exception>
+        /// <param name="savedState">An <see cref="IDictionary" /> that contains the context information associated with the installation. </param>
+        /// <exception cref="ArgumentException">The <paramref name="savedState" /> is null.-or- The <paramref name="savedState" /> is corrupted or non-existent. </exception>
         /// <PermissionSet>
         ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode" />
         /// </PermissionSet>
@@ -199,7 +199,7 @@ namespace System.ServiceProcess
                     try
                     {
                         var accountSid = GetAccountSid(accountName);
-                        ServiceProcessInstaller.RemoveAccountRight(intPtr, accountSid, "SeServiceLogonRight");
+                        RemoveAccountRight(intPtr, accountSid, "SeServiceLogonRight");
                     }
                     finally
                     {
@@ -322,26 +322,26 @@ namespace System.ServiceProcess
 
         private void GetLoginInfo()
         {
-            if (base.Context != null && !base.DesignMode && !haveLoginInfo)
+            if (Context != null && !DesignMode && !haveLoginInfo)
             {
                 haveLoginInfo = true;
                 if (serviceAccount != ServiceAccount.User)
                 {
                     return;
                 }
-                if (base.Context.Parameters.ContainsKey("username"))
+                if (Context.Parameters.ContainsKey("username"))
                 {
-                    username = base.Context.Parameters["username"];
+                    username = Context.Parameters["username"];
                 }
-                if (base.Context.Parameters.ContainsKey("password"))
+                if (Context.Parameters.ContainsKey("password"))
                 {
-                    password = base.Context.Parameters["password"];
+                    password = Context.Parameters["password"];
                 }
                 if (username != null && username.Length != 0 && password != null)
                 {
                     return;
                 }
-                if (!base.Context.Parameters.ContainsKey("unattended"))
+                if (!Context.Parameters.ContainsKey("unattended"))
                 {
                     throw new PlatformNotSupportedException();
                     //using (ServiceInstallerDialog serviceInstallerDialog = new ServiceInstallerDialog())
@@ -368,7 +368,7 @@ namespace System.ServiceProcess
                     //}
                     //return;
                 }
-                throw new InvalidOperationException(Res.GetString("UnattendedCannotPrompt", base.Context.Parameters["assemblypath"]));
+                throw new InvalidOperationException(Res.GetString("UnattendedCannotPrompt", Context.Parameters["assemblypath"]));
             }
         }
 

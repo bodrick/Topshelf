@@ -1,4 +1,4 @@
 namespace Topshelf.Caching
 {
-    delegate TKey KeySelector<out TKey, in TValue>(TValue value);
+    internal delegate TKey KeySelector<out TKey, in TValue>(TValue value);
 }

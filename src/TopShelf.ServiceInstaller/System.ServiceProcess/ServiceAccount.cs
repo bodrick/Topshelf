@@ -11,7 +11,7 @@ namespace System.ServiceProcess
         /// <summary>An account, used by the service control manager, that has extensive privileges on the local computer and acts as the computer on the network.</summary>
         LocalSystem,
 
-        /// <summary>An account defined by a specific user on the network. Specifying User for the <see cref="P:System.ServiceProcess.ServiceProcessInstaller.Account" /> member causes the system to prompt for a valid user name and password when the service is installed, unless you set values for both the <see cref="P:System.ServiceProcess.ServiceProcessInstaller.Username" /> and <see cref="P:System.ServiceProcess.ServiceProcessInstaller.Password" /> properties of your <see cref="T:System.ServiceProcess.ServiceProcessInstaller" /> instance.</summary>
+        /// <summary>An account defined by a specific user on the network. Specifying User for the <see cref="ServiceProcessInstaller.Account" /> member causes the system to prompt for a valid user name and password when the service is installed, unless you set values for both the <see cref="ServiceProcessInstaller.Username" /> and <see cref="ServiceProcessInstaller.Password" /> properties of your <see cref="ServiceProcessInstaller" /> instance.</summary>
         User
     }
 }

@@ -1,21 +1,21 @@
 // Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using System.Linq;
+
 namespace Topshelf.CommandLineParser
 {
-    using System;
-    using System.Linq;
-
-    class StringCommandLineParser :
+    internal class StringCommandLineParser :
         AbstractParser<string>
     {
         public StringCommandLineParser()
@@ -101,42 +101,27 @@ namespace Topshelf.CommandLineParser
                     .Or(from element in Argument select element);
         }
 
-
-        Parser<string, char[]> Whitespace { get; set; }
-        Parser<string, char[]> NewLine { get; set; }
-
-        Parser<string, char> EscChar { get; set; }
-
-        Parser<string, string> Id { get; set; }
-        Parser<string, string> Key { get; set; }
-        Parser<string, string> Value { get; set; }
-        Parser<string, string> ValueInQuotes { get; set; }
-
-        Parser<string, ICommandLineElement> Definition { get; set; }
-        Parser<string, ICommandLineElement> EmptyDefinition { get; set; }
-        Parser<string, ICommandLineElement> Argument { get; set; }
-        Parser<string, ICommandLineElement> Token { get; set; }
-        Parser<string, ICommandLineElement> Switch { get; set; }
         public Parser<string, ICommandLineElement> All { get; private set; }
 
-        Parser<string, char> AnyChar
-        {
-            get
-            {
-                return input => input.Length > 0
-                                    ? new Result<string, char>(input[0], input.Substring(1))
-                                    : null;
-            }
-        }
+        private Parser<string, char> AnyChar => input => input.Length > 0
+                                                                                  ? new Result<string, char>(input[0], input.Substring(1))
+                                                                                  : null;
 
-        Parser<string, char> Char(char ch)
-        {
-            return from c in AnyChar where c == ch select c;
-        }
+        private Parser<string, ICommandLineElement> Argument { get; set; }
+        private Parser<string, ICommandLineElement> Definition { get; set; }
+        private Parser<string, ICommandLineElement> EmptyDefinition { get; set; }
+        private Parser<string, char> EscChar { get; set; }
+        private Parser<string, string> Id { get; set; }
+        private Parser<string, string> Key { get; set; }
+        private Parser<string, char[]> NewLine { get; set; }
+        private Parser<string, ICommandLineElement> Switch { get; set; }
+        private Parser<string, ICommandLineElement> Token { get; set; }
+        private Parser<string, string> Value { get; set; }
+        private Parser<string, string> ValueInQuotes { get; set; }
+        private Parser<string, char[]> Whitespace { get; set; }
 
-        Parser<string, char> Char(Predicate<char> pred)
-        {
-            return from c in AnyChar where pred(c) select c;
-        }
+        private Parser<string, char> Char(char ch) => from c in AnyChar where c == ch select c;
+
+        private Parser<string, char> Char(Predicate<char> pred) => from c in AnyChar where pred(c) select c;
     }
 }

@@ -1,24 +1,14 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
 namespace Topshelf.Caching
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-
-    class GenericTypeCache<TInterface> :
+    internal class GenericTypeCache<TInterface> :
         Cache<Type, TInterface>
     {
-        readonly Cache<Type, TInterface> _cache;
-        readonly Type _genericType;
-
-        GenericTypeCache(Type genericType, Cache<Type, TInterface> cache)
-        {
-            if (!genericType.IsGenericType)
-                throw new ArgumentException("The type specified must be a generic type", "genericType");
-            if (genericType.GetGenericArguments().Length != 1)
-                throw new ArgumentException("The generic type must have a single generic argument");
-            _genericType = genericType;
-            _cache = cache;
-        }
+        private readonly Cache<Type, TInterface> _cache;
+        private readonly Type _genericType;
 
         /// <summary>
         /// Constructs a cache for the specified generic type
@@ -39,177 +29,112 @@ namespace Topshelf.Caching
         {
         }
 
-        public Type GenericType
+        private GenericTypeCache(Type genericType, Cache<Type, TInterface> cache)
         {
-            get { return _genericType; }
+            if (!genericType.IsGenericType)
+            {
+                throw new ArgumentException("The type specified must be a generic type", "genericType");
+            }
+
+            if (genericType.GetGenericArguments().Length != 1)
+            {
+                throw new ArgumentException("The generic type must have a single generic argument");
+            }
+
+            _genericType = genericType;
+            _cache = cache;
         }
 
-        public IEnumerator<TInterface> GetEnumerator()
+        public int Count => _cache.Count;
+
+        public CacheItemCallback<Type, TInterface> DuplicateValueAdded
         {
-            return _cache.GetEnumerator();
+            set => _cache.DuplicateValueAdded = value;
         }
 
-        public int Count
-        {
-            get { return _cache.Count; }
-        }
+        public Type GenericType => _genericType;
 
-        public bool Has(Type key)
+        public KeySelector<Type, TInterface> KeySelector
         {
-            return _cache.Has(key);
-        }
-
-        public bool HasValue(TInterface value)
-        {
-            return _cache.HasValue(value);
-        }
-
-        public void Each(Action<TInterface> callback)
-        {
-            _cache.Each(callback);
-        }
-
-        public void Each(Action<Type, TInterface> callback)
-        {
-            _cache.Each(callback);
-        }
-
-        public bool Exists(Predicate<TInterface> predicate)
-        {
-            return _cache.Exists(predicate);
-        }
-
-        public bool Find(Predicate<TInterface> predicate, out TInterface result)
-        {
-            return _cache.Find(predicate, out result);
-        }
-
-        public Type[] GetAllKeys()
-        {
-            return _cache.GetAllKeys();
-        }
-
-        public TInterface[] GetAll()
-        {
-            return _cache.GetAll();
+            set => _cache.KeySelector = value;
         }
 
         public MissingValueProvider<Type, TInterface> MissingValueProvider
         {
-            set { _cache.MissingValueProvider = value; }
+            set => _cache.MissingValueProvider = value;
         }
 
         public CacheItemCallback<Type, TInterface> ValueAddedCallback
         {
-            set { _cache.ValueAddedCallback = value; }
-        }
-
-        public CacheItemCallback<Type, TInterface> DuplicateValueAdded
-        {
-            set { _cache.DuplicateValueAdded = value; }
+            set => _cache.ValueAddedCallback = value;
         }
 
         public CacheItemCallback<Type, TInterface> ValueRemovedCallback
         {
-            set { _cache.ValueRemovedCallback = value; }
-        }
-
-        public KeySelector<Type, TInterface> KeySelector
-        {
-            set { _cache.KeySelector = value; }
-        }
-
-        public TInterface Get(Type key)
-        {
-            return _cache.Get(key);
-        }
-
-        public TInterface Get(Type key, MissingValueProvider<Type, TInterface> missingValueProvider)
-        {
-            return _cache.Get(key, missingValueProvider);
-        }
-
-        public TInterface GetValue(Type key, TInterface defaultValue)
-        {
-            return _cache.GetValue(key, defaultValue);
-        }
-
-        public TInterface GetValue(Type key, Func<TInterface> defaultValueProvider)
-        {
-            return _cache.GetValue(key, defaultValueProvider);
-        }
-
-        public bool TryGetValue(Type key, out TInterface value)
-        {
-            return _cache.TryGetValue(key, out value);
+            set => _cache.ValueRemovedCallback = value;
         }
 
         public TInterface this[Type key]
         {
-            get { return _cache[key]; }
-            set { _cache[key] = value; }
+            get => _cache[key];
+            set => _cache[key] = value;
         }
 
-        public void Add(Type key, TInterface value)
-        {
-            _cache.Add(key, value);
-        }
+        public void Add(Type key, TInterface value) => _cache.Add(key, value);
 
-        public void AddValue(TInterface value)
-        {
-            _cache.AddValue(value);
-        }
+        public void AddValue(TInterface value) => _cache.AddValue(value);
 
-        public void Remove(Type key)
-        {
-            _cache.Remove(key);
-        }
+        public void Clear() => _cache.Clear();
 
-        public void RemoveValue(TInterface value)
-        {
-            _cache.RemoveValue(value);
-        }
+        public void Each(Action<TInterface> callback) => _cache.Each(callback);
 
-        public void Clear()
-        {
-            _cache.Clear();
-        }
+        public void Each(Action<Type, TInterface> callback) => _cache.Each(callback);
 
-        public void Fill(IEnumerable<TInterface> values)
-        {
-            _cache.Fill(values);
-        }
+        public bool Exists(Predicate<TInterface> predicate) => _cache.Exists(predicate);
 
-        public bool WithValue(Type key, Action<TInterface> callback)
-        {
-            return _cache.WithValue(key, callback);
-        }
+        public void Fill(IEnumerable<TInterface> values) => _cache.Fill(values);
+
+        public bool Find(Predicate<TInterface> predicate, out TInterface result) => _cache.Find(predicate, out result);
+
+        public TInterface Get(Type key) => _cache.Get(key);
+
+        public TInterface Get(Type key, MissingValueProvider<Type, TInterface> missingValueProvider) => _cache.Get(key, missingValueProvider);
+
+        public TInterface[] GetAll() => _cache.GetAll();
+
+        public Type[] GetAllKeys() => _cache.GetAllKeys();
+
+        public IEnumerator<TInterface> GetEnumerator() => _cache.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public TInterface GetValue(Type key, TInterface defaultValue) => _cache.GetValue(key, defaultValue);
+
+        public TInterface GetValue(Type key, Func<TInterface> defaultValueProvider) => _cache.GetValue(key, defaultValueProvider);
+
+        public bool Has(Type key) => _cache.Has(key);
+
+        public bool HasValue(TInterface value) => _cache.HasValue(value);
+
+        public void Remove(Type key) => _cache.Remove(key);
+
+        public void RemoveValue(TInterface value) => _cache.RemoveValue(value);
+
+        public bool TryGetValue(Type key, out TInterface value) => _cache.TryGetValue(key, out value);
+
+        public bool WithValue(Type key, Action<TInterface> callback) => _cache.WithValue(key, callback);
 
         public TResult WithValue<TResult>(Type key,
             Func<TInterface, TResult> callback,
-            TResult defaultValue)
-        {
-            return _cache.WithValue(key, callback, defaultValue);
-        }
+            TResult defaultValue) => _cache.WithValue(key, callback, defaultValue);
 
-        public TResult WithValue<TResult>(Type key, Func<TInterface, TResult> callback, Func<Type, TResult> defaultValue)
-        {
-            return _cache.WithValue(key, callback, defaultValue);
-        }
+        public TResult WithValue<TResult>(Type key, Func<TInterface, TResult> callback, Func<Type, TResult> defaultValue) => _cache.WithValue(key, callback, defaultValue);
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        private static MissingValueProvider<Type, TInterface> DefaultMissingValueProvider(Type genericType) => type =>
+                                                                                                                             {
+                                                                                                                                 var buildType = genericType.MakeGenericType(type);
 
-        static MissingValueProvider<Type, TInterface> DefaultMissingValueProvider(Type genericType)
-        {
-            return type =>
-                {
-                    Type buildType = genericType.MakeGenericType(type);
-
-                    return (TInterface)Activator.CreateInstance(buildType);
-                };
-        }
+                                                                                                                                 return (TInterface)Activator.CreateInstance(buildType);
+                                                                                                                             };
     }
 }

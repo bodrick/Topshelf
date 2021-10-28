@@ -24,7 +24,7 @@ namespace System.ServiceProcess
 
         private ServiceStartMode startType = ServiceStartMode.Manual;
 
-        /// <summary>Initializes a new instance of the <see cref="T:System.ServiceProcess.ServiceInstaller" /> class.</summary>
+        /// <summary>Initializes a new instance of the <see cref="ServiceInstaller" /> class.</summary>
         public ServiceInstaller()
         {
             //this.eventLogInstaller = new EventLogInstaller();
@@ -79,9 +79,9 @@ namespace System.ServiceProcess
             }
         }
 
-        /// <summary>Indicates the name used by the system to identify this service. This property must be identical to the <see cref="P:System.ServiceProcess.ServiceBase.ServiceName" /> of the service you want to install.</summary>
+        /// <summary>Indicates the name used by the system to identify this service. This property must be identical to the <see cref="ServiceBase.ServiceName" /> of the service you want to install.</summary>
         /// <returns>The name of the service to be installed. This value must be set before the install utility attempts to install the service.</returns>
-        /// <exception cref="T:System.ArgumentException">The <see cref="P:System.ServiceProcess.ServiceInstaller.ServiceName" /> property is invalid. </exception>
+        /// <exception cref="ArgumentException">The <see cref="ServiceName" /> property is invalid. </exception>
         [DefaultValue("")]
         [TypeConverter("System.Diagnostics.Design.StringValueConverter, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [ServiceProcessDescription("ServiceInstallerServiceName")]
@@ -120,8 +120,8 @@ namespace System.ServiceProcess
         }
 
         /// <summary>Indicates how and when this service is started.</summary>
-        /// <returns>A <see cref="T:System.ServiceProcess.ServiceStartMode" /> that represents the way the service is started. The default is Manual, which specifies that the service will not automatically start after reboot.</returns>
-        /// <exception cref="T:System.ComponentModel.InvalidEnumArgumentException">The start mode is not a value of the <see cref="T:System.ServiceProcess.ServiceStartMode" /> enumeration.</exception>
+        /// <returns>A <see cref="ServiceStartMode" /> that represents the way the service is started. The default is Manual, which specifies that the service will not automatically start after reboot.</returns>
+        /// <exception cref="InvalidEnumArgumentException">The start mode is not a value of the <see cref="ServiceStartMode" /> enumeration.</exception>
         /// <PermissionSet>
         ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode, ControlEvidence" />
         /// </PermissionSet>
@@ -145,9 +145,9 @@ namespace System.ServiceProcess
             }
         }
 
-        /// <summary>Copies properties from an instance of <see cref="T:System.ServiceProcess.ServiceBase" /> to this installer.</summary>
-        /// <param name="component">The <see cref="T:System.ComponentModel.IComponent" /> from which to copy. </param>
-        /// <exception cref="T:System.ArgumentException">The component you are associating with this installer does not inherit from <see cref="T:System.ServiceProcess.ServiceBase" />. </exception>
+        /// <summary>Copies properties from an instance of <see cref="ServiceBase" /> to this installer.</summary>
+        /// <param name="component">The <see cref="IComponent" /> from which to copy. </param>
+        /// <exception cref="ArgumentException">The component you are associating with this installer does not inherit from <see cref="ServiceBase" />. </exception>
         public override void CopyFromComponent(IComponent component)
         {
             if (!(component is ServiceBase))
@@ -159,10 +159,10 @@ namespace System.ServiceProcess
         }
 
         /// <summary>Installs the service by writing service application information to the registry. This method is meant to be used by installation tools, which process the appropriate methods automatically.</summary>
-        /// <param name="stateSaver">An <see cref="T:System.Collections.IDictionary" /> that contains the context information associated with the installation. </param>
-        /// <exception cref="T:System.InvalidOperationException">The installation does not contain a <see cref="T:System.ServiceProcess.ServiceProcessInstaller" /> for the executable.-or- The file name for the assembly is null or an empty string.-or- The service name is invalid.-or- The Service Control Manager could not be opened. </exception>
-        /// <exception cref="T:System.ArgumentException">The display name for the service is more than 255 characters in length.</exception>
-        /// <exception cref="T:System.ComponentModel.Win32Exception">The system could not generate a handle to the service. -or-A service with that name is already installed.</exception>
+        /// <param name="stateSaver">An <see cref="IDictionary" /> that contains the context information associated with the installation. </param>
+        /// <exception cref="InvalidOperationException">The installation does not contain a <see cref="ServiceProcessInstaller" /> for the executable.-or- The file name for the assembly is null or an empty string.-or- The service name is invalid.-or- The Service Control Manager could not be opened. </exception>
+        /// <exception cref="ArgumentException">The display name for the service is more than 255 characters in length.</exception>
+        /// <exception cref="Win32Exception">The system could not generate a handle to the service. -or-A service with that name is already installed.</exception>
         /// <PermissionSet>
         ///   <IPermission class="System.Security.Permissions.FileIOPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Unrestricted="true" />
         ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode" />
@@ -170,28 +170,28 @@ namespace System.ServiceProcess
         /// </PermissionSet>
         public override void Install(IDictionary stateSaver)
         {
-            base.Context.LogMessage(Res.GetString("InstallingService", ServiceName));
+            Context.LogMessage(Res.GetString("InstallingService", ServiceName));
             try
             {
-                ServiceInstaller.CheckEnvironment();
+                CheckEnvironment();
                 string servicesStartName = null;
                 string password = null;
                 ServiceProcessInstaller serviceProcessInstaller = null;
-                if (base.Parent is ServiceProcessInstaller)
+                if (Parent is ServiceProcessInstaller)
                 {
-                    serviceProcessInstaller = (ServiceProcessInstaller)base.Parent;
+                    serviceProcessInstaller = (ServiceProcessInstaller)Parent;
                 }
                 else
                 {
                     var num = 0;
-                    while (num < base.Parent.Installers.Count)
+                    while (num < Parent.Installers.Count)
                     {
-                        if (!(base.Parent.Installers[num] is ServiceProcessInstaller))
+                        if (!(Parent.Installers[num] is ServiceProcessInstaller))
                         {
                             num++;
                             continue;
                         }
-                        serviceProcessInstaller = (ServiceProcessInstaller)base.Parent.Installers[num];
+                        serviceProcessInstaller = (ServiceProcessInstaller)Parent.Installers[num];
                         break;
                     }
                 }
@@ -214,7 +214,7 @@ namespace System.ServiceProcess
                         password = serviceProcessInstaller.Password;
                         break;
                 }
-                var text = base.Context.Parameters["assemblypath"];
+                var text = Context.Parameters["assemblypath"];
                 if (string.IsNullOrEmpty(text))
                 {
                     throw new InvalidOperationException(Res.GetString("FileName"));
@@ -223,7 +223,7 @@ namespace System.ServiceProcess
                 {
                     text = "\"" + text + "\"";
                 }
-                if (!ServiceInstaller.ValidateServiceName(ServiceName))
+                if (!ValidateServiceName(ServiceName))
                 {
                     throw new InvalidOperationException(Res.GetString("ServiceName", ServiceName, 80.ToString(CultureInfo.CurrentCulture)));
                 }
@@ -259,9 +259,9 @@ namespace System.ServiceProcess
                 }
                 var serviceType = 16;
                 var num2 = 0;
-                for (var j = 0; j < base.Parent.Installers.Count; j++)
+                for (var j = 0; j < Parent.Installers.Count; j++)
                 {
-                    if (base.Parent.Installers[j] is ServiceInstaller)
+                    if (Parent.Installers[j] is ServiceInstaller)
                     {
                         num2++;
                         if (num2 > 1)
@@ -311,7 +311,7 @@ namespace System.ServiceProcess
                     }
                     SafeNativeMethods.CloseServiceHandle(intPtr);
                 }
-                base.Context.LogMessage(Res.GetString("InstallOK", ServiceName));
+                Context.LogMessage(Res.GetString("InstallOK", ServiceName));
             }
             finally
             {
@@ -321,7 +321,7 @@ namespace System.ServiceProcess
 
         /// <summary>Indicates whether two installers would install the same service.</summary>
         /// <returns>true if calling <see cref="M:System.ServiceProcess.ServiceInstaller.Install(System.Collections.IDictionary)" /> on both of these installers would result in installing the same service; otherwise, false.</returns>
-        /// <param name="otherInstaller">A <see cref="T:System.Configuration.Install.ComponentInstaller" /> to which you are comparing the current installer. </param>
+        /// <param name="otherInstaller">A <see cref="ComponentInstaller" /> to which you are comparing the current installer. </param>
         public override bool IsEquivalentInstaller(ComponentInstaller otherInstaller)
         {
             var serviceInstaller = otherInstaller as ServiceInstaller;
@@ -333,7 +333,7 @@ namespace System.ServiceProcess
         }
 
         /// <summary>Rolls back service application information written to the registry by the installation procedure. This method is meant to be used by installation tools, which process the appropriate methods automatically.</summary>
-        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the context information associated with the installation. </param>
+        /// <param name="savedState">An <see cref="IDictionary" /> that contains the context information associated with the installation. </param>
         /// <PermissionSet>
         ///   <IPermission class="System.Security.Permissions.FileIOPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Unrestricted="true" />
         ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode" />
@@ -350,8 +350,8 @@ namespace System.ServiceProcess
         }
 
         /// <summary>Uninstalls the service by removing information about it from the registry.</summary>
-        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the context information associated with the installation. </param>
-        /// <exception cref="T:System.ComponentModel.Win32Exception">The Service Control Manager could not be opened.-or- The system could not get a handle to the service. </exception>
+        /// <param name="savedState">An <see cref="IDictionary" /> that contains the context information associated with the installation. </param>
+        /// <exception cref="Win32Exception">The Service Control Manager could not be opened.-or- The system could not get a handle to the service. </exception>
         /// <PermissionSet>
         ///   <IPermission class="System.Security.Permissions.FileIOPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Unrestricted="true" />
         ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode" />
@@ -365,17 +365,17 @@ namespace System.ServiceProcess
 
         internal static void CheckEnvironment()
         {
-            if (ServiceInstaller.environmentChecked)
+            if (environmentChecked)
             {
-                if (!ServiceInstaller.isWin9x)
+                if (!isWin9x)
                 {
                     return;
                 }
                 throw new PlatformNotSupportedException(Res.GetString("CantControlOnWin9x"));
             }
-            ServiceInstaller.isWin9x = (Environment.OSVersion.Platform != PlatformID.Win32NT);
-            ServiceInstaller.environmentChecked = true;
-            if (!ServiceInstaller.isWin9x)
+            isWin9x = (Environment.OSVersion.Platform != PlatformID.Win32NT);
+            environmentChecked = true;
+            if (!isWin9x)
             {
                 return;
             }
@@ -401,7 +401,7 @@ namespace System.ServiceProcess
 
         private void RemoveService()
         {
-            base.Context.LogMessage(Res.GetString("ServiceRemoving", ServiceName));
+            Context.LogMessage(Res.GetString("ServiceRemoving", ServiceName));
             var intPtr = SafeNativeMethods.OpenSCManager(null, null, 983103);
             if (intPtr == IntPtr.Zero)
             {
@@ -425,14 +425,14 @@ namespace System.ServiceProcess
                 }
                 SafeNativeMethods.CloseServiceHandle(intPtr);
             }
-            base.Context.LogMessage(Res.GetString("ServiceRemoved", ServiceName));
+            Context.LogMessage(Res.GetString("ServiceRemoved", ServiceName));
             try
             {
                 using (var serviceController = new ServiceController(ServiceName))
                 {
                     if (serviceController.Status != ServiceControllerStatus.Stopped)
                     {
-                        base.Context.LogMessage(Res.GetString("TryToStop", ServiceName));
+                        Context.LogMessage(Res.GetString("TryToStop", ServiceName));
                         serviceController.Stop();
                         var num = 10;
                         serviceController.Refresh();

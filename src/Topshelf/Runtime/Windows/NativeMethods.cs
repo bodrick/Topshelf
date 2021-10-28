@@ -1,84 +1,25 @@
 // Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using System.Runtime.InteropServices;
+
 namespace Topshelf.Runtime.Windows
 {
-    using System;
-    using System.Runtime.InteropServices;
-
     public class NativeMethods
     {
-        [Flags]
-        public enum SCM_ACCESS : uint
-        {
-            /// <summary>
-            /// Required to connect to the service control manager.
-            /// </summary>
-            SC_MANAGER_CONNECT = 0x00001,
+        public const int SERVICE_CONFIG_FAILURE_ACTIONS = 2;
 
-            /// <summary>
-            /// Required to call the CreateService function to create a service
-            /// object and add it to the database.
-            /// </summary>
-            SC_MANAGER_CREATE_SERVICE = 0x00002,
-
-            /// <summary>
-            /// Required to call the EnumServicesStatusEx function to list the 
-            /// services that are in the database.
-            /// </summary>
-            SC_MANAGER_ENUMERATE_SERVICE = 0x00004,
-
-            /// <summary>
-            /// Required to call the LockServiceDatabase function to acquire a 
-            /// lock on the database.
-            /// </summary>
-            SC_MANAGER_LOCK = 0x00008,
-
-            /// <summary>
-            /// Required to call the QueryServiceLockStatus function to retrieve 
-            /// the lock status information for the database.
-            /// </summary>
-            SC_MANAGER_QUERY_LOCK_STATUS = 0x00010,
-
-            /// <summary>
-            /// Required to call the NotifyBootConfigStatus function.
-            /// </summary>
-            SC_MANAGER_MODIFY_BOOT_CONFIG = 0x00020,
-
-            /// <summary>
-            /// Includes STANDARD_RIGHTS_REQUIRED, in addition to all access 
-            /// rights in this table.
-            /// </summary>
-            SC_MANAGER_ALL_ACCESS = ACCESS_MASK.STANDARD_RIGHTS_REQUIRED |
-                SC_MANAGER_CONNECT |
-                SC_MANAGER_CREATE_SERVICE |
-                SC_MANAGER_ENUMERATE_SERVICE |
-                SC_MANAGER_LOCK |
-                SC_MANAGER_QUERY_LOCK_STATUS |
-                SC_MANAGER_MODIFY_BOOT_CONFIG,
-
-            GENERIC_READ = ACCESS_MASK.STANDARD_RIGHTS_READ |
-                SC_MANAGER_ENUMERATE_SERVICE |
-                SC_MANAGER_QUERY_LOCK_STATUS,
-
-            GENERIC_WRITE = ACCESS_MASK.STANDARD_RIGHTS_WRITE |
-                SC_MANAGER_CREATE_SERVICE |
-                SC_MANAGER_MODIFY_BOOT_CONFIG,
-
-            GENERIC_EXECUTE = ACCESS_MASK.STANDARD_RIGHTS_EXECUTE |
-                SC_MANAGER_CONNECT | SC_MANAGER_LOCK,
-
-            GENERIC_ALL = SC_MANAGER_ALL_ACCESS,
-        }
+        public const int SERVICE_CONFIG_FAILURE_ACTIONS_FLAG = 4;
 
         [Flags]
         public enum ACCESS_MASK : uint
@@ -131,6 +72,77 @@ namespace Topshelf.Runtime.Windows
             WINSTA_ALL_ACCESS = 0x0000037f
         }
 
+        public enum SC_ACTION_TYPE
+        {
+            None = 0,
+            RestartService = 1,
+            RebootComputer = 2,
+            RunCommand = 3
+        }
+
+        [Flags]
+        public enum SCM_ACCESS : uint
+        {
+            /// <summary>
+            /// Required to connect to the service control manager.
+            /// </summary>
+            SC_MANAGER_CONNECT = 0x00001,
+
+            /// <summary>
+            /// Required to call the CreateService function to create a service
+            /// object and add it to the database.
+            /// </summary>
+            SC_MANAGER_CREATE_SERVICE = 0x00002,
+
+            /// <summary>
+            /// Required to call the EnumServicesStatusEx function to list the
+            /// services that are in the database.
+            /// </summary>
+            SC_MANAGER_ENUMERATE_SERVICE = 0x00004,
+
+            /// <summary>
+            /// Required to call the LockServiceDatabase function to acquire a
+            /// lock on the database.
+            /// </summary>
+            SC_MANAGER_LOCK = 0x00008,
+
+            /// <summary>
+            /// Required to call the QueryServiceLockStatus function to retrieve
+            /// the lock status information for the database.
+            /// </summary>
+            SC_MANAGER_QUERY_LOCK_STATUS = 0x00010,
+
+            /// <summary>
+            /// Required to call the NotifyBootConfigStatus function.
+            /// </summary>
+            SC_MANAGER_MODIFY_BOOT_CONFIG = 0x00020,
+
+            /// <summary>
+            /// Includes STANDARD_RIGHTS_REQUIRED, in addition to all access
+            /// rights in this table.
+            /// </summary>
+            SC_MANAGER_ALL_ACCESS = ACCESS_MASK.STANDARD_RIGHTS_REQUIRED |
+                SC_MANAGER_CONNECT |
+                SC_MANAGER_CREATE_SERVICE |
+                SC_MANAGER_ENUMERATE_SERVICE |
+                SC_MANAGER_LOCK |
+                SC_MANAGER_QUERY_LOCK_STATUS |
+                SC_MANAGER_MODIFY_BOOT_CONFIG,
+
+            GENERIC_READ = ACCESS_MASK.STANDARD_RIGHTS_READ |
+                SC_MANAGER_ENUMERATE_SERVICE |
+                SC_MANAGER_QUERY_LOCK_STATUS,
+
+            GENERIC_WRITE = ACCESS_MASK.STANDARD_RIGHTS_WRITE |
+                SC_MANAGER_CREATE_SERVICE |
+                SC_MANAGER_MODIFY_BOOT_CONFIG,
+
+            GENERIC_EXECUTE = ACCESS_MASK.STANDARD_RIGHTS_EXECUTE |
+                SC_MANAGER_CONNECT | SC_MANAGER_LOCK,
+
+            GENERIC_ALL = SC_MANAGER_ALL_ACCESS,
+        }
+
         [Flags]
         public enum SYSTEM_ACCESS : uint
         {
@@ -139,16 +151,14 @@ namespace Topshelf.Runtime.Windows
             TOKEN_ADJUST_PRIVILEGES = 0x00000020
         }
 
-        [DllImport("advapi32.dll", EntryPoint = "OpenSCManagerW", ExactSpelling = true, CharSet = CharSet.Unicode,
-            SetLastError = true)]
-        public static extern SCMHandle OpenSCManager(string machineName, string databaseName, uint dwAccess);
-
         [DllImport("advapi32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool CloseServiceHandle(IntPtr hSCObject);
-
-        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        public static extern SCMHandle OpenService(SCMHandle hSCManager, string lpServiceName, uint dwDesiredAccess);
+        public static extern bool AdjustTokenPrivileges(SafeTokenHandle TokenHandle,
+            [MarshalAs(UnmanagedType.Bool)] bool DisableAllPrivileges,
+            ref TOKEN_PRIVILEGES NewState,
+            uint BufferLength,
+            IntPtr PreviousState,
+            IntPtr ReturnLength);
 
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern bool ChangeServiceConfig2(SCMHandle serviceHandle, uint infoLevel,
@@ -156,62 +166,33 @@ namespace Topshelf.Runtime.Windows
 
         [DllImport("advapi32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool OpenProcessToken(IntPtr ProcessHandle, int DesiredAccess, out SafeTokenHandle TokenHandle);
-
-        [DllImport("advapi32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool AdjustTokenPrivileges(SafeTokenHandle TokenHandle,
-            [MarshalAs(UnmanagedType.Bool)]bool DisableAllPrivileges,
-            ref TOKEN_PRIVILEGES NewState,
-            UInt32 BufferLength,
-            IntPtr PreviousState,
-            IntPtr ReturnLength);
+        public static extern bool CloseServiceHandle(IntPtr hSCObject);
 
         [DllImport("advapi32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool LookupPrivilegeValue(string lpSystemName, string lpName, out LUID lpLuid);
 
+        [DllImport("advapi32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool OpenProcessToken(IntPtr ProcessHandle, int DesiredAccess, out SafeTokenHandle TokenHandle);
+
+        [DllImport("advapi32.dll", EntryPoint = "OpenSCManagerW", ExactSpelling = true, CharSet = CharSet.Unicode,
+                                                    SetLastError = true)]
+        public static extern SCMHandle OpenSCManager(string machineName, string databaseName, uint dwAccess);
+
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        public static extern SCMHandle OpenService(SCMHandle hSCManager, string lpServiceName, uint dwDesiredAccess);
+
         public struct LUID
         {
-            public int LowPart;
             public int HighPart;
+            public int LowPart;
         }
+
         public struct LUID_AND_ATTRIBUTES
         {
-            public LUID pLuid;
             public int Attributes;
-        }
-        public struct TOKEN_PRIVILEGES
-        {
-            public int PrivilegeCount;
-            public LUID_AND_ATTRIBUTES Privileges;
-        }
-
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        public struct SERVICE_FAILURE_ACTIONS
-        {
-            public int dwResetPeriod;
-            [MarshalAs(UnmanagedType.LPWStr)]
-            public string lpRebootMsg;
-            [MarshalAs(UnmanagedType.LPWStr)]
-            public string lpCommand;
-            public int cActions;
-            public IntPtr actions;
-        }
-
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        public struct SERVICE_FAILURE_ACTIONS_FLAG
-        {
-            [MarshalAs(UnmanagedType.Bool)]
-            public bool fFailureActionsOnNonCrashFailures;
-        }
-
-        public enum SC_ACTION_TYPE
-        {
-            None = 0,
-            RestartService = 1,
-            RebootComputer = 2,
-            RunCommand = 3
+            public LUID pLuid;
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -228,7 +209,32 @@ namespace Topshelf.Runtime.Windows
             public int Delay;
         }
 
-        public const int SERVICE_CONFIG_FAILURE_ACTIONS = 2;
-        public const int SERVICE_CONFIG_FAILURE_ACTIONS_FLAG = 4;
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct SERVICE_FAILURE_ACTIONS
+        {
+            public int dwResetPeriod;
+
+            [MarshalAs(UnmanagedType.LPWStr)]
+            public string lpRebootMsg;
+
+            [MarshalAs(UnmanagedType.LPWStr)]
+            public string lpCommand;
+
+            public int cActions;
+            public IntPtr actions;
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct SERVICE_FAILURE_ACTIONS_FLAG
+        {
+            [MarshalAs(UnmanagedType.Bool)]
+            public bool fFailureActionsOnNonCrashFailures;
+        }
+
+        public struct TOKEN_PRIVILEGES
+        {
+            public int PrivilegeCount;
+            public LUID_AND_ATTRIBUTES Privileges;
+        }
     }
 }

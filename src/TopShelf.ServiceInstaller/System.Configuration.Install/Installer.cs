@@ -5,12 +5,12 @@ using System.Text;
 
 namespace System.Configuration.Install
 {
-    public class Installer : System.ComponentModel.Component
+    public class Installer : Component
     {
-        internal Installer parent;
-        private InstallerCollection installers;
+        internal Installer? parent;
+        private InstallerCollection? installers;
 
-        public InstallContext Context { get; set; }
+        public InstallContext? Context { get; set; }
 
         [ResDescription("Desc_Installer_HelpText")]
         public virtual string HelpText
@@ -18,13 +18,13 @@ namespace System.Configuration.Install
             get
             {
                 var stringBuilder = new StringBuilder();
-                for (var i = 0; i < Installers.Count; i++)
+                foreach (var t in Installers)
                 {
-                    var helpText = Installers[i].HelpText;
+                    var helpText = t.HelpText;
                     if (helpText.Length > 0)
                     {
-                        stringBuilder.Append("\r\n");
-                        stringBuilder.Append(helpText);
+                        stringBuilder.Append("\r\n")
+                            .Append(helpText);
                     }
                 }
                 return stringBuilder.ToString();
@@ -116,7 +116,7 @@ namespace System.Configuration.Install
                             if (!IsWrappedException(ex3))
                             {
                                 Context.LogMessage(Res.GetString("InstallLogCommitException", Installers[j].ToString()));
-                                Installer.LogException(ex3, Context);
+                                LogException(ex3, Context);
                                 Context.LogMessage(Res.GetString("InstallCommitException"));
                             }
                             ex = ex3;
@@ -166,7 +166,7 @@ namespace System.Configuration.Install
             catch (Exception ex)
             {
                 WriteEventHandlerError(Res.GetString("InstallSeverityError"), "OnBeforeInstall", ex);
-                throw new InvalidOperationException(Res.GetString("InstallEventException", "OnBeforeInstall", base.GetType().FullName), ex);
+                throw new InvalidOperationException(Res.GetString("InstallEventException", "OnBeforeInstall", GetType().FullName), ex);
             }
             var num = -1;
             var arrayList = new List<IDictionary>();
@@ -203,7 +203,7 @@ namespace System.Configuration.Install
             catch (Exception ex2)
             {
                 WriteEventHandlerError(Res.GetString("InstallSeverityError"), "OnAfterInstall", ex2);
-                throw new InvalidOperationException(Res.GetString("InstallEventException", "OnAfterInstall", base.GetType().FullName), ex2);
+                throw new InvalidOperationException(Res.GetString("InstallEventException", "OnAfterInstall", GetType().FullName), ex2);
             }
         }
 
@@ -245,7 +245,7 @@ namespace System.Configuration.Install
                             if (!IsWrappedException(ex3))
                             {
                                 Context.LogMessage(Res.GetString("InstallLogRollbackException", Installers[num3].ToString()));
-                                Installer.LogException(ex3, Context);
+                                LogException(ex3, Context);
                                 Context.LogMessage(Res.GetString("InstallRollbackException"));
                             }
                             ex = ex3;
@@ -321,7 +321,7 @@ namespace System.Configuration.Install
                     if (!IsWrappedException(ex3))
                     {
                         Context.LogMessage(Res.GetString("InstallLogUninstallException", Installers[num2].ToString()));
-                        Installer.LogException(ex3, Context);
+                        LogException(ex3, Context);
                         Context.LogMessage(Res.GetString("InstallUninstallException"));
                     }
                     ex = ex3;
@@ -363,7 +363,7 @@ namespace System.Configuration.Install
         private InstallEventHandler beforeRollbackHandler;
         private InstallEventHandler beforeUninstallHandler;
 
-        /// <summary>Occurs after the <see cref="M:System.Configuration.Install.Installer.Install(System.Collections.IDictionary)" /> methods of all the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property have run.</summary>
+        /// <summary>Occurs after the <see cref="M:System.Configuration.Install.Installer.Install(System.Collections.IDictionary)" /> methods of all the installers in the <see cref="Installers" /> property have run.</summary>
         public event InstallEventHandler AfterInstall
         {
             add
@@ -376,7 +376,7 @@ namespace System.Configuration.Install
             }
         }
 
-        /// <summary>Occurs after the installations of all the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are rolled back.</summary>
+        /// <summary>Occurs after the installations of all the installers in the <see cref="Installers" /> property are rolled back.</summary>
         public event InstallEventHandler AfterRollback
         {
             add
@@ -389,7 +389,7 @@ namespace System.Configuration.Install
             }
         }
 
-        /// <summary>Occurs after all the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property perform their uninstallation operations.</summary>
+        /// <summary>Occurs after all the installers in the <see cref="Installers" /> property perform their uninstallation operations.</summary>
         public event InstallEventHandler AfterUninstall
         {
             add
@@ -415,7 +415,7 @@ namespace System.Configuration.Install
             }
         }
 
-        /// <summary>Occurs before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are rolled back.</summary>
+        /// <summary>Occurs before the installers in the <see cref="Installers" /> property are rolled back.</summary>
         public event InstallEventHandler BeforeRollback
         {
             add
@@ -428,7 +428,7 @@ namespace System.Configuration.Install
             }
         }
 
-        /// <summary>Occurs before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property perform their uninstall operations.</summary>
+        /// <summary>Occurs before the installers in the <see cref="Installers" /> property perform their uninstall operations.</summary>
         public event InstallEventHandler BeforeUninstall
         {
             add
@@ -453,7 +453,7 @@ namespace System.Configuration.Install
             }
         }
 
-        /// <summary>Occurs before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property committ their installations.</summary>
+        /// <summary>Occurs before the installers in the <see cref="Installers" /> property committ their installations.</summary>
         public event InstallEventHandler Committing
         {
             add
@@ -467,33 +467,33 @@ namespace System.Configuration.Install
         }
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.AfterInstall" /> event.</summary>
-        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer after all the installers contained in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property have completed their installations. </param>
+        /// <param name="savedState">An <see cref="IDictionary" /> that contains the state of the computer after all the installers contained in the <see cref="Installers" /> property have completed their installations. </param>
         protected virtual void OnAfterInstall(IDictionary savedState) => afterInstallHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.AfterRollback" /> event.</summary>
-        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer after the installers contained in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are rolled back. </param>
+        /// <param name="savedState">An <see cref="IDictionary" /> that contains the state of the computer after the installers contained in the <see cref="Installers" /> property are rolled back. </param>
         protected virtual void OnAfterRollback(IDictionary savedState) => afterRollbackHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.AfterUninstall" /> event.</summary>
-        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer after all the installers contained in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are uninstalled. </param>
+        /// <param name="savedState">An <see cref="IDictionary" /> that contains the state of the computer after all the installers contained in the <see cref="Installers" /> property are uninstalled. </param>
         protected virtual void OnAfterUninstall(IDictionary savedState) => afterUninstallHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.BeforeInstall" /> event.</summary>
-        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are installed. This <see cref="T:System.Collections.IDictionary" /> object should be empty at this point. </param>
+        /// <param name="savedState">An <see cref="IDictionary" /> that contains the state of the computer before the installers in the <see cref="Installers" /> property are installed. This <see cref="IDictionary" /> object should be empty at this point. </param>
         protected virtual void OnBeforeInstall(IDictionary savedState) => beforeInstallHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.BeforeRollback" /> event.</summary>
-        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are rolled back. </param>
+        /// <param name="savedState">An <see cref="IDictionary" /> that contains the state of the computer before the installers in the <see cref="Installers" /> property are rolled back. </param>
         protected virtual void OnBeforeRollback(IDictionary savedState) => beforeRollbackHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.BeforeUninstall" /> event.</summary>
-        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property uninstall their installations. </param>
+        /// <param name="savedState">An <see cref="IDictionary" /> that contains the state of the computer before the installers in the <see cref="Installers" /> property uninstall their installations. </param>
         protected virtual void OnBeforeUninstall(IDictionary savedState) => beforeUninstallHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         protected virtual void OnCommitted(IDictionary savedState) => afterCommitHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         /// <summary>Raises the <see cref="E:System.Configuration.Install.Installer.Committing" /> event.</summary>
-        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary" /> that contains the state of the computer before the installers in the <see cref="P:System.Configuration.Install.Installer.Installers" /> property are committed. </param>
+        /// <param name="savedState">An <see cref="IDictionary" /> that contains the state of the computer before the installers in the <see cref="Installers" /> property are committed. </param>
         protected virtual void OnCommitting(IDictionary savedState) => beforeCommitHandler?.Invoke(this, new InstallEventArgs(savedState));
 
         #endregion Event Handlers
@@ -547,8 +547,8 @@ namespace System.Configuration.Install
 
         private void WriteEventHandlerError(string severity, string eventName, Exception e)
         {
-            Context.LogMessage(Res.GetString("InstallLogError", severity, eventName, base.GetType().FullName));
-            Installer.LogException(e, Context);
+            Context.LogMessage(Res.GetString("InstallLogError", severity, eventName, GetType().FullName));
+            LogException(e, Context);
         }
     }
 }

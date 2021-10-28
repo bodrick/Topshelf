@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace System.Configuration.Install
 {
-    public class InstallerCollection : System.Collections.ObjectModel.Collection<Installer>
+    public class InstallerCollection : Collections.ObjectModel.Collection<Installer>
     {
         private readonly Installer owner;
 
@@ -12,7 +12,7 @@ namespace System.Configuration.Install
         {
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             foreach (var item in value)
             {

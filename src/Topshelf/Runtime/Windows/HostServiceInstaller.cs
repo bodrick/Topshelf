@@ -1,38 +1,31 @@
 // Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using System.Collections;
+using System.Configuration.Install;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.ServiceProcess;
+
 namespace Topshelf.Runtime.Windows
 {
-    using System;
-    using System.Collections;
-    using System.Configuration.Install;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.ServiceProcess;
-
     public class HostServiceInstaller :
         IDisposable
     {
-        readonly Installer _installer;
-        readonly TransactedInstaller _transactedInstaller;
-        public ServiceProcessInstaller ServiceProcessInstaller
-        {
-            get
-            {
-            	return (ServiceProcessInstaller)_installer.Installers[1];      
-            }
-        }
+        private readonly Installer _installer;
+        private readonly TransactedInstaller _transactedInstaller;
 
         public HostServiceInstaller(InstallHostSettings settings)
         {
@@ -47,6 +40,8 @@ namespace Topshelf.Runtime.Windows
 
             _transactedInstaller = CreateTransactedInstaller(_installer);
         }
+
+        public ServiceProcessInstaller ServiceProcessInstaller => (ServiceProcessInstaller)_installer.Installers[1];
 
         public void Dispose()
         {
@@ -63,13 +58,24 @@ namespace Topshelf.Runtime.Windows
         public void InstallService(Action<InstallEventArgs> beforeInstall, Action<InstallEventArgs> afterInstall, Action<InstallEventArgs> beforeRollback, Action<InstallEventArgs> afterRollback)
         {
             if (beforeInstall != null)
+            {
                 _installer.BeforeInstall += (sender, args) => beforeInstall(args);
+            }
+
             if (afterInstall != null)
+            {
                 _installer.AfterInstall += (sender, args) => afterInstall(args);
+            }
+
             if (beforeRollback != null)
+            {
                 _installer.BeforeRollback += (sender, args) => beforeRollback(args);
+            }
+
             if (afterRollback != null)
+            {
                 _installer.AfterRollback += (sender, args) => afterRollback(args);
+            }
 
             Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
@@ -79,16 +85,72 @@ namespace Topshelf.Runtime.Windows
         public void UninstallService(Action<InstallEventArgs> beforeUninstall, Action<InstallEventArgs> afterUninstall)
         {
             if (beforeUninstall != null)
+            {
                 _installer.BeforeUninstall += (sender, args) => beforeUninstall(args);
+            }
+
             if (afterUninstall != null)
+            {
                 _installer.AfterUninstall += (sender, args) => afterUninstall(args);
+            }
 
             Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
             _transactedInstaller.Uninstall(null);
         }
 
-        static Installer CreateInstaller(InstallHostSettings settings)
+        private static ServiceInstaller ConfigureServiceInstaller(HostSettings settings, string[] dependencies,
+            HostStartMode startMode)
+        {
+            var installer = new ServiceInstaller
+            {
+                ServiceName = settings.ServiceName,
+                Description = settings.Description,
+                DisplayName = settings.DisplayName,
+                ServicesDependedOn = dependencies
+            };
+
+            SetStartMode(installer, startMode);
+
+            return installer;
+        }
+
+        private static ServiceProcessInstaller ConfigureServiceProcessInstaller(ServiceAccount account, string username,
+            string password)
+        {
+            var installer = new ServiceProcessInstaller
+            {
+                Username = username,
+                Password = password,
+                Account = account,
+            };
+
+            return installer;
+        }
+
+        private static Installer CreateHostInstaller(HostSettings settings, Installer[] installers)
+        {
+            var arguments = " ";
+
+            if (!string.IsNullOrEmpty(settings.InstanceName))
+            {
+                arguments += $" -instance \"{settings.InstanceName}\"";
+            }
+
+            if (!string.IsNullOrEmpty(settings.DisplayName))
+            {
+                arguments += $" -displayname \"{settings.DisplayName}\"";
+            }
+
+            if (!string.IsNullOrEmpty(settings.Name))
+            {
+                arguments += $" -servicename \"{settings.Name}\"";
+            }
+
+            return new HostInstaller(settings, arguments, installers);
+        }
+
+        private static Installer CreateInstaller(InstallHostSettings settings)
         {
             var installers = new Installer[]
                 {
@@ -104,64 +166,27 @@ namespace Topshelf.Runtime.Windows
             return CreateHostInstaller(settings, installers);
         }
 
-        private static void RemoveEventLogInstallers(Installer[] installers)
-        {
-            foreach (var installer in installers)
-            {
-                var eventLogInstallers = installer.Installers.OfType<EventLogInstaller>().ToArray();
-                foreach (var eventLogInstaller in eventLogInstallers)
-                {
-                    installer.Installers.Remove(eventLogInstaller);
-                }
-            }
-        }
-
-        Installer CreateInstaller(HostSettings settings)
-        {
-            var installers = new Installer[]
-                {
-                    ConfigureServiceInstaller(settings, new string[] {}, HostStartMode.Automatic),
-                    ConfigureServiceProcessInstaller(ServiceAccount.LocalService, "", ""),
-                };
-
-            RemoveEventLogInstallers(installers);
-
-            return CreateHostInstaller(settings, installers);
-        }
-
-        static Installer CreateHostInstaller(HostSettings settings, Installer[] installers)
-        {
-            string arguments = " ";
-
-            if (!string.IsNullOrEmpty(settings.InstanceName))
-                arguments += $" -instance \"{settings.InstanceName}\"";
-
-            if (!string.IsNullOrEmpty(settings.DisplayName))
-                arguments += $" -displayname \"{settings.DisplayName}\"";
-
-            if (!string.IsNullOrEmpty(settings.Name))
-                arguments += $" -servicename \"{settings.Name}\"";
-
-            return new HostInstaller(settings, arguments, installers);
-        }
-
-        static TransactedInstaller CreateTransactedInstaller(Installer installer)
+        private static TransactedInstaller CreateTransactedInstaller(Installer installer)
         {
             var transactedInstaller = new TransactedInstaller();
 
             transactedInstaller.Installers.Add(installer);
 
-            Assembly assembly = Assembly.GetEntryAssembly();
+            var assembly = Assembly.GetEntryAssembly();
 
-            Process currentProcess = Process.GetCurrentProcess();
+            var currentProcess = Process.GetCurrentProcess();
 
             if (assembly == null)
+            {
                 throw new TopshelfException("Assembly.GetEntryAssembly() is null for some reason.");
+            }
 
             if (currentProcess == null)
+            {
                 throw new TopshelfException("Process.GetCurrentProcess() is null for some reason.");
+            }
 
-            string path =
+            var path =
                 IsDotnetExe(currentProcess)
                 ? $"/assemblypath={currentProcess.MainModule.FileName} \"{assembly.Location}\""
                 : $"/assemblypath={currentProcess.MainModule.FileName}";
@@ -174,29 +199,25 @@ namespace Topshelf.Runtime.Windows
             return transactedInstaller;
         }
 
-        static bool IsDotnetExe(Process process) =>
+        private static bool IsDotnetExe(Process process) =>
             process
             .MainModule
             .ModuleName
             .Equals("dotnet.exe", StringComparison.InvariantCultureIgnoreCase);
 
-        static ServiceInstaller ConfigureServiceInstaller(HostSettings settings, string[] dependencies,
-            HostStartMode startMode)
+        private static void RemoveEventLogInstallers(Installer[] installers)
         {
-            var installer = new ServiceInstaller
+            foreach (var installer in installers)
+            {
+                var eventLogInstallers = installer.Installers.OfType<EventLogInstaller>().ToArray();
+                foreach (var eventLogInstaller in eventLogInstallers)
                 {
-                    ServiceName = settings.ServiceName,
-                    Description = settings.Description,
-                    DisplayName = settings.DisplayName,
-                    ServicesDependedOn = dependencies
-                };
-
-            SetStartMode(installer, startMode);
-
-            return installer;
+                    installer.Installers.Remove(eventLogInstaller);
+                }
+            }
         }
 
-        static void SetStartMode(ServiceInstaller installer, HostStartMode startMode)
+        private static void SetStartMode(ServiceInstaller installer, HostStartMode startMode)
         {
             switch (startMode)
             {
@@ -219,17 +240,17 @@ namespace Topshelf.Runtime.Windows
             }
         }
 
-        static ServiceProcessInstaller ConfigureServiceProcessInstaller(ServiceAccount account, string username,
-            string password)
+        private Installer CreateInstaller(HostSettings settings)
         {
-            var installer = new ServiceProcessInstaller
+            var installers = new Installer[]
                 {
-                    Username = username,
-                    Password = password,
-                    Account = account,
+                    ConfigureServiceInstaller(settings, new string[] {}, HostStartMode.Automatic),
+                    ConfigureServiceProcessInstaller(ServiceAccount.LocalService, "", ""),
                 };
 
-            return installer;
+            RemoveEventLogInstallers(installers);
+
+            return CreateHostInstaller(settings, installers);
         }
     }
 }

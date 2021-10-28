@@ -1,39 +1,50 @@
 // Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using System;
+using System.Threading;
+using Topshelf.Logging;
+using Topshelf.Runtime;
+
 namespace Topshelf.Hosts
 {
-    using System;
-    using System.Threading;
-    using Logging;
-    using Runtime;
-
     public class TestHost :
         Host,
         HostControl
     {
-        readonly LogWriter _log = HostLogger.Get<TestHost>();
-        readonly ServiceHandle _serviceHandle;
-        readonly HostSettings _settings;
+        private readonly LogWriter _log = HostLogger.Get<TestHost>();
+        private readonly ServiceHandle _serviceHandle;
+        private readonly HostSettings _settings;
 
         public TestHost(HostSettings settings, HostEnvironment environment, ServiceHandle serviceHandle)
         {
             if (settings == null)
+            {
                 throw new ArgumentNullException(nameof(settings));
+            }
+
             if (environment == null)
+            {
                 throw new ArgumentNullException(nameof(environment));
+            }
 
             _settings = settings;
             _serviceHandle = serviceHandle;
+        }
+
+        void HostControl.RequestAdditionalTime(TimeSpan timeRemaining)
+        {
+            // good for you, maybe we'll use a timer for startup at some point but for debugging
+            // it's a pain in the ass
         }
 
         public TopshelfExitCode Run()
@@ -71,20 +82,8 @@ namespace Topshelf.Hosts
             return exitCode;
         }
 
-        void HostControl.RequestAdditionalTime(TimeSpan timeRemaining)
-        {
-            // good for you, maybe we'll use a timer for startup at some point but for debugging
-            // it's a pain in the ass
-        }
+        void HostControl.Stop() => _log.Info("Service Stop requested, exiting.");
 
-        void HostControl.Stop()
-        {
-            _log.Info("Service Stop requested, exiting.");
-        }
-
-        void HostControl.Stop(TopshelfExitCode exitCode)
-        {
-            _log.Info($"Service Stop requested with exit code {exitCode}, exiting.");
-        }
+        void HostControl.Stop(TopshelfExitCode exitCode) => _log.Info($"Service Stop requested with exit code {exitCode}, exiting.");
     }
 }

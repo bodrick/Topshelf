@@ -10,18 +10,15 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+using Microsoft.Win32.SafeHandles;
+
 namespace Topshelf.Runtime.Windows
 {
-    using Microsoft.Win32.SafeHandles;
-
     public class SCMHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
         public SCMHandle()
             : base(true) { }
 
-        protected override bool ReleaseHandle()
-        {
-            return NativeMethods.CloseServiceHandle(handle);
-        }
+        protected override bool ReleaseHandle() => NativeMethods.CloseServiceHandle(handle);
     }
 }
