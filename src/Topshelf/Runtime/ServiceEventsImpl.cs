@@ -11,6 +11,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
+using Topshelf.Exceptions;
 
 namespace Topshelf.Runtime
 {
@@ -37,28 +38,28 @@ namespace Topshelf.Runtime
 
         public void AddBeforeStop(Action<IHostStopContext> callback) => _beforeStop.Add(callback);
 
-        public void AfterStart(HostControl hostControl)
+        public void AfterStart(IHostControl hostControl)
         {
             var context = new HostStartedContextImpl(hostControl);
 
             _afterStart.Notify(context);
         }
 
-        public void AfterStop(HostControl hostControl)
+        public void AfterStop(IHostControl hostControl)
         {
             var context = new HostStoppedContextImpl(hostControl);
 
             _afterStop.Notify(context);
         }
 
-        public void BeforeStart(HostControl hostControl)
+        public void BeforeStart(IHostControl hostControl)
         {
             var context = new HostStartContextImpl(hostControl);
 
             _beforeStart.Notify(context);
         }
 
-        public void BeforeStop(HostControl hostControl)
+        public void BeforeStop(IHostControl hostControl)
         {
             var context = new HostStopContextImpl(hostControl);
 
@@ -67,9 +68,9 @@ namespace Topshelf.Runtime
 
         private abstract class ContextImpl
         {
-            private readonly HostControl _hostControl;
+            private readonly IHostControl _hostControl;
 
-            public ContextImpl(HostControl hostControl) => _hostControl = hostControl;
+            public ContextImpl(IHostControl hostControl) => _hostControl = hostControl;
 
             public void RequestAdditionalTime(TimeSpan timeRemaining) => _hostControl.RequestAdditionalTime(timeRemaining);
 
@@ -80,7 +81,7 @@ namespace Topshelf.Runtime
 
         private class HostStartContextImpl : ContextImpl, IHostStartContext
         {
-            public HostStartContextImpl(HostControl hostControl) : base(hostControl)
+            public HostStartContextImpl(IHostControl hostControl) : base(hostControl)
             {
             }
 
@@ -89,21 +90,21 @@ namespace Topshelf.Runtime
 
         private class HostStartedContextImpl : ContextImpl, IHostStartedContext
         {
-            public HostStartedContextImpl(HostControl hostControl) : base(hostControl)
+            public HostStartedContextImpl(IHostControl hostControl) : base(hostControl)
             {
             }
         }
 
         private class HostStopContextImpl : ContextImpl, IHostStopContext
         {
-            public HostStopContextImpl(HostControl hostControl) : base(hostControl)
+            public HostStopContextImpl(IHostControl hostControl) : base(hostControl)
             {
             }
         }
 
         private class HostStoppedContextImpl : ContextImpl, IHostStoppedContext
         {
-            public HostStoppedContextImpl(HostControl hostControl) : base(hostControl)
+            public HostStoppedContextImpl(IHostControl hostControl) : base(hostControl)
             {
             }
         }

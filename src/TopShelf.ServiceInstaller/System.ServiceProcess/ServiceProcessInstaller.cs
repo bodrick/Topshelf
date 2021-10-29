@@ -8,11 +8,11 @@ namespace System.ServiceProcess
 {
     public class ServiceProcessInstaller : ComponentInstaller
     {
-        private static bool helpPrinted;
-        private bool haveLoginInfo;
-        private string password;
-        private ServiceAccount serviceAccount = ServiceAccount.User;
-        private string username;
+        private static bool _helpPrinted;
+        private bool _haveLoginInfo;
+        private string? _password;
+        private ServiceAccount _serviceAccount = ServiceAccount.User;
+        private string? _username;
 
         /// <summary>Gets or sets the type of account under which to run this service application.</summary>
         /// <returns>A <see cref="ServiceAccount" /> that defines the type of account under which the system runs this service. The default is User.</returns>
@@ -29,16 +29,16 @@ namespace System.ServiceProcess
         {
             get
             {
-                if (!haveLoginInfo)
+                if (!_haveLoginInfo)
                 {
                     GetLoginInfo();
                 }
-                return serviceAccount;
+                return _serviceAccount;
             }
             set
             {
-                haveLoginInfo = false;
-                serviceAccount = value;
+                _haveLoginInfo = false;
+                _serviceAccount = value;
             }
         }
 
@@ -51,11 +51,11 @@ namespace System.ServiceProcess
         {
             get
             {
-                if (helpPrinted)
+                if (_helpPrinted)
                 {
                     return base.HelpText;
                 }
-                helpPrinted = true;
+                _helpPrinted = true;
                 return Res.GetString("HelpText") + "\r\n" + base.HelpText;
             }
         }
@@ -74,16 +74,16 @@ namespace System.ServiceProcess
         {
             get
             {
-                if (!haveLoginInfo)
+                if (!_haveLoginInfo)
                 {
                     GetLoginInfo();
                 }
-                return password;
+                return _password ?? string.Empty;
             }
             set
             {
-                haveLoginInfo = false;
-                password = value;
+                _haveLoginInfo = false;
+                _password = value;
             }
         }
 
@@ -102,22 +102,22 @@ namespace System.ServiceProcess
         {
             get
             {
-                if (!haveLoginInfo)
+                if (!_haveLoginInfo)
                 {
                     GetLoginInfo();
                 }
-                return username;
+                return _username ?? string.Empty;
             }
             set
             {
-                haveLoginInfo = false;
-                username = value;
+                _haveLoginInfo = false;
+                _username = value;
             }
         }
 
-        /// <summary>Implements the base class <see cref="M:System.Configuration.Install.ComponentInstaller.CopyFromComponent(System.ComponentModel.IComponent)" /> method with no <see cref="ServiceProcessInstaller" /> class-specific behavior.</summary>
-        /// <param name="comp">The <see cref="IComponent" /> that represents the service process. </param>
-        public override void CopyFromComponent(IComponent comp)
+        /// <summary>Implements the base class <see cref="ComponentInstaller.CopyFromComponent(IComponent)" /> method with no <see cref="ServiceProcessInstaller" /> class-specific behavior.</summary>
+        /// <param name="component">The <see cref="IComponent" /> that represents the service process. </param>
+        public override void CopyFromComponent(IComponent component)
         {
         }
 
@@ -135,7 +135,7 @@ namespace System.ServiceProcess
                 ServiceInstaller.CheckEnvironment();
                 try
                 {
-                    if (!haveLoginInfo)
+                    if (!_haveLoginInfo)
                     {
                         try
                         {
@@ -192,18 +192,23 @@ namespace System.ServiceProcess
         {
             try
             {
-                if ((ServiceAccount)savedState["Account"] == ServiceAccount.User && !(bool)savedState["hadServiceLogonRight"])
+                var account = savedState["Account"] as ServiceAccount?;
+                var hadServiceLogonRight = savedState["hadServiceLogonRight"] as bool?;
+                if (account is ServiceAccount.User && hadServiceLogonRight is not true)
                 {
-                    var accountName = (string)savedState["Username"];
-                    var intPtr = OpenSecurityPolicy();
-                    try
+                    var accountName = savedState["Username"] as string;
+                    if (!string.IsNullOrEmpty(accountName))
                     {
-                        var accountSid = GetAccountSid(accountName);
-                        RemoveAccountRight(intPtr, accountSid, "SeServiceLogonRight");
-                    }
-                    finally
-                    {
-                        SafeNativeMethods.LsaClose(intPtr);
+                        var intPtr = OpenSecurityPolicy();
+                        try
+                        {
+                            var accountSid = GetAccountSid(accountName);
+                            RemoveAccountRight(intPtr, accountSid, "SeServiceLogonRight");
+                        }
+                        finally
+                        {
+                            SafeNativeMethods.LsaClose(intPtr);
+                        }
                     }
                 }
             }
@@ -215,18 +220,13 @@ namespace System.ServiceProcess
 
         private static bool AccountHasRight(IntPtr policyHandle, byte[] accountSid, string rightName)
         {
-            var intPtr = (IntPtr)0;
-            var num2 = NativeMethods.LsaEnumerateAccountRights(policyHandle, accountSid, out intPtr, out var num);
+            var num2 = NativeMethods.LsaEnumerateAccountRights(policyHandle, accountSid, out var intPtr, out var num);
             switch (num2)
             {
                 case -1073741772:
                     return false;
 
-                default:
-                    throw new Win32Exception(SafeNativeMethods.LsaNtStatusToWinError(num2));
                 case 0:
-                {
-                    var result = false;
                     try
                     {
                         var intPtr2 = intPtr;
@@ -236,72 +236,32 @@ namespace System.ServiceProcess
                             Marshal.PtrToStructure(intPtr2, (object)lSA_UNICODE_STRING_withPointer);
                             var array = new char[lSA_UNICODE_STRING_withPointer.length / 2];
                             Marshal.Copy(lSA_UNICODE_STRING_withPointer.pwstr, array, 0, array.Length);
-                            if (string.Compare(new string(array, 0, array.Length), rightName, StringComparison.Ordinal) == 0)
+                            if (string.Equals(new string(array, 0, array.Length), rightName, StringComparison.Ordinal))
                             {
                                 return true;
                             }
                             intPtr2 = (IntPtr)((long)intPtr2 + Marshal.SizeOf(typeof(NativeMethods.LSA_UNICODE_STRING)));
                         }
-                        return result;
+                        return false;
                     }
                     finally
                     {
                         SafeNativeMethods.LsaFreeMemory(intPtr);
                     }
-                }
+
+                default:
+                    throw new Win32Exception(SafeNativeMethods.LsaNtStatusToWinError(num2));
             }
         }
 
-        private static void GrantAccountRight(IntPtr policyHandle, byte[] accountSid, string rightName)
-        {
-            var lSA_UNICODE_STRING = new NativeMethods.LSA_UNICODE_STRING
-            {
-                buffer = rightName
-            };
-            var lSA_UNICODE_STRING2 = lSA_UNICODE_STRING;
-            lSA_UNICODE_STRING2.length = (short)(lSA_UNICODE_STRING2.buffer.Length * 2);
-            var lSA_UNICODE_STRING3 = lSA_UNICODE_STRING;
-            lSA_UNICODE_STRING3.maximumLength = lSA_UNICODE_STRING3.length;
-            var num = NativeMethods.LsaAddAccountRights(policyHandle, accountSid, lSA_UNICODE_STRING, 1);
-            if (num == 0)
-            {
-                return;
-            }
-            throw new Win32Exception(SafeNativeMethods.LsaNtStatusToWinError(num));
-        }
-
-        private static void RemoveAccountRight(IntPtr policyHandle, byte[] accountSid, string rightName)
-        {
-            var lSA_UNICODE_STRING = new NativeMethods.LSA_UNICODE_STRING
-            {
-                buffer = rightName
-            };
-            var lSA_UNICODE_STRING2 = lSA_UNICODE_STRING;
-            lSA_UNICODE_STRING2.length = (short)(lSA_UNICODE_STRING2.buffer.Length * 2);
-            var lSA_UNICODE_STRING3 = lSA_UNICODE_STRING;
-            lSA_UNICODE_STRING3.maximumLength = lSA_UNICODE_STRING3.length;
-            var num = NativeMethods.LsaRemoveAccountRights(policyHandle, accountSid, false, lSA_UNICODE_STRING, 1);
-            if (num == 0)
-            {
-                return;
-            }
-            throw new Win32Exception(SafeNativeMethods.LsaNtStatusToWinError(num));
-        }
-
-        private byte[] GetAccountSid(string accountName)
+        private static byte[] GetAccountSid(string accountName)
         {
             var array = new byte[256];
-            var array2 = new int[1]
-            {
-            array.Length
-            };
+            var array2 = new[] { array.Length };
             var array3 = new char[1024];
-            var domNameLen = new int[1]
-            {
-            array3.Length
-            };
+            var domNameLen = new[] { array3.Length };
             var sidNameUse = new int[1];
-            if (accountName.Substring(0, 2) == ".\\")
+            if (accountName[..2] == ".\\")
             {
                 var stringBuilder = new StringBuilder(32);
                 var num = 32;
@@ -309,7 +269,7 @@ namespace System.ServiceProcess
                 {
                     throw new Win32Exception();
                 }
-                accountName = stringBuilder + accountName.Substring(1);
+                accountName = stringBuilder + accountName[1..];
             }
             if (!NativeMethods.LookupAccountName(null, accountName, array, array2, array3, domNameLen, sidNameUse))
             {
@@ -320,24 +280,75 @@ namespace System.ServiceProcess
             return array4;
         }
 
+        private static void GrantAccountRight(IntPtr policyHandle, byte[] accountSid, string rightName)
+        {
+            var lSA_UNICODE_STRING = new NativeMethods.LSA_UNICODE_STRING
+            {
+                buffer = rightName
+            };
+            lSA_UNICODE_STRING.length = (short)(lSA_UNICODE_STRING.buffer.Length * 2);
+            lSA_UNICODE_STRING.maximumLength = lSA_UNICODE_STRING.length;
+            var num = NativeMethods.LsaAddAccountRights(policyHandle, accountSid, lSA_UNICODE_STRING, 1);
+            if (num == 0)
+            {
+                return;
+            }
+            throw new Win32Exception(SafeNativeMethods.LsaNtStatusToWinError(num));
+        }
+
+        private static IntPtr OpenSecurityPolicy()
+        {
+            var gCHandle = GCHandle.Alloc(new NativeMethods.LSA_OBJECT_ATTRIBUTES(), GCHandleType.Pinned);
+            try
+            {
+                var pointerObjectAttributes = gCHandle.AddrOfPinnedObject();
+                var num = NativeMethods.LsaOpenPolicy(null, pointerObjectAttributes, 2064, out var result);
+                if (num != 0)
+                {
+                    throw new Win32Exception(SafeNativeMethods.LsaNtStatusToWinError(num));
+                }
+                return result;
+            }
+            finally
+            {
+                gCHandle.Free();
+            }
+        }
+
+        private static void RemoveAccountRight(IntPtr policyHandle, byte[] accountSid, string rightName)
+        {
+            var lSA_UNICODE_STRING = new NativeMethods.LSA_UNICODE_STRING
+            {
+                buffer = rightName
+            };
+            lSA_UNICODE_STRING.length = (short)(lSA_UNICODE_STRING.buffer.Length * 2);
+            lSA_UNICODE_STRING.maximumLength = lSA_UNICODE_STRING.length;
+            var num = NativeMethods.LsaRemoveAccountRights(policyHandle, accountSid, false, lSA_UNICODE_STRING, 1);
+            if (num == 0)
+            {
+                return;
+            }
+            throw new Win32Exception(SafeNativeMethods.LsaNtStatusToWinError(num));
+        }
+
         private void GetLoginInfo()
         {
-            if (Context != null && !DesignMode && !haveLoginInfo)
+            if (Context != null && !DesignMode && !_haveLoginInfo)
             {
-                haveLoginInfo = true;
-                if (serviceAccount != ServiceAccount.User)
+                _haveLoginInfo = true;
+                if (_serviceAccount != ServiceAccount.User)
                 {
                     return;
                 }
                 if (Context.Parameters.ContainsKey("username"))
                 {
-                    username = Context.Parameters["username"];
+                    _username = Context.Parameters["username"];
                 }
                 if (Context.Parameters.ContainsKey("password"))
                 {
-                    password = Context.Parameters["password"];
+                    _password = Context.Parameters["password"];
                 }
-                if (username != null && username.Length != 0 && password != null)
+                if (!string.IsNullOrEmpty(_username) && _password != null)
                 {
                     return;
                 }
@@ -368,27 +379,7 @@ namespace System.ServiceProcess
                     //}
                     //return;
                 }
-                throw new InvalidOperationException(Res.GetString("UnattendedCannotPrompt", Context.Parameters["assemblypath"]));
-            }
-        }
-
-        private IntPtr OpenSecurityPolicy()
-        {
-            var gCHandle = GCHandle.Alloc(new NativeMethods.LSA_OBJECT_ATTRIBUTES(), GCHandleType.Pinned);
-            try
-            {
-                var num = 0;
-                var pointerObjectAttributes = gCHandle.AddrOfPinnedObject();
-                num = NativeMethods.LsaOpenPolicy(null, pointerObjectAttributes, 2064, out var result);
-                if (num != 0)
-                {
-                    throw new Win32Exception(SafeNativeMethods.LsaNtStatusToWinError(num));
-                }
-                return result;
-            }
-            finally
-            {
-                gCHandle.Free();
+                throw new InvalidOperationException(Res.GetString("UnattendedCannotPrompt", Context.Parameters["assemblypath"] ?? string.Empty));
             }
         }
     }

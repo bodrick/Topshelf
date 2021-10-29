@@ -11,10 +11,9 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using NLog;
-using Topshelf.HostConfigurators;
-using Topshelf.Logging;
+using Topshelf.Configuration.HostConfigurators;
 
-namespace Topshelf
+namespace Topshelf.NLog
 {
     /// <summary>
     ///   Extensions for configuring NLog with MassTransit
@@ -25,13 +24,21 @@ namespace Topshelf
         ///   Specify that you want to use the NLog logging framework.
         /// </summary>
         /// <param name="configurator"> Optional service bus configurator </param>
-        public static void UseNLog(this HostConfigurator configurator) => NLogLogWriterFactory.Use();
+        public static IHostConfigurator UseNLog(this IHostConfigurator configurator)
+        {
+            NLogLogWriterFactory.Use();
+            return configurator;
+        }
 
         /// <summary>
         ///   Specify that you want to use the NLog logging framework.
         /// </summary>
         /// <param name="configurator"> Optional service bus configurator </param>
         /// <param name="factory"> Required log-producing factory from NLog </param>
-        public static void UseNLog(this HostConfigurator configurator, LogFactory factory) => NLogLogWriterFactory.Use(factory);
+        public static IHostConfigurator UseNLog(this IHostConfigurator configurator, LogFactory factory)
+        {
+            NLogLogWriterFactory.Use(factory);
+            return configurator;
+        }
     }
 }

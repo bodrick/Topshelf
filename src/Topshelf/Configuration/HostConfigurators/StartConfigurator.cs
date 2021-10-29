@@ -11,17 +11,16 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System.Collections.Generic;
-using Topshelf.Builders;
-using Topshelf.Configurators;
+using Topshelf.Configuration.Builders;
+using Topshelf.Configuration.Configurators;
 
-namespace Topshelf.HostConfigurators
+namespace Topshelf.Configuration.HostConfigurators
 {
-    public class StartConfigurator :
-        HostBuilderConfigurator
+    public class StartConfigurator : IHostBuilderConfigurator
     {
-        public HostBuilder Configure(HostBuilder builder) => new StartBuilder(builder);
+        public IHostBuilder Configure(IHostBuilder builder) => new StartBuilder(builder);
 
-        public IEnumerable<ValidateResult> Validate()
+        public IEnumerable<IValidateResult> Validate()
         {
             yield break;
         }

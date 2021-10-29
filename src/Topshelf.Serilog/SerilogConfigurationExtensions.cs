@@ -11,26 +11,42 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using Serilog;
-using Topshelf.HostConfigurators;
-using Topshelf.Logging;
+using Topshelf.Configuration.HostConfigurators;
 
-namespace Topshelf
+namespace Topshelf.Serilog
 {
     public static class SerilogConfigurationExtensions
     {
         /// <summary>
         /// Configures Topshelf to use Serilog for logging, using the global <see cref="Log.Logger"/> instance to derive its loggers.
         /// </summary>
-        public static void UseSerilog(this HostConfigurator configurator) => SerilogLogWriterFactory.Use(Log.Logger);
+        /// <param name="configurator"></param>
+        public static IHostConfigurator UseSerilog(this IHostConfigurator configurator)
+        {
+            SerilogLogWriterFactory.Use(Log.Logger);
+            return configurator;
+        }
 
         /// <summary>
         /// Configures Topshelf to use Serilog for logging, using the given <see cref="LoggerConfiguration"/> to create loggers.
         /// </summary>
-        public static void UseSerilog(this HostConfigurator configurator, LoggerConfiguration loggerConfiguration) => SerilogLogWriterFactory.Use(loggerConfiguration.CreateLogger());
+        /// <param name="configurator"></param>
+        /// <param name="loggerConfiguration"></param>
+        public static IHostConfigurator UseSerilog(this IHostConfigurator configurator, LoggerConfiguration loggerConfiguration)
+        {
+            SerilogLogWriterFactory.Use(loggerConfiguration.CreateLogger());
+            return configurator;
+        }
 
         /// <summary>
         /// Configures Topshelf to use Serilog for logging, using the given root logger <see cref="ILogger"/> to create loggers.
         /// </summary>
-        public static void UseSerilog(this HostConfigurator configurator, ILogger rootLogger) => SerilogLogWriterFactory.Use(rootLogger);
+        /// <param name="configurator"></param>
+        /// <param name="rootLogger"></param>
+        public static IHostConfigurator UseSerilog(this IHostConfigurator configurator, ILogger rootLogger)
+        {
+            SerilogLogWriterFactory.Use(rootLogger);
+            return configurator;
+        }
     }
 }

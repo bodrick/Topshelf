@@ -11,14 +11,14 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.HostConfigurators;
 using Topshelf.Runtime;
 
-namespace Topshelf
+namespace Topshelf.Configuration
 {
     public static class StartModeExtensions
     {
-        public static HostConfigurator Disabled(this HostConfigurator configurator)
+        public static IHostConfigurator Disabled(this IHostConfigurator configurator)
         {
             if (configurator == null)
             {
@@ -30,7 +30,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator StartAutomatically(this HostConfigurator configurator)
+        public static IHostConfigurator StartAutomatically(this IHostConfigurator configurator)
         {
             if (configurator == null)
             {
@@ -42,7 +42,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator StartAutomaticallyDelayed(this HostConfigurator configurator)
+        public static IHostConfigurator StartAutomaticallyDelayed(this IHostConfigurator configurator)
         {
             if (configurator == null)
             {
@@ -54,7 +54,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator StartManually(this HostConfigurator configurator)
+        public static IHostConfigurator StartManually(this IHostConfigurator configurator)
         {
             if (configurator == null)
             {

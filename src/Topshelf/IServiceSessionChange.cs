@@ -17,6 +17,6 @@ namespace Topshelf
     /// </summary>
     public interface IServiceSessionChange
     {
-        void SessionChange(HostControl hostControl, ISessionChangedArguments changedArguments);
+        void SessionChange(IHostControl hostControl, ISessionChangedArguments changedArguments);
     }
 }

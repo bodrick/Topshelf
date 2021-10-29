@@ -12,10 +12,11 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using Serilog;
+using Topshelf.Logging;
 
-namespace Topshelf.Logging
+namespace Topshelf.Serilog
 {
-    public class SerilogLogWriterFactory : ILogWriterFactory
+    public sealed class SerilogLogWriterFactory : ILogWriterFactory
     {
         private readonly Func<string, ILogger> _loggerFactory;
 
@@ -27,6 +28,7 @@ namespace Topshelf.Logging
 
         public void Shutdown()
         {
+            // Method intentionally left empty.
         }
 
         [Serializable]

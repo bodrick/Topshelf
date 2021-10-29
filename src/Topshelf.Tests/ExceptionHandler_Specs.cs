@@ -12,6 +12,7 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using NUnit.Framework;
+using Topshelf.Configuration;
 
 namespace Topshelf.Tests
 {
@@ -40,8 +41,8 @@ namespace Topshelf.Tests
                 x.OnException(_ => sawException = true);
             });
 
-            Assert.IsTrue(sawException);
-            Assert.AreEqual(TopshelfExitCode.AbnormalExit, exitCode);
+            Assert.That(sawException, Is.True);
+            Assert.That(exitCode, Is.EqualTo(TopshelfExitCode.AbnormalExit));
         }
 
         [Test]
@@ -58,8 +59,8 @@ namespace Topshelf.Tests
                 x.OnException(_ => sawException = true);
             });
 
-            Assert.IsTrue(sawException);
-            Assert.AreEqual(TopshelfExitCode.AbnormalExit, exitCode);
+            Assert.That(sawException, Is.True);
+            Assert.That(exitCode, Is.EqualTo(TopshelfExitCode.AbnormalExit));
         }
 
         [Test]
@@ -69,28 +70,28 @@ namespace Topshelf.Tests
             var sawExceptionInStop = false;
 
             var exitCode = HostFactory.Run(x =>
+            {
+                x.UseTestHost();
+
+                x.Service(settings => new ExceptionThrowingService(true, false));
+
+                x.OnException(ex =>
                 {
-                    x.UseTestHost();
-
-                    x.Service(settings => new ExceptionThrowingService(true, false));
-
-                    x.OnException(ex =>
+                    if (ex.Message == StartExceptionMessage)
                     {
-                        if (ex.Message == StartExceptionMessage)
-                        {
-                            sawExceptionInStart = true;
-                        }
+                        sawExceptionInStart = true;
+                    }
 
-                        if (ex.Message == StopExceptionMessage)
-                        {
-                            sawExceptionInStop = true;
-                        }
-                    });
+                    if (ex.Message == StopExceptionMessage)
+                    {
+                        sawExceptionInStop = true;
+                    }
                 });
+            });
 
-            Assert.IsTrue(sawExceptionInStart);
-            Assert.IsFalse(sawExceptionInStop);
-            Assert.AreEqual(TopshelfExitCode.ServiceControlRequestFailed, exitCode);
+            Assert.That(sawExceptionInStart, Is.True);
+            Assert.That(sawExceptionInStop, Is.False);
+            Assert.That(exitCode, Is.EqualTo(TopshelfExitCode.ServiceControlRequestFailed));
         }
 
         [Test]
@@ -119,9 +120,9 @@ namespace Topshelf.Tests
                 });
             });
 
-            Assert.IsFalse(sawExceptionInStart);
-            Assert.IsTrue(sawExceptionInStop);
-            Assert.AreEqual(TopshelfExitCode.ServiceControlRequestFailed, exitCode);
+            Assert.That(sawExceptionInStart, Is.False);
+            Assert.That(sawExceptionInStop, Is.True);
+            Assert.That(exitCode, Is.EqualTo(TopshelfExitCode.ServiceControlRequestFailed));
         }
 
         [Test]
@@ -135,14 +136,11 @@ namespace Topshelf.Tests
 
                 x.Service(settings => new ExceptionThrowingService(false, false));
 
-                x.OnException(ex =>
-                {
-                    sawException = true;
-                });
+                x.OnException(ex => sawException = true);
             });
 
-            Assert.IsFalse(sawException);
-            Assert.AreEqual(TopshelfExitCode.Ok, exitCode);
+            Assert.That(sawException, Is.False);
+            Assert.That(exitCode, Is.EqualTo(TopshelfExitCode.Ok));
         }
 
         [Test]
@@ -155,7 +153,7 @@ namespace Topshelf.Tests
                 x.Service(settings => new ExceptionThrowingService(true, false));
             });
 
-            Assert.AreEqual(TopshelfExitCode.ServiceControlRequestFailed, exitCode);
+            Assert.That(exitCode, Is.EqualTo(TopshelfExitCode.ServiceControlRequestFailed));
 
             exitCode = HostFactory.Run(x =>
             {
@@ -164,7 +162,7 @@ namespace Topshelf.Tests
                 x.Service(settings => new ExceptionThrowingService(false, true));
             });
 
-            Assert.AreEqual(TopshelfExitCode.ServiceControlRequestFailed, exitCode);
+            Assert.That(exitCode, Is.EqualTo(TopshelfExitCode.ServiceControlRequestFailed));
         }
 
         /// <summary>
@@ -181,7 +179,7 @@ namespace Topshelf.Tests
                 _throwOnStop = throwOnStop;
             }
 
-            public bool Start(HostControl hostControl)
+            public bool Start(IHostControl hostControl)
             {
                 if (_throwOnStart)
                 {
@@ -191,7 +189,7 @@ namespace Topshelf.Tests
                 return true;
             }
 
-            public bool Stop(HostControl hostControl)
+            public bool Stop(IHostControl hostControl)
             {
                 if (_throwOnStop)
                 {
@@ -201,14 +199,14 @@ namespace Topshelf.Tests
                 return true;
             }
         }
+
         private class ServiceThrowingExceptionInConstructor : IServiceControl
         {
-            public ServiceThrowingExceptionInConstructor()
-                => throw new Exception("Exception from constructor");
+            public ServiceThrowingExceptionInConstructor() => throw new Exception("Exception from constructor");
 
-            public bool Start(HostControl hostControl) => true;
+            public bool Start(IHostControl hostControl) => true;
 
-            public bool Stop(HostControl hostControl) => true;
+            public bool Stop(IHostControl hostControl) => true;
         }
     }
 }

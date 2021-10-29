@@ -14,8 +14,8 @@ namespace Topshelf
 {
     public interface IServiceControl
     {
-        bool Start(HostControl hostControl);
+        bool Start(IHostControl hostControl);
 
-        bool Stop(HostControl hostControl);
+        bool Stop(IHostControl hostControl);
     }
 }

@@ -10,12 +10,12 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.HostConfigurators;
 
-namespace Topshelf.Options
+namespace Topshelf.Configuration.Options
 {
     public class ServiceAccountOption :
-        Option
+        IOption
     {
         private readonly string _password;
         private readonly string _username;
@@ -26,6 +26,6 @@ namespace Topshelf.Options
             _password = password;
         }
 
-        public void ApplyTo(HostConfigurator configurator) => configurator.RunAs(_username, _password);
+        public void ApplyTo(IHostConfigurator configurator) => configurator.RunAs(_username, _password);
     }
 }

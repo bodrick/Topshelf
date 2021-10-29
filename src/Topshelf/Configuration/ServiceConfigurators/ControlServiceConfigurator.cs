@@ -12,29 +12,21 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using System.Collections.Generic;
-using Topshelf.Builders;
-using Topshelf.Configurators;
+using Topshelf.Configuration.Builders;
+using Topshelf.Configuration.Configurators;
 using Topshelf.Runtime;
 
-namespace Topshelf.ServiceConfigurators
+namespace Topshelf.Configuration.ServiceConfigurators
 {
-    public class ControlServiceConfigurator<T> :
-        ServiceConfiguratorBase,
-        ServiceConfigurator,
-        Configurator
-        where T : class, IServiceControl
+    public class ControlServiceConfigurator<T> : ServiceConfiguratorBase, IServiceConfigurator, Configurator where T : class, IServiceControl
     {
-        private readonly Func<HostSettings, T> _serviceFactory;
+        private readonly Func<IHostSettings, T> _serviceFactory;
 
-        public ControlServiceConfigurator(Func<HostSettings, T> serviceFactory) => _serviceFactory = serviceFactory;
+        public ControlServiceConfigurator(Func<IHostSettings, T> serviceFactory) => _serviceFactory = serviceFactory;
 
-        public ServiceBuilder Build()
-        {
-            var serviceBuilder = new ControlServiceBuilder<T>(_serviceFactory, ServiceEvents);
-            return serviceBuilder;
-        }
+        public IServiceBuilder Build() => new ControlServiceBuilder<T>(_serviceFactory, ServiceEvents);
 
-        public IEnumerable<ValidateResult> Validate()
+        public IEnumerable<IValidateResult> Validate()
         {
             yield break;
         }

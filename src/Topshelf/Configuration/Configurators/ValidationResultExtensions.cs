@@ -10,29 +10,29 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-namespace Topshelf.Configurators
+namespace Topshelf.Configuration.Configurators
 {
     public static class ValidationResultExtensions
     {
-        public static ValidateResult Failure(this Configurator configurator, string message) => new ValidateResultImpl(ValidationResultDisposition.Failure, message);
+        public static IValidateResult Failure(this Configurator configurator, string message) => new ValidateResultImpl(ValidationResultDisposition.Failure, message);
 
-        public static ValidateResult Failure(this Configurator configurator, string key, string message) => new ValidateResultImpl(ValidationResultDisposition.Failure, key, message);
+        public static IValidateResult Failure(this Configurator configurator, string key, string message) => new ValidateResultImpl(ValidationResultDisposition.Failure, key, message);
 
-        public static ValidateResult Failure(this Configurator configurator, string key, string value, string message) => new ValidateResultImpl(ValidationResultDisposition.Failure, key, value, message);
+        public static IValidateResult Failure(this Configurator configurator, string key, string value, string message) => new ValidateResultImpl(ValidationResultDisposition.Failure, key, value, message);
 
-        public static ValidateResult Success(this Configurator configurator, string message) => new ValidateResultImpl(ValidationResultDisposition.Success, message);
+        public static IValidateResult Success(this Configurator configurator, string message) => new ValidateResultImpl(ValidationResultDisposition.Success, message);
 
-        public static ValidateResult Success(this Configurator configurator, string key, string message) => new ValidateResultImpl(ValidationResultDisposition.Success, key, message);
+        public static IValidateResult Success(this Configurator configurator, string key, string message) => new ValidateResultImpl(ValidationResultDisposition.Success, key, message);
 
-        public static ValidateResult Success(this Configurator configurator, string key, string value, string message) => new ValidateResultImpl(ValidationResultDisposition.Success, key, value, message);
+        public static IValidateResult Success(this Configurator configurator, string key, string value, string message) => new ValidateResultImpl(ValidationResultDisposition.Success, key, value, message);
 
-        public static ValidateResult Warning(this Configurator configurator, string message) => new ValidateResultImpl(ValidationResultDisposition.Warning, message);
+        public static IValidateResult Warning(this Configurator configurator, string message) => new ValidateResultImpl(ValidationResultDisposition.Warning, message);
 
-        public static ValidateResult Warning(this Configurator configurator, string key, string message) => new ValidateResultImpl(ValidationResultDisposition.Warning, key, message);
+        public static IValidateResult Warning(this Configurator configurator, string key, string message) => new ValidateResultImpl(ValidationResultDisposition.Warning, key, message);
 
-        public static ValidateResult Warning(this Configurator configurator, string key, string value, string message) => new ValidateResultImpl(ValidationResultDisposition.Warning, key, value, message);
+        public static IValidateResult Warning(this Configurator configurator, string key, string value, string message) => new ValidateResultImpl(ValidationResultDisposition.Warning, key, value, message);
 
-        public static ValidateResult WithParentKey(this ValidateResult result, string parentKey)
+        public static IValidateResult WithParentKey(this IValidateResult result, string parentKey)
         {
             var key = parentKey + "." + result.Key;
 

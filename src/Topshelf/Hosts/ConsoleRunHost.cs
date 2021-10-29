@@ -17,12 +17,13 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using Topshelf.Exceptions;
 using Topshelf.Logging;
 using Topshelf.Runtime;
 
 namespace Topshelf.Hosts
 {
-    public class ConsoleRunHost : IHost, HostControl
+    public class ConsoleRunHost : IHost, IHostControl
     {
         private readonly IHostEnvironment _environment;
 
@@ -30,7 +31,7 @@ namespace Topshelf.Hosts
 
         private readonly IServiceHandle _serviceHandle;
 
-        private readonly HostSettings _settings;
+        private readonly IHostSettings _settings;
 
         private int _deadThread;
 
@@ -40,7 +41,7 @@ namespace Topshelf.Hosts
 
         private volatile bool _hasCancelled;
 
-        public ConsoleRunHost(HostSettings settings, IHostEnvironment environment, IServiceHandle serviceHandle)
+        public ConsoleRunHost(IHostSettings settings, IHostEnvironment environment, IServiceHandle serviceHandle)
         {
             if (settings == null)
             {
@@ -67,7 +68,7 @@ namespace Topshelf.Hosts
             }
         }
 
-        void HostControl.RequestAdditionalTime(TimeSpan timeRemaining)
+        void IHostControl.RequestAdditionalTime(TimeSpan timeRemaining)
         {
             // good for you, maybe we'll use a timer for startup at some point but for debugging
             // it's a pain in the ass
@@ -145,13 +146,13 @@ namespace Topshelf.Hosts
             return _exitCode;
         }
 
-        void HostControl.Stop()
+        void IHostControl.Stop()
         {
             _log.Info("Service Stop requested, exiting.");
             _exit.Set();
         }
 
-        void HostControl.Stop(TopshelfExitCode exitCode)
+        void IHostControl.Stop(TopshelfExitCode exitCode)
         {
             _log.Info($"Service Stop requested with exit code {exitCode}, exiting.");
             _exitCode = exitCode;

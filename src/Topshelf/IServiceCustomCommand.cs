@@ -17,6 +17,6 @@ namespace Topshelf
     /// </summary>
     public interface IServiceCustomCommand
     {
-        void CustomCommand(HostControl hostControl, int command);
+        void CustomCommand(IHostControl hostControl, int command);
     }
 }

@@ -21,9 +21,9 @@ namespace Topshelf.Hosts
     {
         private static readonly ILogWriter _log = HostLogger.Get<StopHost>();
         private readonly IHostEnvironment _environment;
-        private readonly HostSettings _settings;
+        private readonly IHostSettings _settings;
 
-        public StopHost(IHostEnvironment environment, HostSettings settings)
+        public StopHost(IHostEnvironment environment, IHostSettings settings)
         {
             _environment = environment;
             _settings = settings;

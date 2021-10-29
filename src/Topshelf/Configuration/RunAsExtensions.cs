@@ -12,13 +12,13 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using System.ServiceProcess;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.HostConfigurators;
 
-namespace Topshelf
+namespace Topshelf.Configuration
 {
     public static class RunAsExtensions
     {
-        public static HostConfigurator RunAs(this HostConfigurator configurator, string username, string password)
+        public static IHostConfigurator RunAs(this IHostConfigurator configurator, string username, string password)
         {
             if (configurator == null)
             {
@@ -32,7 +32,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator RunAsLocalService(this HostConfigurator configurator)
+        public static IHostConfigurator RunAsLocalService(this IHostConfigurator configurator)
         {
             if (configurator == null)
             {
@@ -46,7 +46,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator RunAsLocalSystem(this HostConfigurator configurator)
+        public static IHostConfigurator RunAsLocalSystem(this IHostConfigurator configurator)
         {
             if (configurator == null)
             {
@@ -60,7 +60,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator RunAsNetworkService(this HostConfigurator configurator)
+        public static IHostConfigurator RunAsNetworkService(this IHostConfigurator configurator)
         {
             if (configurator == null)
             {
@@ -74,7 +74,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator RunAsPrompt(this HostConfigurator configurator)
+        public static IHostConfigurator RunAsPrompt(this IHostConfigurator configurator)
         {
             if (configurator == null)
             {
@@ -88,7 +88,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator RunAsVirtualServiceAccount(this HostConfigurator configurator)
+        public static IHostConfigurator RunAsVirtualServiceAccount(this IHostConfigurator configurator)
         {
             if (configurator == null)
             {

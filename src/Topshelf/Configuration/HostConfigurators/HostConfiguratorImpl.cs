@@ -14,22 +14,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Topshelf.Builders;
-using Topshelf.CommandLineParser;
-using Topshelf.Configurators;
+using Topshelf.Configuration.Builders;
+using Topshelf.Configuration.CommandLineParser;
+using Topshelf.Configuration.Configurators;
+using Topshelf.Configuration.Options;
 using Topshelf.Logging;
-using Topshelf.Options;
 using Topshelf.Runtime;
 using Topshelf.Runtime.Windows;
 
-namespace Topshelf.HostConfigurators
+namespace Topshelf.Configuration.HostConfigurators
 {
-    public class HostConfiguratorImpl :
-        HostConfigurator,
-        Configurator
+    public class HostConfiguratorImpl : IHostConfigurator, Configurator
     {
-        private readonly IList<CommandLineConfigurator> _commandLineOptionConfigurators;
-        private readonly IList<HostBuilderConfigurator> _configurators;
+        private readonly IList<ICommandLineConfigurator> _commandLineOptionConfigurators;
+        private readonly IList<IHostBuilderConfigurator> _configurators;
         private readonly WindowsHostSettings _settings;
         private bool _commandLineApplied;
         private EnvironmentBuilderFactory _environmentBuilderFactory;
@@ -38,8 +36,8 @@ namespace Topshelf.HostConfigurators
 
         public HostConfiguratorImpl()
         {
-            _configurators = new List<HostBuilderConfigurator>();
-            _commandLineOptionConfigurators = new List<CommandLineConfigurator>();
+            _configurators = new List<IHostBuilderConfigurator>();
+            _commandLineOptionConfigurators = new List<ICommandLineConfigurator>();
             _settings = new WindowsHostSettings();
 
             _environmentBuilderFactory = DefaultEnvironmentBuilderFactory;
@@ -66,7 +64,7 @@ namespace Topshelf.HostConfigurators
             _commandLineOptionConfigurators.Add(configurator);
         }
 
-        public void AddConfigurator(HostBuilderConfigurator configurator) => _configurators.Add(configurator);
+        public void AddConfigurator(IHostBuilderConfigurator configurator) => _configurators.Add(configurator);
 
         public void ApplyCommandLine()
         {
@@ -75,13 +73,13 @@ namespace Topshelf.HostConfigurators
                 return;
             }
 
-            var options = CommandLine.Parse<Option>(ConfigureCommandLineParser);
+            var options = CommandLine.Parse<IOption>(ConfigureCommandLineParser);
             ApplyCommandLineOptions(options);
         }
 
         public void ApplyCommandLine(string commandLine)
         {
-            var options = CommandLine.Parse<Option>(ConfigureCommandLineParser, commandLine);
+            var options = CommandLine.Parse<IOption>(ConfigureCommandLineParser, commandLine);
             ApplyCommandLineOptions(options);
 
             _commandLineApplied = true;
@@ -149,7 +147,7 @@ namespace Topshelf.HostConfigurators
 
         public void UseServiceBuilder(ServiceBuilderFactory serviceBuilderFactory) => _serviceBuilderFactory = serviceBuilderFactory;
 
-        public IEnumerable<ValidateResult> Validate()
+        public IEnumerable<IValidateResult> Validate()
         {
             if (_hostBuilderFactory == null)
             {
@@ -209,11 +207,11 @@ namespace Topshelf.HostConfigurators
             yield return this.Success("ServiceName", _settings.ServiceName);
         }
 
-        private static EnvironmentBuilder DefaultEnvironmentBuilderFactory(HostConfigurator configurator) => new WindowsHostEnvironmentBuilder(configurator);
+        private static IEnvironmentBuilder DefaultEnvironmentBuilderFactory(IHostConfigurator configurator) => new WindowsHostEnvironmentBuilder(configurator);
 
-        private static HostBuilder DefaultHostBuilderFactory(IHostEnvironment environment, HostSettings settings) => new RunBuilder(environment, settings);
+        private static IHostBuilder DefaultHostBuilderFactory(IHostEnvironment environment, IHostSettings settings) => new RunBuilder(environment, settings);
 
-        private void ApplyCommandLineOptions(IEnumerable<Option> options)
+        private void ApplyCommandLineOptions(IEnumerable<IOption> options)
         {
             foreach (var option in options)
             {
@@ -221,7 +219,7 @@ namespace Topshelf.HostConfigurators
             }
         }
 
-        private void ConfigureCommandLineParser(ICommandLineElementParser<Option> parser)
+        private void ConfigureCommandLineParser(ICommandLineElementParser<IOption> parser)
         {
             CommandLineParserOptions.AddTopshelfOptions(parser);
 

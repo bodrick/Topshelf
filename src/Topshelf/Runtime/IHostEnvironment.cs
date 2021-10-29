@@ -36,7 +36,7 @@ namespace Topshelf.Runtime
         /// </summary>
         /// <param name="settings"></param>
         /// <param name="serviceHandle"></param>
-        IHost CreateServiceHost(HostSettings settings, IServiceHandle serviceHandle);
+        IHost CreateServiceHost(IHostSettings settings, IServiceHandle serviceHandle);
 
         /// <summary>
         /// Install the service using the settings provided
@@ -94,6 +94,6 @@ namespace Topshelf.Runtime
         /// <param name="settings"></param>
         /// <param name="beforeUninstall"></param>
         /// <param name="afterUninstall"></param>
-        void UninstallService(HostSettings settings, Action beforeUninstall, Action afterUninstall);
+        void UninstallService(IHostSettings settings, Action beforeUninstall, Action afterUninstall);
     }
 }

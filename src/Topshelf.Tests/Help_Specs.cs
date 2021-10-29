@@ -12,6 +12,7 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using NUnit.Framework;
+using Topshelf.Configuration;
 using Topshelf.Hosts;
 
 namespace Topshelf.Tests
@@ -31,9 +32,9 @@ namespace Topshelf.Tests
                 x.ApplyCommandLine("help");
             });
 
-            Assert.IsInstanceOf<HelpHost>(host);
+            Assert.That(host, Is.InstanceOf<HelpHost>());
             var helpHost = (HelpHost)host;
-            Assert.AreEqual(prefix, helpHost.PrefixText);
+            Assert.That(helpHost.PrefixText, Is.EqualTo(prefix));
         }
 
         [Test]
@@ -45,9 +46,9 @@ namespace Topshelf.Tests
                 x.ApplyCommandLine("help");
             });
 
-            Assert.IsInstanceOf<HelpHost>(host);
+            Assert.That(host, Is.InstanceOf<HelpHost>());
             var helpHost = (HelpHost)host;
-            Assert.AreEqual(null, helpHost.PrefixText);
+            Assert.That(helpHost.PrefixText, Is.EqualTo(null));
         }
 
         [Test]
@@ -56,26 +57,26 @@ namespace Topshelf.Tests
             var prefix = "PhatBoyG In The House!";
 
             var host = HostFactory.New(x =>
-                {
-                    x.Service<MyService>();
-                    x.SetHelpTextPrefix(prefix);
-                    x.ApplyCommandLine("help --systemonly");
-                });
+            {
+                x.Service<MyService>();
+                x.SetHelpTextPrefix(prefix);
+                x.ApplyCommandLine("help --systemonly");
+            });
 
-            Assert.IsInstanceOf<HelpHost>(host);
+            Assert.That(host, Is.InstanceOf<HelpHost>());
             var helpHost = (HelpHost)host;
-            Assert.AreEqual(null, helpHost.PrefixText);
+            Assert.That(helpHost.PrefixText, Is.EqualTo(null));
         }
 
         private class MyService : IServiceControl
         {
-            public bool Continue(HostControl hostControl) => throw new NotImplementedException();
+            public bool Continue(IHostControl hostControl) => throw new NotImplementedException();
 
-            public bool Pause(HostControl hostControl) => throw new NotImplementedException();
+            public bool Pause(IHostControl hostControl) => throw new NotImplementedException();
 
-            public bool Start(HostControl hostControl) => throw new NotImplementedException();
+            public bool Start(IHostControl hostControl) => throw new NotImplementedException();
 
-            public bool Stop(HostControl hostControl) => throw new NotImplementedException();
+            public bool Stop(IHostControl hostControl) => throw new NotImplementedException();
         }
     }
 }

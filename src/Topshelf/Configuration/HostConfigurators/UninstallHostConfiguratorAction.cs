@@ -12,13 +12,12 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using System.Collections.Generic;
-using Topshelf.Builders;
-using Topshelf.Configurators;
+using Topshelf.Configuration.Builders;
+using Topshelf.Configuration.Configurators;
 
-namespace Topshelf.HostConfigurators
+namespace Topshelf.Configuration.HostConfigurators
 {
-    public class UninstallHostConfiguratorAction :
-        HostBuilderConfigurator
+    public class UninstallHostConfiguratorAction : IHostBuilderConfigurator
     {
         public UninstallHostConfiguratorAction(string key, Action<UninstallBuilder> callback)
         {
@@ -29,11 +28,11 @@ namespace Topshelf.HostConfigurators
         public Action<UninstallBuilder> Callback { get; private set; }
         public string Key { get; private set; }
 
-        public HostBuilder Configure(HostBuilder builder)
+        public IHostBuilder Configure(IHostBuilder builder)
         {
             if (builder == null)
             {
-                throw new ArgumentNullException("builder");
+                throw new ArgumentNullException(nameof(builder));
             }
 
             builder.Match<UninstallBuilder>(x => Callback(x));
@@ -41,7 +40,7 @@ namespace Topshelf.HostConfigurators
             return builder;
         }
 
-        public IEnumerable<ValidateResult> Validate()
+        public IEnumerable<IValidateResult> Validate()
         {
             if (Callback == null)
             {

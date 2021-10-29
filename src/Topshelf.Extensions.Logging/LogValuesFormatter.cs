@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace Topshelf.Logging
+namespace Topshelf.Extensions.Logging
 {
     /// <summary>
     /// Formatter to convert the named format items like {NamedformatItem} to <see cref="string.Format(IFormatProvider, string, object)"/> format.
@@ -15,8 +15,7 @@ namespace Topshelf.Logging
     {
         private const string NullValue = "(null)";
         private static readonly char[] FormatDelimiters = { ',', ':' };
-        private readonly string _format;
-        private readonly List<string> _valueNames = new List<string>();
+        private readonly string? _format;
 
         // NOTE: If this assembly ever builds for netcoreapp, the below code should change to:
         // - Be annotated as [SkipLocalsInit] to avoid zero'ing the stackalloc'd char span
@@ -24,12 +23,7 @@ namespace Topshelf.Logging
 
         public LogValuesFormatter(string format)
         {
-            if (format == null)
-            {
-                throw new ArgumentNullException(nameof(format));
-            }
-
-            OriginalFormat = format;
+            OriginalFormat = format ?? throw new ArgumentNullException(nameof(format));
 
             var vsb = new ValueStringBuilder(stackalloc char[256]);
             var scanIndex = 0;
@@ -58,8 +52,8 @@ namespace Topshelf.Logging
                     var formatDelimiterIndex = FindIndexOfAny(format, FormatDelimiters, openBraceIndex, closeBraceIndex);
 
                     vsb.Append(format.AsSpan(scanIndex, openBraceIndex - scanIndex + 1));
-                    vsb.Append(_valueNames.Count.ToString());
-                    _valueNames.Add(format.Substring(openBraceIndex + 1, formatDelimiterIndex - openBraceIndex - 1));
+                    vsb.Append(ValueNames.Count.ToString());
+                    ValueNames.Add(format.Substring(openBraceIndex + 1, formatDelimiterIndex - openBraceIndex - 1));
                     vsb.Append(format.AsSpan(formatDelimiterIndex, closeBraceIndex - formatDelimiterIndex + 1));
 
                     scanIndex = closeBraceIndex + 1;
@@ -70,7 +64,7 @@ namespace Topshelf.Logging
         }
 
         public string OriginalFormat { get; private set; }
-        public List<string> ValueNames => _valueNames;
+        public List<string> ValueNames { get; } = new();
 
         public string Format(object?[]? values)
         {
@@ -101,14 +95,14 @@ namespace Topshelf.Logging
 
         public KeyValuePair<string, object?> GetValue(object?[] values, int index)
         {
-            if (index < 0 || index > _valueNames.Count)
+            if (index < 0 || index > ValueNames.Count)
             {
                 throw new IndexOutOfRangeException(nameof(index));
             }
 
-            if (_valueNames.Count > index)
+            if (ValueNames.Count > index)
             {
-                return new KeyValuePair<string, object?>(_valueNames[index], values[index]);
+                return new KeyValuePair<string, object?>(ValueNames[index], values[index]);
             }
 
             return new KeyValuePair<string, object?>("{OriginalFormat}", OriginalFormat);
@@ -117,12 +111,12 @@ namespace Topshelf.Logging
         public IEnumerable<KeyValuePair<string, object?>> GetValues(object[] values)
         {
             var valueArray = new KeyValuePair<string, object?>[values.Length + 1];
-            for (var index = 0; index != _valueNames.Count; ++index)
+            for (var index = 0; index != ValueNames.Count; ++index)
             {
-                valueArray[index] = new KeyValuePair<string, object?>(_valueNames[index], values[index]);
+                valueArray[index] = new KeyValuePair<string, object?>(ValueNames[index], values[index]);
             }
 
-            valueArray[valueArray.Length - 1] = new KeyValuePair<string, object?>("{OriginalFormat}", OriginalFormat);
+            valueArray[^1] = new KeyValuePair<string, object?>("{OriginalFormat}", OriginalFormat);
             return valueArray;
         }
 

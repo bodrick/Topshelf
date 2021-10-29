@@ -14,13 +14,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Topshelf.Builders;
-using Topshelf.Configurators;
+using Topshelf.Configuration.Builders;
+using Topshelf.Configuration.Configurators;
 
-namespace Topshelf.HostConfigurators
+namespace Topshelf.Configuration.HostConfigurators
 {
-    public class PrefixHelpTextHostConfigurator :
-        HostBuilderConfigurator
+    public class PrefixHelpTextHostConfigurator : IHostBuilderConfigurator
     {
         public PrefixHelpTextHostConfigurator(Assembly assembly, string resourceName)
         {
@@ -34,16 +33,16 @@ namespace Topshelf.HostConfigurators
         public string ResourceName { get; private set; }
         public string Text { get; private set; }
 
-        public HostBuilder Configure(HostBuilder builder)
+        public IHostBuilder Configure(IHostBuilder builder)
         {
             builder.Match<HelpBuilder>(x => x.SetAdditionalHelpText(Text));
 
             return builder;
         }
 
-        public IEnumerable<ValidateResult> Validate()
+        public IEnumerable<IValidateResult> Validate()
         {
-            ValidateResult loadResult = null;
+            IValidateResult loadResult = null;
             if (Assembly != null)
             {
                 if (ResourceName == null)
@@ -60,10 +59,8 @@ namespace Topshelf.HostConfigurators
                     }
                     else
                     {
-                        using (TextReader reader = new StreamReader(stream))
-                        {
-                            Text = reader.ReadToEnd();
-                        }
+                        using TextReader reader = new StreamReader(stream);
+                        Text = reader.ReadToEnd();
                     }
                 }
                 catch (Exception ex)

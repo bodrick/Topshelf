@@ -13,6 +13,8 @@
 using System;
 using Serilog;
 using Topshelf;
+using Topshelf.Configuration;
+using Topshelf.Serilog;
 
 namespace SampleTopshelfService
 {

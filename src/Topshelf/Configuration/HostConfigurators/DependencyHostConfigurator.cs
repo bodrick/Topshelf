@@ -12,16 +12,15 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using System.Collections.Generic;
-using Topshelf.Builders;
-using Topshelf.Configurators;
+using Topshelf.Configuration.Builders;
+using Topshelf.Configuration.Configurators;
 
-namespace Topshelf.HostConfigurators
+namespace Topshelf.Configuration.HostConfigurators
 {
     /// <summary>
     /// Adds a dependency to the InstallBuilder (ignored otherwise)
     /// </summary>
-    public class DependencyHostConfigurator :
-        HostBuilderConfigurator
+    public class DependencyHostConfigurator : IHostBuilderConfigurator
     {
         public DependencyHostConfigurator(string name)
         {
@@ -35,7 +34,7 @@ namespace Topshelf.HostConfigurators
 
         public string Name { get; private set; }
 
-        public HostBuilder Configure(HostBuilder builder)
+        public IHostBuilder Configure(IHostBuilder builder)
         {
             if (builder == null)
             {
@@ -47,7 +46,7 @@ namespace Topshelf.HostConfigurators
             return builder;
         }
 
-        public IEnumerable<ValidateResult> Validate()
+        public IEnumerable<IValidateResult> Validate()
         {
             if (string.IsNullOrEmpty(Name))
             {

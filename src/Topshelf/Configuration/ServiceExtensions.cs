@@ -12,19 +12,20 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using System.Linq;
-using Topshelf.Builders;
-using Topshelf.Configurators;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.Builders;
+using Topshelf.Configuration.Configurators;
+using Topshelf.Configuration.HostConfigurators;
+using Topshelf.Configuration.ServiceConfigurators;
+using Topshelf.Exceptions;
 using Topshelf.Runtime;
-using Topshelf.ServiceConfigurators;
 
-namespace Topshelf
+namespace Topshelf.Configuration
 {
     public static class ServiceExtensions
     {
         public static ServiceBuilderFactory CreateServiceBuilderFactory<TService>(
-            Func<HostSettings, TService> serviceFactory,
-            Action<ServiceConfigurator> callback)
+            Func<IHostSettings, TService> serviceFactory,
+            Action<IServiceConfigurator> callback)
             where TService : class, IServiceControl
         {
             if (serviceFactory == null)
@@ -41,7 +42,7 @@ namespace Topshelf
 
             callback(serviceConfigurator);
 
-            ServiceBuilder ServiceBuilderFactory(HostSettings x)
+            IServiceBuilder ServiceBuilderFactory(IHostSettings x)
             {
                 var configurationResult = ValidateConfigurationResult.CompileResults(serviceConfigurator.Validate());
                 if (configurationResult.Results.Any())
@@ -49,15 +50,13 @@ namespace Topshelf
                     throw new HostConfigurationException("The service was not properly configured");
                 }
 
-                var serviceBuilder = serviceConfigurator.Build();
-
-                return serviceBuilder;
+                return serviceConfigurator.Build();
             }
 
             return ServiceBuilderFactory;
         }
 
-        public static ServiceBuilderFactory CreateServiceBuilderFactory<TService>(Action<ServiceConfigurator<TService>> callback)
+        public static ServiceBuilderFactory CreateServiceBuilderFactory<TService>(Action<IServiceConfigurator<TService>> callback)
             where TService : class
         {
             if (callback == null)
@@ -69,7 +68,7 @@ namespace Topshelf
 
             callback(serviceConfigurator);
 
-            ServiceBuilder ServiceBuilderFactory(HostSettings x)
+            IServiceBuilder ServiceBuilderFactory(IHostSettings x)
             {
                 var configurationResult = ValidateConfigurationResult.CompileResults(serviceConfigurator.Validate());
                 if (configurationResult.Results.Any())
@@ -77,16 +76,14 @@ namespace Topshelf
                     throw new HostConfigurationException("The service was not properly configured");
                 }
 
-                var serviceBuilder = serviceConfigurator.Build();
-
-                return serviceBuilder;
+                return serviceConfigurator.Build();
             }
 
             return ServiceBuilderFactory;
         }
 
-        public static HostConfigurator Service<TService>(this HostConfigurator configurator,
-                            Func<HostSettings, TService> serviceFactory, Action<ServiceConfigurator> callback)
+        public static IHostConfigurator Service<TService>(this IHostConfigurator configurator,
+                            Func<IHostSettings, TService> serviceFactory, Action<IServiceConfigurator> callback)
             where TService : class, IServiceControl
         {
             if (configurator == null)
@@ -101,22 +98,22 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator Service<T>(this HostConfigurator configurator)
+        public static IHostConfigurator Service<T>(this IHostConfigurator configurator)
             where T : class, IServiceControl, new() => Service(configurator, x => new T(), x => { });
 
-        public static HostConfigurator Service<T>(this HostConfigurator configurator, Func<T> serviceFactory)
+        public static IHostConfigurator Service<T>(this IHostConfigurator configurator, Func<T> serviceFactory)
             where T : class, IServiceControl => Service(configurator, x => serviceFactory(), x => { });
 
-        public static HostConfigurator Service<T>(this HostConfigurator configurator, Func<T> serviceFactory,
-            Action<ServiceConfigurator> callback)
+        public static IHostConfigurator Service<T>(this IHostConfigurator configurator, Func<T> serviceFactory,
+            Action<IServiceConfigurator> callback)
             where T : class, IServiceControl => Service(configurator, x => serviceFactory(), callback);
 
-        public static HostConfigurator Service<T>(this HostConfigurator configurator,
-            Func<HostSettings, T> serviceFactory)
+        public static IHostConfigurator Service<T>(this IHostConfigurator configurator,
+            Func<IHostSettings, T> serviceFactory)
             where T : class, IServiceControl => Service(configurator, serviceFactory, x => { });
 
-        public static HostConfigurator Service<TService>(this HostConfigurator configurator,
-            Action<ServiceConfigurator<TService>> callback)
+        public static IHostConfigurator Service<TService>(this IHostConfigurator configurator,
+            Action<IServiceConfigurator<TService>> callback)
             where TService : class
         {
             if (configurator == null)

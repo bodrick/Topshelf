@@ -11,18 +11,17 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.HostConfigurators;
 
-namespace Topshelf.Options
+namespace Topshelf.Configuration.Options
 {
-    public class CommandOption :
-        Option
+    public class CommandOption : IOption
     {
         private readonly int _command;
 
         public CommandOption(string command) => _command = int.Parse(command);
 
-        public void ApplyTo(HostConfigurator configurator)
+        public void ApplyTo(IHostConfigurator configurator)
         {
             if (configurator == null)
             {

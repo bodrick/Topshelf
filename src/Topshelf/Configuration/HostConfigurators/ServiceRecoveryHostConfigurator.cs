@@ -13,26 +13,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Topshelf.Builders;
-using Topshelf.Configurators;
+using Topshelf.Configuration.Builders;
+using Topshelf.Configuration.Configurators;
 using Topshelf.Runtime;
 using Topshelf.Runtime.Windows;
 
-namespace Topshelf.HostConfigurators
+namespace Topshelf.Configuration.HostConfigurators
 {
     /// <summary>
     /// Implements a service recovery configurator and host builder configurator.
     /// </summary>
-    /// <seealso cref="Topshelf.ServiceRecoveryConfigurator" />
-    /// <seealso cref="Topshelf.HostConfigurators.HostBuilderConfigurator" />
-    public class ServiceRecoveryHostConfigurator :
-        ServiceRecoveryConfigurator,
-        HostBuilderConfigurator
+    /// <seealso cref="IServiceRecoveryConfigurator" />
+    /// <seealso cref="IHostBuilderConfigurator" />
+    public class ServiceRecoveryHostConfigurator : IServiceRecoveryConfigurator, IHostBuilderConfigurator
     {
         private ServiceRecoveryOptions _options;
-        private HostSettings _settings;
+        private IHostSettings _settings;
 
-        private ServiceRecoveryOptions Options => _options ?? (_options = new ServiceRecoveryOptions());
+        private ServiceRecoveryOptions Options => _options ??= new ServiceRecoveryOptions();
 
         /// <summary>
         /// Configures the host builder.
@@ -40,7 +38,7 @@ namespace Topshelf.HostConfigurators
         /// <param name="builder">The host builder.</param>
         /// <returns>The configured host builder.</returns>
         /// <exception cref="ArgumentNullException">builder</exception>
-        public HostBuilder Configure(HostBuilder builder)
+        public IHostBuilder Configure(IHostBuilder builder)
         {
             if (builder == null)
             {
@@ -66,7 +64,7 @@ namespace Topshelf.HostConfigurators
         /// <param name="delay">The delay.</param>
         /// <param name="message">The message.</param>
         /// <returns>ServiceRecoveryConfigurator.</returns>
-        public ServiceRecoveryConfigurator RestartComputer(TimeSpan delay, string message)
+        public IServiceRecoveryConfigurator RestartComputer(TimeSpan delay, string message)
         {
             Options.AddAction(new RestartSystemRecoveryAction(delay, message));
 
@@ -79,14 +77,14 @@ namespace Topshelf.HostConfigurators
         /// <param name="delayInMinutes">The delay in minutes.</param>
         /// <param name="message">The message.</param>
         /// <returns>The service recovery configurator.</returns>
-        public ServiceRecoveryConfigurator RestartComputer(int delayInMinutes, string message) => RestartComputer(TimeSpan.FromMinutes(delayInMinutes), message);
+        public IServiceRecoveryConfigurator RestartComputer(int delayInMinutes, string message) => RestartComputer(TimeSpan.FromMinutes(delayInMinutes), message);
 
         /// <summary>
         /// Adds a restart service recovery action with the specified delay.
         /// </summary>
         /// <param name="delay">The delay.</param>
         /// <returns>The service recovery configurator.</returns>
-        public ServiceRecoveryConfigurator RestartService(TimeSpan delay)
+        public IServiceRecoveryConfigurator RestartService(TimeSpan delay)
         {
             Options.AddAction(new RestartServiceRecoveryAction(delay));
 
@@ -98,7 +96,7 @@ namespace Topshelf.HostConfigurators
         /// </summary>
         /// <param name="delayInMinutes">The delay in minutes.</param>
         /// <returns>The service recovery configurator.</returns>
-        public ServiceRecoveryConfigurator RestartService(int delayInMinutes) => RestartService(TimeSpan.FromMinutes(delayInMinutes));
+        public IServiceRecoveryConfigurator RestartService(int delayInMinutes) => RestartService(TimeSpan.FromMinutes(delayInMinutes));
 
         /// <summary>
         /// Adds a run program recovery action with the specified delay.
@@ -106,7 +104,7 @@ namespace Topshelf.HostConfigurators
         /// <param name="delay">The delay.</param>
         /// <param name="command">The command to run.</param>
         /// <returns>The service recovery configurator.</returns>
-        public ServiceRecoveryConfigurator RunProgram(TimeSpan delay, string command)
+        public IServiceRecoveryConfigurator RunProgram(TimeSpan delay, string command)
         {
             Options.AddAction(new RunProgramRecoveryAction(delay, command));
 
@@ -119,13 +117,13 @@ namespace Topshelf.HostConfigurators
         /// <param name="delayInMinutes">The delay in minutes.</param>
         /// <param name="command">The command.</param>
         /// <returns>The service recovery configurator.</returns>
-        public ServiceRecoveryConfigurator RunProgram(int delayInMinutes, string command) => RunProgram(TimeSpan.FromMinutes(delayInMinutes), command);
+        public IServiceRecoveryConfigurator RunProgram(int delayInMinutes, string command) => RunProgram(TimeSpan.FromMinutes(delayInMinutes), command);
 
         /// <summary>
         /// Sets the recovery reset period in days.
         /// </summary>
         /// <param name="days">The reset period in days.</param>
-        public ServiceRecoveryConfigurator SetResetPeriod(int days)
+        public IServiceRecoveryConfigurator SetResetPeriod(int days)
         {
             Options.ResetPeriod = days;
 
@@ -136,25 +134,22 @@ namespace Topshelf.HostConfigurators
         /// Adds a take no action recovery action.
         /// </summary>
         /// <returns>The service recovery configurator.</returns>
-        public ServiceRecoveryConfigurator TakeNoAction()
+        public IServiceRecoveryConfigurator TakeNoAction()
         {
             Options.AddAction(new TakeNoActionAction());
 
             return this;
         }
 
-        public IEnumerable<ValidateResult> Validate()
+        public IEnumerable<IValidateResult> Validate()
         {
             if (_options == null)
             {
                 yield return this.Failure("No service recovery options were specified");
             }
-            else
+            else if (!_options.Actions.Any())
             {
-                if (!_options.Actions.Any())
-                {
-                    yield return this.Failure("No service recovery actions were specified.");
-                }
+                yield return this.Failure("No service recovery actions were specified.");
             }
         }
 

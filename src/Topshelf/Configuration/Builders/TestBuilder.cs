@@ -15,43 +15,39 @@ using Topshelf.Hosts;
 using Topshelf.Logging;
 using Topshelf.Runtime;
 
-namespace Topshelf.Builders
+namespace Topshelf.Configuration.Builders
 {
-    public class TestBuilder :
-        HostBuilder
+    public class TestBuilder : IHostBuilder
     {
         private static readonly ILogWriter _log = HostLogger.Get<TestBuilder>();
-        private readonly IHostEnvironment _environment;
-        private readonly HostSettings _settings;
 
-        public TestBuilder(IHostEnvironment environment, HostSettings settings)
+        public TestBuilder(IHostEnvironment environment, IHostSettings settings)
         {
             if (settings == null)
             {
-                throw new ArgumentNullException("settings");
+                throw new ArgumentNullException(nameof(settings));
             }
 
-            _environment = environment;
-            _settings = settings;
+            Environment = environment;
+            Settings = settings;
         }
 
-        public IHostEnvironment Environment => _environment;
+        public IHostEnvironment Environment { get; }
 
-        public HostSettings Settings => _settings;
+        public IHostSettings Settings { get; }
 
-        public virtual IHost Build(ServiceBuilder serviceBuilder)
+        public virtual IHost Build(IServiceBuilder serviceBuilder)
         {
-            var serviceHandle = serviceBuilder.Build(_settings);
+            var serviceHandle = serviceBuilder.Build(Settings);
 
             return CreateHost(serviceHandle);
         }
 
-        public void Match<T>(Action<T> callback)
-            where T : class, HostBuilder
+        public void Match<T>(Action<T> callback) where T : class, IHostBuilder
         {
             if (callback == null)
             {
-                throw new ArgumentNullException("callback");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             var self = this as T;
@@ -64,7 +60,7 @@ namespace Topshelf.Builders
         private IHost CreateHost(IServiceHandle serviceHandle)
         {
             _log.Debug("Running as a test host.");
-            return new TestHost(_settings, _environment, serviceHandle);
+            return new TestHost(Settings, Environment, serviceHandle);
         }
     }
 }

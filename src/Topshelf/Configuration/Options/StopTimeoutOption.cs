@@ -10,16 +10,16 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.HostConfigurators;
 
-namespace Topshelf.Options
+namespace Topshelf.Configuration.Options
 {
     /// <summary>
     /// Represents an option to set a service stop timeout (in seconds).
     /// </summary>
-    /// <seealso cref="Option" />
+    /// <seealso cref="IOption" />
     public class StopTimeoutOption
-        : Option
+        : IOption
     {
         /// <summary>
         /// The stop timeout (in seconds).
@@ -36,6 +36,6 @@ namespace Topshelf.Options
         /// Applies the option to the specified host configurator.
         /// </summary>
         /// <param name="configurator">The host configurator.</param>
-        public void ApplyTo(HostConfigurator configurator) => configurator.SetStopTimeout(System.TimeSpan.FromSeconds(stopTimeoout));
+        public void ApplyTo(IHostConfigurator configurator) => configurator.SetStopTimeout(System.TimeSpan.FromSeconds(stopTimeoout));
     }
 }

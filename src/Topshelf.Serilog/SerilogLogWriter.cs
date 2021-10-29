@@ -14,8 +14,9 @@ using System;
 using System.Globalization;
 using Serilog;
 using Serilog.Events;
+using Topshelf.Logging;
 
-namespace Topshelf.Logging
+namespace Topshelf.Serilog
 {
     public class SerilogLogWriter : ILogWriter
     {
@@ -33,9 +34,9 @@ namespace Topshelf.Logging
 
         public void Debug(object obj)
         {
-            if (obj is string)
+            if (obj is string x)
             {
-                _logger.Debug((string)obj);
+                _logger.Debug(x);
                 return;
             }
             _logger.Debug("{@obj}", obj);
@@ -43,9 +44,9 @@ namespace Topshelf.Logging
 
         public void Debug(object obj, Exception exception)
         {
-            if (obj is string)
+            if (obj is string x)
             {
-                _logger.Debug(exception, (string)obj);
+                _logger.Debug(exception, x);
                 return;
             }
             _logger.Debug(exception, "{@obj}", obj);
@@ -67,9 +68,9 @@ namespace Topshelf.Logging
 
         public void Error(object obj)
         {
-            if (obj is string)
+            if (obj is string x)
             {
-                _logger.Error((string)obj);
+                _logger.Error(x);
                 return;
             }
             _logger.Error("{@obj}", obj);
@@ -77,9 +78,9 @@ namespace Topshelf.Logging
 
         public void Error(object obj, Exception exception)
         {
-            if (obj is string)
+            if (obj is string x)
             {
-                _logger.Error(exception, (string)obj);
+                _logger.Error(exception, x);
                 return;
             }
             _logger.Error(exception, "{@obj}", obj);
@@ -101,9 +102,9 @@ namespace Topshelf.Logging
 
         public void Fatal(object obj)
         {
-            if (obj is string)
+            if (obj is string x)
             {
-                _logger.Fatal((string)obj);
+                _logger.Fatal(x);
                 return;
             }
             _logger.Fatal("{@obj}", obj);
@@ -111,9 +112,9 @@ namespace Topshelf.Logging
 
         public void Fatal(object obj, Exception exception)
         {
-            if (obj is string)
+            if (obj is string x)
             {
-                _logger.Fatal(exception, (string)obj);
+                _logger.Fatal(exception, x);
                 return;
             }
             _logger.Fatal(exception, "{@obj}", obj);
@@ -135,9 +136,9 @@ namespace Topshelf.Logging
 
         public void Info(object obj)
         {
-            if (obj is string)
+            if (obj is string x)
             {
-                _logger.Information((string)obj);
+                _logger.Information(x);
                 return;
             }
             _logger.Information("{@obj}", obj);
@@ -145,9 +146,9 @@ namespace Topshelf.Logging
 
         public void Info(object obj, Exception exception)
         {
-            if (obj is string)
+            if (obj is string x)
             {
-                _logger.Information(exception, (string)obj);
+                _logger.Information(exception, x);
                 return;
             }
             _logger.Information(exception, "{@obj}", obj);
@@ -289,9 +290,9 @@ namespace Topshelf.Logging
 
         public void Warn(object obj)
         {
-            if (obj is string)
+            if (obj is string x)
             {
-                _logger.Warning((string)obj);
+                _logger.Warning(x);
                 return;
             }
             _logger.Warning("{@obj}", obj);
@@ -299,9 +300,9 @@ namespace Topshelf.Logging
 
         public void Warn(object obj, Exception exception)
         {
-            if (obj is string)
+            if (obj is string x)
             {
-                _logger.Warning(exception, (string)obj);
+                _logger.Warning(exception, x);
                 return;
             }
             _logger.Warning(exception, "{@obj}", obj);

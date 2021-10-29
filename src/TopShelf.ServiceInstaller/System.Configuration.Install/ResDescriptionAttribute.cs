@@ -5,10 +5,9 @@ namespace System.Configuration.Install
     [AttributeUsage(AttributeTargets.All)]
     internal sealed class ResDescriptionAttribute : DescriptionAttribute
     {
-        private bool replaced;
+        private bool _replaced;
 
-        public ResDescriptionAttribute(string description)
-            : base(description)
+        public ResDescriptionAttribute(string description) : base(description)
         {
         }
 
@@ -16,10 +15,10 @@ namespace System.Configuration.Install
         {
             get
             {
-                if (!replaced)
+                if (!_replaced)
                 {
-                    replaced = true;
-                    DescriptionValue = Res.GetString(base.Description);
+                    _replaced = true;
+                    DescriptionValue = Res.GetString(base.Description) ?? string.Empty;
                 }
                 return base.Description;
             }

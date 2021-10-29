@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.ServiceProcess;
+using Topshelf.Exceptions;
 
 namespace Topshelf.Runtime.Windows
 {
@@ -33,7 +34,7 @@ namespace Topshelf.Runtime.Windows
             _transactedInstaller = CreateTransactedInstaller(_installer);
         }
 
-        public HostServiceInstaller(HostSettings settings)
+        public HostServiceInstaller(IHostSettings settings)
         {
             _installer = CreateInstaller(settings);
 
@@ -98,7 +99,7 @@ namespace Topshelf.Runtime.Windows
             _transactedInstaller.Uninstall(null);
         }
 
-        private static ServiceInstaller ConfigureServiceInstaller(HostSettings settings, string[] dependencies, HostStartMode startMode)
+        private static ServiceInstaller ConfigureServiceInstaller(IHostSettings settings, string[] dependencies, HostStartMode startMode)
         {
             var installer = new ServiceInstaller
             {
@@ -120,7 +121,7 @@ namespace Topshelf.Runtime.Windows
             Account = account,
         };
 
-        private static Installer CreateHostInstaller(HostSettings settings, Installer[] installers)
+        private static Installer CreateHostInstaller(IHostSettings settings, Installer[] installers)
         {
             var arguments = " ";
 
@@ -183,7 +184,7 @@ namespace Topshelf.Runtime.Windows
                 ? $"/assemblypath={currentProcess.MainModule.FileName} \"{assembly.Location}\""
                 : $"/assemblypath={currentProcess.MainModule.FileName}";
 
-            string[] commandLine = { path };
+            string[]? commandLine = { path };
 
             var context = new InstallContext(null, commandLine);
             transactedInstaller.Context = context;
@@ -231,7 +232,7 @@ namespace Topshelf.Runtime.Windows
             }
         }
 
-        private Installer CreateInstaller(HostSettings settings)
+        private Installer CreateInstaller(IHostSettings settings)
         {
             var installers = new Installer[]
                 {

@@ -15,16 +15,16 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Topshelf.Exceptions;
 
-namespace Topshelf.Configurators
+namespace Topshelf.Configuration.Configurators
 {
     [Serializable, DebuggerDisplay("{Message}")]
-    public class ValidateConfigurationResult :
-        ConfigurationResult
+    public class ValidateConfigurationResult : IConfigurationResult
     {
-        private readonly IList<ValidateResult> _results;
+        private readonly IList<IValidateResult> _results;
 
-        private ValidateConfigurationResult(IEnumerable<ValidateResult> results) => _results = results.ToList();
+        private ValidateConfigurationResult(IEnumerable<IValidateResult> results) => _results = results.ToList();
 
         public bool ContainsFailure => _results.Any(x => x.Disposition == ValidationResultDisposition.Failure);
 
@@ -40,9 +40,9 @@ namespace Topshelf.Configurators
             }
         }
 
-        public IEnumerable<ValidateResult> Results => _results;
+        public IEnumerable<IValidateResult> Results => _results;
 
-        public static ConfigurationResult CompileResults(IEnumerable<ValidateResult> results)
+        public static IConfigurationResult CompileResults(IEnumerable<IValidateResult> results)
         {
             var result = new ValidateConfigurationResult(results);
 

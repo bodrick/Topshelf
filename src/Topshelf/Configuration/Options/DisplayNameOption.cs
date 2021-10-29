@@ -10,17 +10,17 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.HostConfigurators;
 
-namespace Topshelf.Options
+namespace Topshelf.Configuration.Options
 {
     public class DisplayNameOption :
-        Option
+        IOption
     {
         private readonly string _name;
 
         public DisplayNameOption(string name) => _name = name;
 
-        public void ApplyTo(HostConfigurator configurator) => configurator.SetDisplayName(_name);
+        public void ApplyTo(IHostConfigurator configurator) => configurator.SetDisplayName(_name);
     }
 }

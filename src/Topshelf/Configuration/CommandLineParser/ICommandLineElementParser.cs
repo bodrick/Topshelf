@@ -13,7 +13,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Topshelf.CommandLineParser
+namespace Topshelf.Configuration.CommandLineParser
 {
     /// <summary>
     ///   Used to configure the command line element parser

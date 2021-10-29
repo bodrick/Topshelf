@@ -11,24 +11,17 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-using Topshelf.Builders;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.Builders;
+using Topshelf.Configuration.HostConfigurators;
 
 namespace Topshelf.Runtime.DotNetCore
 {
-    public class DotNetCoreEnvironmentBuilder :
-        EnvironmentBuilder
+    public class DotNetCoreEnvironmentBuilder : IEnvironmentBuilder
     {
-        private readonly HostConfigurator _hostConfigurator;
+        private readonly IHostConfigurator _hostConfigurator;
 
-        public DotNetCoreEnvironmentBuilder(HostConfigurator configurator)
-        {
-            _hostConfigurator = configurator;
-        }
+        public DotNetCoreEnvironmentBuilder(IHostConfigurator configurator) => _hostConfigurator = configurator;
 
-        public IHostEnvironment Build()
-        {
-            return new DotNetCoreHostEnvironment(_hostConfigurator);
-        }
+        public IHostEnvironment Build() => new DotNetCoreHostEnvironment(_hostConfigurator);
     }
 }

@@ -14,11 +14,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Microsoft.Extensions.Configuration;
-using Topshelf.HostConfigurators;
-using Topshelf.Options;
+using Topshelf.Configuration.HostConfigurators;
+using Topshelf.Configuration.Options;
+using Topshelf.Exceptions;
 using Topshelf.Runtime.Windows;
 
-namespace Topshelf.Configuration
+namespace Topshelf.Extensions.Configuration
 {
     /// <summary>
     /// Provides Topshelf extensions for Microsoft extensions for configuration.
@@ -30,7 +31,7 @@ namespace Topshelf.Configuration
         /// </summary>
         /// <param name="configurator">The host configurator.</param>
         /// <param name="configuration">The configuration.</param>
-        public static void ApplyConfiguration(this HostConfigurator configurator, IConfiguration configuration)
+        public static void ApplyConfiguration(this IHostConfigurator configurator, IConfiguration configuration)
             => configurator.ApplyConfiguration(configuration.GetTopshelfSection());
 
         /// <summary>
@@ -38,7 +39,7 @@ namespace Topshelf.Configuration
         /// </summary>
         /// <param name="configurator">The host configurator.</param>
         /// <param name="configuration">The configuration section.</param>
-        public static void ApplyConfiguration(this HostConfigurator configurator, IConfigurationSection configuration)
+        public static void ApplyConfiguration(this IHostConfigurator configurator, IConfigurationSection configuration)
         {
             var options = configuration.Parse();
 
@@ -50,7 +51,7 @@ namespace Topshelf.Configuration
         /// </summary>
         /// <param name="configurator">The host configurator.</param>
         /// <param name="options">The configuration options.</param>
-        public static void ApplyOptions(this HostConfigurator configurator, IEnumerable<Option> options)
+        public static void ApplyOptions(this IHostConfigurator configurator, IEnumerable<IOption> options)
         {
             foreach (var option in options)
             {
@@ -71,7 +72,7 @@ namespace Topshelf.Configuration
         /// </summary>
         /// <param name="configuration">The configuration.</param>
         /// <returns>A list of configuration options.</returns>
-        public static IEnumerable<Option> Parse(this IConfiguration configuration)
+        public static IEnumerable<IOption> Parse(this IConfiguration configuration)
             => configuration.GetTopshelfSection().Parse();
 
         /// <summary>
@@ -79,47 +80,46 @@ namespace Topshelf.Configuration
         /// </summary>
         /// <param name="configuration">The configuration section.</param>
         /// <returns>A list of configuration options.</returns>
-        public static IEnumerable<Option> Parse(this IConfigurationSection configuration)
+        /// <exception cref="HostConfigurationException"></exception>
+        public static IEnumerable<IOption> Parse(this IConfigurationSection configuration)
         {
-            var options = new List<Option>();
+            var options = new List<IOption>();
 
-            foreach (var entry in configuration.AsEnumerable(true))
+            foreach (var (key, startMode) in configuration.AsEnumerable(true))
             {
-                if (string.Equals(entry.Key, "SystemOnly", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(key, "SystemOnly", StringComparison.OrdinalIgnoreCase))
                 {
-                    if ((bool)TypeDescriptor.GetConverter(typeof(bool)).ConvertFromInvariantString(entry.Value))
+                    if ((bool)TypeDescriptor.GetConverter(typeof(bool)).ConvertFromInvariantString(startMode))
                     {
                         options.Add(new SystemOnlyHelpOption());
                     }
                 }
-                else if (string.Equals(entry.Key, "ServiceName", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(key, "ServiceName", StringComparison.OrdinalIgnoreCase))
                 {
-                    options.Add(new ServiceNameOption(entry.Value));
+                    options.Add(new ServiceNameOption(startMode));
                 }
-                else if (string.Equals(entry.Key, "Description", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(key, "Description", StringComparison.OrdinalIgnoreCase))
                 {
-                    options.Add(new ServiceDescriptionOption(entry.Value));
+                    options.Add(new ServiceDescriptionOption(startMode));
                 }
-                else if (string.Equals(entry.Key, "DisplayName", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(key, "DisplayName", StringComparison.OrdinalIgnoreCase))
                 {
-                    options.Add(new DisplayNameOption(entry.Value));
+                    options.Add(new DisplayNameOption(startMode));
                 }
-                else if (string.Equals(entry.Key, "Instance", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(key, "Instance", StringComparison.OrdinalIgnoreCase))
                 {
-                    options.Add(new InstanceOption(entry.Value));
+                    options.Add(new InstanceOption(startMode));
                 }
-                else if (string.Equals(entry.Key, "StartTimeout", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(key, "StartTimeout", StringComparison.OrdinalIgnoreCase))
                 {
                     options.Add(new StartTimeoutOption(configuration.GetSection("StartTimeout").Get<int>()));
                 }
-                else if (string.Equals(entry.Key, "StopTimeout", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(key, "StopTimeout", StringComparison.OrdinalIgnoreCase))
                 {
                     options.Add(new StopTimeoutOption(configuration.GetSection("StopTimeout").Get<int>()));
                 }
-                else if (string.Equals(entry.Key, "StartMode", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(key, "StartMode", StringComparison.OrdinalIgnoreCase))
                 {
-                    var startMode = entry.Value;
-
                     if (string.Equals(startMode, "Automatic", StringComparison.OrdinalIgnoreCase)
                         || string.Equals(startMode, "auto", StringComparison.OrdinalIgnoreCase))
                     {
@@ -142,14 +142,14 @@ namespace Topshelf.Configuration
                         throw new HostConfigurationException("The service was not properly configured");
                     }
                 }
-                else if (string.Equals(entry.Key, "Interactive", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(key, "Interactive", StringComparison.OrdinalIgnoreCase))
                 {
                     if (configuration.GetSection("Interactive").Get<bool>())
                     {
                         options.Add(new InteractiveOption());
                     }
                 }
-                else if (string.Equals(entry.Key, "Account", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(key, "Account", StringComparison.OrdinalIgnoreCase))
                 {
                     var account = configuration.GetSection("Account");
                     var accountValue = account.Value;
@@ -178,14 +178,14 @@ namespace Topshelf.Configuration
                         throw new HostConfigurationException("The service was not properly configured");
                     }
                 }
-                else if (string.Equals(entry.Key, "Dependencies", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(key, "Dependencies", StringComparison.OrdinalIgnoreCase))
                 {
                     foreach (var dependency in configuration.GetSection("Dependencies").GetChildren())
                     {
                         options.Add(new DependencyOption(dependency.Value));
                     }
                 }
-                else if (string.Equals(entry.Key, "ServiceRecovery", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(key, "ServiceRecovery", StringComparison.OrdinalIgnoreCase))
                 {
                     var section = configuration.GetSection("ServiceRecovery");
 
@@ -195,33 +195,31 @@ namespace Topshelf.Configuration
                         ResetPeriod = section.GetSection(nameof(ServiceRecoveryOptions.ResetPeriod)).Get<int>()
                     };
 
-                    foreach (var recoveryActionSecion in section.GetSection("RecoveryActions")?.GetChildren())
+                    foreach (var recoveryActionSection in section.GetSection("RecoveryActions")?.GetChildren())
                     {
-                        var recoveryActionType = recoveryActionSecion.GetSection("Type")?.Value;
-
-                        switch (recoveryActionType)
+                        switch (recoveryActionSection.GetSection("Type")?.Value)
                         {
                             case "RestartService":
                                 serviceRecoveryOptions.AddAction(
                                     new RestartServiceRecoveryAction(
                                         TimeSpan.FromMinutes(
-                                            recoveryActionSecion.GetSection("Delay").Get<int>())));
+                                            recoveryActionSection.GetSection("Delay").Get<int>())));
                                 break;
 
                             case "RestartSystem":
                                 serviceRecoveryOptions.AddAction(
                                     new RestartSystemRecoveryAction(
                                         TimeSpan.FromMinutes(
-                                            recoveryActionSecion.GetSection("Delay").Get<int>()),
-                                            recoveryActionSecion.GetSection("Message").Value));
+                                            recoveryActionSection.GetSection("Delay").Get<int>()),
+                                        recoveryActionSection.GetSection("Message").Value));
                                 break;
 
                             case "RunProgram":
                                 serviceRecoveryOptions.AddAction(
                                     new RunProgramRecoveryAction(
                                         TimeSpan.FromMinutes(
-                                            recoveryActionSecion.GetSection("Delay").Get<int>()),
-                                            recoveryActionSecion.GetSection("Command").Value));
+                                            recoveryActionSection.GetSection("Delay").Get<int>()),
+                                        recoveryActionSection.GetSection("Command").Value));
                                 break;
                         }
                     }

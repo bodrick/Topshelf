@@ -12,11 +12,10 @@
 // specific language governing permissions and limitations under the License.
 using System;
 
-namespace Topshelf.Configurators
+namespace Topshelf.Configuration.Configurators
 {
     [Serializable]
-    public class ValidateResultImpl :
-        ValidateResult
+    public class ValidateResultImpl : IValidateResult
     {
         public ValidateResultImpl(ValidationResultDisposition disposition, string key, string value, string message)
         {
@@ -45,8 +44,6 @@ namespace Topshelf.Configurators
         public string Message { get; private set; }
         public string Value { get; set; }
 
-        public override string ToString() => string.Format("[{0}] {1}", Disposition, string.IsNullOrEmpty(Key)
-                                                               ? Message
-                                                               : Key + " " + Message);
+        public override string ToString() => $"[{Disposition}] {(string.IsNullOrEmpty(Key) ? Message : Key + " " + Message)}";
     }
 }

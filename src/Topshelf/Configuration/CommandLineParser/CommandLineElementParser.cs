@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Topshelf.CommandLineParser
+namespace Topshelf.Configuration.CommandLineParser
 {
     internal class CommandLineElementParser<TResult> :
         AbstractParser<IEnumerable<ICommandLineElement>>,
@@ -33,9 +33,9 @@ namespace Topshelf.CommandLineParser
         public Parser<IEnumerable<ICommandLineElement>, TResult> All { get; set; }
 
         public Parser<IEnumerable<ICommandLineElement>, ICommandLineElement> AnyElement => input => input.Any()
-                                                                                                                                     ? new Result<IEnumerable<ICommandLineElement>, ICommandLineElement>(input.First(),
-                                                                                                                                   input.Skip(1))
-                                                                                                                             : null;
+            ? new Result<IEnumerable<ICommandLineElement>, ICommandLineElement>(input.First(),
+                input.Skip(1))
+            : null;
 
         public void Add(Parser<IEnumerable<ICommandLineElement>, TResult> parser) => _parsers.Add(parser);
 
@@ -47,9 +47,10 @@ namespace Topshelf.CommandLineParser
                                                                                                     where string.Equals(arg.Id, value, StringComparison.OrdinalIgnoreCase)
                                                                                                     select arg;
 
-        public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> Argument(Predicate<IArgumentElement> pred) => from arg in Argument()
-                                                                                                                        where pred(arg)
-                                                                                                                        select arg;
+        public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> Argument(Predicate<IArgumentElement> pred) =>
+            from arg in Argument()
+            where pred(arg)
+            select arg;
 
         public Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Definition() => from c in AnyElement
                                                                                             where c.GetType() == typeof(DefinitionElement)
@@ -99,12 +100,7 @@ namespace Topshelf.CommandLineParser
             }
 
             var directoryName = Path.GetDirectoryName(path) ?? path;
-            if (!Directory.Exists(directoryName))
-            {
-                return false;
-            }
-
-            return true;
+            return Directory.Exists(directoryName);
         }
     }
 }

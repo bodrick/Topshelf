@@ -4,7 +4,7 @@ using System.Security;
 namespace System.ServiceProcess
 {
     [SuppressUnmanagedCodeSecurity]
-    public partial class SafeNativeMethods
+    public static class SafeNativeMethods
     {
         public static extern bool CloseServiceHandle(IntPtr handle);
 
@@ -18,6 +18,6 @@ namespace System.ServiceProcess
         public static extern int LsaNtStatusToWinError(int ntStatus);
 
         [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern IntPtr OpenSCManager(string machineName, string databaseName, int access);
+        public static extern IntPtr OpenSCManager(string? machineName, string? databaseName, int access);
     }
 }

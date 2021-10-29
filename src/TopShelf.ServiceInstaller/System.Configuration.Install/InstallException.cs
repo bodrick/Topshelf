@@ -11,7 +11,7 @@ namespace System.Configuration.Install
         {
         }
 
-        public InstallException(string message, Exception innerException) : base(message, innerException)
+        public InstallException(string? message, Exception innerException) : base(message, innerException)
         {
         }
 

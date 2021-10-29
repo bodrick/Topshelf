@@ -14,14 +14,14 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Topshelf.HostConfigurators;
-using Topshelf.HostConfigurators.AssemblyExtensions;
+using Topshelf.Configuration.HostConfigurators;
+using Topshelf.Configuration.HostConfigurators.AssemblyExtensions;
 
-namespace Topshelf
+namespace Topshelf.Configuration
 {
     namespace HostConfigurators.AssemblyExtensions
     {
-        public static class AssemblyExtentions
+        public static class AssemblyExtensions
         {
             public static T GetAttribute<T>(this Assembly assembly)
                 where T : Attribute => assembly.GetCustomAttributes(typeof(T), false)
@@ -44,13 +44,13 @@ namespace Topshelf
     }
     public static class HostConfiguratorExtensions
     {
-        public static void UseAssemblyInfoForServiceInfo(this HostConfigurator hostConfigurator, Assembly assembly)
+        public static void UseAssemblyInfoForServiceInfo(this IHostConfigurator hostConfigurator, Assembly assembly)
         {
             hostConfigurator.SetDisplayName(assembly.GetAttribute<AssemblyTitleAttribute>().TryGetProperty(x => x.Title));
             hostConfigurator.SetServiceName(assembly.GetAttribute<AssemblyTitleAttribute>().TryGetProperty(x => x.Title).ToServiceNameSafeString());
             hostConfigurator.SetDescription(assembly.GetAttribute<AssemblyDescriptionAttribute>().TryGetProperty(x => x.Description));
         }
 
-        public static void UseAssemblyInfoForServiceInfo(this HostConfigurator hostConfigurator) => hostConfigurator.UseAssemblyInfoForServiceInfo(Assembly.GetEntryAssembly());
+        public static void UseAssemblyInfoForServiceInfo(this IHostConfigurator hostConfigurator) => hostConfigurator.UseAssemblyInfoForServiceInfo(Assembly.GetEntryAssembly());
     }
 }

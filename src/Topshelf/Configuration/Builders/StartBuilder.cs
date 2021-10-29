@@ -14,40 +14,36 @@ using System;
 using Topshelf.Hosts;
 using Topshelf.Runtime;
 
-namespace Topshelf.Builders
+namespace Topshelf.Configuration.Builders
 {
-    public class StartBuilder :
-        HostBuilder
+    public class StartBuilder : IHostBuilder
     {
-        private readonly HostBuilder _builder;
-        private readonly IHostEnvironment _environment;
-        private readonly HostSettings _settings;
+        private readonly IHostBuilder _builder;
 
-        public StartBuilder(HostBuilder builder)
+        public StartBuilder(IHostBuilder builder)
         {
             _builder = GetParentBuilder(builder);
-            _settings = builder.Settings;
-            _environment = builder.Environment;
+            Settings = builder.Settings;
+            Environment = builder.Environment;
         }
 
-        public IHostEnvironment Environment => _environment;
+        public IHostEnvironment Environment { get; }
 
-        public HostSettings Settings => _settings;
+        public IHostSettings Settings { get; }
 
-        public IHost Build(ServiceBuilder serviceBuilder)
+        public IHost Build(IServiceBuilder serviceBuilder)
         {
             if (_builder != null)
             {
                 var parentHost = _builder.Build(serviceBuilder);
 
-                return new StartHost(_environment, _settings, parentHost);
+                return new StartHost(Environment, Settings, parentHost);
             }
 
-            return new StartHost(_environment, _settings);
+            return new StartHost(Environment, Settings);
         }
 
-        public void Match<T>(Action<T> callback)
-            where T : class, HostBuilder
+        public void Match<T>(Action<T> callback) where T : class, IHostBuilder
         {
             if (callback == null)
             {
@@ -61,9 +57,9 @@ namespace Topshelf.Builders
             }
         }
 
-        private static HostBuilder GetParentBuilder(HostBuilder builder)
+        private static IHostBuilder GetParentBuilder(IHostBuilder builder)
         {
-            HostBuilder result = null;
+            IHostBuilder result = null;
 
             builder.Match<InstallBuilder>(x => { result = builder; });
 

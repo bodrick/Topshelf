@@ -17,13 +17,13 @@ using Topshelf.Runtime;
 
 namespace Topshelf.Hosts
 {
-    public class TestHost : IHost, HostControl
+    public class TestHost : IHost, IHostControl
     {
         private readonly ILogWriter _log = HostLogger.Get<TestHost>();
         private readonly IServiceHandle _serviceHandle;
-        private readonly HostSettings _settings;
+        private readonly IHostSettings _settings;
 
-        public TestHost(HostSettings settings, IHostEnvironment environment, IServiceHandle serviceHandle)
+        public TestHost(IHostSettings settings, IHostEnvironment environment, IServiceHandle serviceHandle)
         {
             if (settings == null)
             {
@@ -39,7 +39,7 @@ namespace Topshelf.Hosts
             _serviceHandle = serviceHandle;
         }
 
-        void HostControl.RequestAdditionalTime(TimeSpan timeRemaining)
+        void IHostControl.RequestAdditionalTime(TimeSpan timeRemaining)
         {
             // good for you, maybe we'll use a timer for startup at some point but for debugging
             // it's a pain in the ass
@@ -80,8 +80,8 @@ namespace Topshelf.Hosts
             return exitCode;
         }
 
-        void HostControl.Stop() => _log.Info("Service Stop requested, exiting.");
+        void IHostControl.Stop() => _log.Info("Service Stop requested, exiting.");
 
-        void HostControl.Stop(TopshelfExitCode exitCode) => _log.Info($"Service Stop requested with exit code {exitCode}, exiting.");
+        void IHostControl.Stop(TopshelfExitCode exitCode) => _log.Info($"Service Stop requested with exit code {exitCode}, exiting.");
     }
 }

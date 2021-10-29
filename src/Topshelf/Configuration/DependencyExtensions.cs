@@ -11,14 +11,14 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
-using Topshelf.Constants;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.Constants;
+using Topshelf.Configuration.HostConfigurators;
 
-namespace Topshelf
+namespace Topshelf.Configuration
 {
     public static class DependencyExtensions
     {
-        public static HostConfigurator AddDependency(this HostConfigurator configurator, string name)
+        public static IHostConfigurator AddDependency(this IHostConfigurator configurator, string name)
         {
             if (configurator == null)
             {
@@ -37,14 +37,14 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator DependsOn(this HostConfigurator configurator, string name) => AddDependency(configurator, name);
+        public static IHostConfigurator DependsOn(this IHostConfigurator configurator, string name) => AddDependency(configurator, name);
 
-        public static HostConfigurator DependsOnEventLog(this HostConfigurator configurator) => AddDependency(configurator, KnownServiceNames.EventLog);
+        public static IHostConfigurator DependsOnEventLog(this IHostConfigurator configurator) => AddDependency(configurator, KnownServiceNames.EventLog);
 
-        public static HostConfigurator DependsOnIis(this HostConfigurator configurator) => AddDependency(configurator, KnownServiceNames.IIS);
+        public static IHostConfigurator DependsOnIis(this IHostConfigurator configurator) => AddDependency(configurator, KnownServiceNames.IIS);
 
-        public static HostConfigurator DependsOnMsmq(this HostConfigurator configurator) => AddDependency(configurator, KnownServiceNames.Msmq);
+        public static IHostConfigurator DependsOnMsmq(this IHostConfigurator configurator) => AddDependency(configurator, KnownServiceNames.Msmq);
 
-        public static HostConfigurator DependsOnMsSql(this HostConfigurator configurator) => AddDependency(configurator, KnownServiceNames.SqlServer);
+        public static IHostConfigurator DependsOnMsSql(this IHostConfigurator configurator) => AddDependency(configurator, KnownServiceNames.SqlServer);
     }
 }

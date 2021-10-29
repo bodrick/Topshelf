@@ -10,69 +10,69 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-using Topshelf.CommandLineParser;
-using Topshelf.Options;
+using Topshelf.Configuration.CommandLineParser;
+using Topshelf.Configuration.Options;
 
-namespace Topshelf.HostConfigurators
+namespace Topshelf.Configuration.HostConfigurators
 {
     internal static class CommandLineParserOptions
     {
-        internal static void AddTopshelfOptions(ICommandLineElementParser<Option> x) => x.Add((from arg in x.Argument("command")
+        internal static void AddTopshelfOptions(ICommandLineElementParser<IOption> x) => x.Add((from arg in x.Argument("command")
                                                                                                from cmd in x.Argument()
                                                                                                where int.TryParse(cmd.Id, out var n)
-                                                                                               select (Option)new CommandOption(cmd.Id))
+                                                                                               select (IOption)new CommandOption(cmd.Id))
                 .Or(from arg in x.Argument("help")
-                    select (Option)new HelpOption())
+                    select (IOption)new HelpOption())
                 .Or(from arg in x.Argument("run")
-                    select (Option)new RunOption())
+                    select (IOption)new RunOption())
                 .Or(from help in x.Switch("help")
-                    select (Option)new HelpOption())
+                    select (IOption)new HelpOption())
                 .Or(from systemHelp in x.Switch("systemonly")
-                    select (Option)new SystemOnlyHelpOption())
+                    select (IOption)new SystemOnlyHelpOption())
                 .Or(from name in x.Definition("servicename")
-                    select (Option)new ServiceNameOption(name.Value))
+                    select (IOption)new ServiceNameOption(name.Value))
                 .Or(from desc in x.Definition("description")
-                    select (Option)new ServiceDescriptionOption(desc.Value))
+                    select (IOption)new ServiceDescriptionOption(desc.Value))
                 .Or(from disp in x.Definition("displayname")
-                    select (Option)new DisplayNameOption(disp.Value))
+                    select (IOption)new DisplayNameOption(disp.Value))
                 .Or(from instance in x.Definition("instance")
-                    select (Option)new InstanceOption(instance.Value))
+                    select (IOption)new InstanceOption(instance.Value))
                 .Or(from arg in x.Argument("stop")
-                    select (Option)new StopOption())
+                    select (IOption)new StopOption())
                 .Or(from arg in x.Argument("start")
-                    select (Option)new StartOption())
+                    select (IOption)new StartOption())
                 .Or(from arg in x.Argument("install")
-                    select (Option)new InstallOption())
+                    select (IOption)new InstallOption())
                 .Or(from arg in x.Argument("uninstall")
-                    select (Option)new UninstallOption())
+                    select (IOption)new UninstallOption())
                 .Or(from arg in x.Switch("sudo")
-                    select (Option)new SudoOption())
+                    select (IOption)new SudoOption())
                 .Or(from username in x.Definition("username")
                     from password in x.Definition("password")
-                    select (Option)new ServiceAccountOption(username.Value, password.Value))
+                    select (IOption)new ServiceAccountOption(username.Value, password.Value))
                 .Or(from autostart in x.Switch("autostart")
-                    select (Option)new AutostartOption())
+                    select (IOption)new AutostartOption())
                 .Or(from manual in x.Switch("manual")
-                    select (Option)new ManualStartOption())
+                    select (IOption)new ManualStartOption())
                 .Or(from disabled in x.Switch("disabled")
-                    select (Option)new DisabledOption())
+                    select (IOption)new DisabledOption())
                 .Or(from delayed in x.Switch("delayed")
-                    select (Option)new DelayedOption())
+                    select (IOption)new DelayedOption())
                 .Or(from interactive in x.Switch("interactive")
-                    select (Option)new InteractiveOption())
+                    select (IOption)new InteractiveOption())
                 .Or(from autostart in x.Switch("localsystem")
-                    select (Option)new LocalSystemOption())
+                    select (IOption)new LocalSystemOption())
                 .Or(from autostart in x.Switch("localservice")
-                    select (Option)new LocalServiceOption())
+                    select (IOption)new LocalServiceOption())
                 .Or(from autostart in x.Switch("networkservice")
-                    select (Option)new NetworkServiceOption())
+                    select (IOption)new NetworkServiceOption())
 );
 
-        internal static void AddUnknownOptions(ICommandLineElementParser<Option> x) => x.Add((from unknown in x.Definition()
-                                                                                              select (Option)new UnknownOption(unknown.ToString()))
+        internal static void AddUnknownOptions(ICommandLineElementParser<IOption> x) => x.Add((from unknown in x.Definition()
+                                                                                              select (IOption)new UnknownOption(unknown.ToString()))
                 .Or(from unknown in x.Switch()
-                    select (Option)new UnknownOption(unknown.ToString()))
+                    select (IOption)new UnknownOption(unknown.ToString()))
                 .Or(from unknown in x.Argument()
-                    select (Option)new UnknownOption(unknown.ToString())));
+                    select (IOption)new UnknownOption(unknown.ToString())));
     }
 }

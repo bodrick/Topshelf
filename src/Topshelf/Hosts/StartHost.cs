@@ -22,9 +22,9 @@ namespace Topshelf.Hosts
         private readonly IHostEnvironment _environment;
         private readonly ILogWriter _log = HostLogger.Get<StartHost>();
         private readonly IHost _parentHost;
-        private readonly HostSettings _settings;
+        private readonly IHostSettings _settings;
 
-        public StartHost(IHostEnvironment environment, HostSettings settings, IHost parentHost = null)
+        public StartHost(IHostEnvironment environment, IHostSettings settings, IHost parentHost = null)
         {
             _environment = environment;
             _settings = settings;

@@ -13,13 +13,12 @@
 using System;
 using System.Collections.Generic;
 using System.ServiceProcess;
-using Topshelf.Builders;
-using Topshelf.Configurators;
+using Topshelf.Configuration.Builders;
+using Topshelf.Configuration.Configurators;
 
-namespace Topshelf.HostConfigurators
+namespace Topshelf.Configuration.HostConfigurators
 {
-    public class RunAsUserHostConfigurator :
-        HostBuilderConfigurator
+    public class RunAsUserHostConfigurator : IHostBuilderConfigurator
     {
         public RunAsUserHostConfigurator(string username, string password)
         {
@@ -30,7 +29,7 @@ namespace Topshelf.HostConfigurators
         public string Password { get; }
         public string Username { get; }
 
-        public HostBuilder Configure(HostBuilder builder)
+        public IHostBuilder Configure(IHostBuilder builder)
         {
             if (builder == null)
             {
@@ -42,7 +41,7 @@ namespace Topshelf.HostConfigurators
             return builder;
         }
 
-        public IEnumerable<ValidateResult> Validate()
+        public IEnumerable<IValidateResult> Validate()
         {
             if (string.IsNullOrEmpty(Username))
             {

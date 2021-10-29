@@ -11,14 +11,14 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.HostConfigurators;
 using Topshelf.Runtime;
 
-namespace Topshelf
+namespace Topshelf.Configuration
 {
     public static class InstallHostConfiguratorExtensions
     {
-        public static HostConfigurator AfterInstall(this HostConfigurator configurator, Action callback)
+        public static IHostConfigurator AfterInstall(this IHostConfigurator configurator, Action callback)
         {
             if (configurator == null)
             {
@@ -30,7 +30,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator AfterInstall(this HostConfigurator configurator,
+        public static IHostConfigurator AfterInstall(this IHostConfigurator configurator,
             Action<IInstallHostSettings> callback)
         {
             if (configurator == null)
@@ -43,7 +43,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator AfterRollback(this HostConfigurator configurator, Action callback)
+        public static IHostConfigurator AfterRollback(this IHostConfigurator configurator, Action callback)
         {
             if (configurator == null)
             {
@@ -55,7 +55,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator AfterRollback(this HostConfigurator configurator,
+        public static IHostConfigurator AfterRollback(this IHostConfigurator configurator,
             Action<IInstallHostSettings> callback)
         {
             if (configurator == null)
@@ -68,7 +68,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator BeforeInstall(this HostConfigurator configurator, Action callback)
+        public static IHostConfigurator BeforeInstall(this IHostConfigurator configurator, Action callback)
         {
             if (configurator == null)
             {
@@ -80,7 +80,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator BeforeInstall(this HostConfigurator configurator,
+        public static IHostConfigurator BeforeInstall(this IHostConfigurator configurator,
             Action<IInstallHostSettings> callback)
         {
             if (configurator == null)
@@ -93,7 +93,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator BeforeRollback(this HostConfigurator configurator, Action callback)
+        public static IHostConfigurator BeforeRollback(this IHostConfigurator configurator, Action callback)
         {
             if (configurator == null)
             {
@@ -105,7 +105,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator BeforeRollback(this HostConfigurator configurator,
+        public static IHostConfigurator BeforeRollback(this IHostConfigurator configurator,
             Action<IInstallHostSettings> callback)
         {
             if (configurator == null)

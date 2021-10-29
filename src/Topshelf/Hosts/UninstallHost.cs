@@ -23,10 +23,10 @@ namespace Topshelf.Hosts
         private readonly IHostEnvironment _environment;
         private readonly IEnumerable<Action> _postActions;
         private readonly IEnumerable<Action> _preActions;
-        private readonly HostSettings _settings;
+        private readonly IHostSettings _settings;
         private readonly bool _sudo;
 
-        public UninstallHost(IHostEnvironment environment, HostSettings settings, IEnumerable<Action> preActions,
+        public UninstallHost(IHostEnvironment environment, IHostSettings settings, IEnumerable<Action> preActions,
             IEnumerable<Action> postActions,
             bool sudo)
         {

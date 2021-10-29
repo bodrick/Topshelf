@@ -7,9 +7,8 @@ namespace System.Configuration.Install
 {
     public class Installer : Component
     {
-        internal Installer? parent;
-        private InstallerCollection? installers;
-
+        private InstallerCollection? _installers;
+        private Installer? _parent;
         public InstallContext? Context { get; set; }
 
         [ResDescription("Desc_Installer_HelpText")]
@@ -31,48 +30,37 @@ namespace System.Configuration.Install
             }
         }
 
-        public InstallerCollection Installers
-        {
-            get
-            {
-                if (installers == null)
-                {
-                    installers = new InstallerCollection(this);
-                }
-
-                return installers;
-            }
-        }
+        public InstallerCollection Installers => _installers ??= new InstallerCollection(this);
 
         [TypeConverter(typeof(InstallerParentConverter))]
         [ResDescription("Desc_Installer_Parent")]
-        public Installer Parent
+        public Installer? Parent
         {
-            get => parent;
+            get => _parent;
             set
             {
                 if (value == this)
                 {
                     throw new InvalidOperationException(Res.GetString("InstallBadParent"));
                 }
-                if (value != parent)
+                if (value != _parent)
                 {
                     if (value != null && InstallerTreeContains(value))
                     {
                         throw new InvalidOperationException(Res.GetString("InstallRecursiveParent"));
                     }
-                    if (parent != null)
+                    if (_parent != null)
                     {
-                        var num = parent.Installers.IndexOf(this);
+                        var num = _parent.Installers.IndexOf(this);
                         if (num != -1)
                         {
-                            parent.Installers.RemoveAt(num);
+                            _parent.Installers.RemoveAt(num);
                         }
                     }
-                    parent = value;
-                    if (parent != null && !parent.Installers.Contains(this))
+                    _parent = value;
+                    if (_parent?.Installers.Contains(this) == false)
                     {
-                        parent.Installers.Add(this);
+                        _parent.Installers.Add(this);
                     }
                 }
             }
@@ -86,7 +74,7 @@ namespace System.Configuration.Install
             }
             if (savedState["_reserved_lastInstallerAttempted"] != null && savedState["_reserved_nestedSavedStates"] != null)
             {
-                Exception ex = null;
+                Exception? ex = null;
                 try
                 {
                     OnCommitting(savedState);
@@ -94,16 +82,15 @@ namespace System.Configuration.Install
                 catch (Exception ex2)
                 {
                     WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnCommitting", ex2);
-                    Context.LogMessage(Res.GetString("InstallCommitException"));
+                    Context?.LogMessage(Res.GetString("InstallCommitException"));
                     ex = ex2;
                 }
-                var num = (int)savedState["_reserved_lastInstallerAttempted"];
-                var array = (IDictionary[])savedState["_reserved_nestedSavedStates"];
-                if (num + 1 == array.Length && num < Installers.Count)
+                var num = (int)(savedState["_reserved_lastInstallerAttempted"] ?? 0);
+                if (savedState["_reserved_nestedSavedStates"] is IDictionary[] array && num + 1 == array.Length && num < Installers.Count)
                 {
-                    for (var i = 0; i < Installers.Count; i++)
+                    foreach (var installer in Installers)
                     {
-                        Installers[i].Context = Context;
+                        installer.Context = Context;
                     }
                     for (var j = 0; j <= num; j++)
                     {
@@ -115,9 +102,9 @@ namespace System.Configuration.Install
                         {
                             if (!IsWrappedException(ex3))
                             {
-                                Context.LogMessage(Res.GetString("InstallLogCommitException", Installers[j].ToString()));
+                                Context?.LogMessage(Res.GetString("InstallLogCommitException", Installers[j].ToString()));
                                 LogException(ex3, Context);
-                                Context.LogMessage(Res.GetString("InstallCommitException"));
+                                Context?.LogMessage(Res.GetString("InstallCommitException"));
                             }
                             ex = ex3;
                         }
@@ -131,7 +118,7 @@ namespace System.Configuration.Install
                     catch (Exception ex4)
                     {
                         WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnCommitted", ex4);
-                        Context.LogMessage(Res.GetString("InstallCommitException"));
+                        Context?.LogMessage(Res.GetString("InstallCommitException"));
                         ex = ex4;
                     }
                     if (ex == null)
@@ -166,16 +153,17 @@ namespace System.Configuration.Install
             catch (Exception ex)
             {
                 WriteEventHandlerError(Res.GetString("InstallSeverityError"), "OnBeforeInstall", ex);
-                throw new InvalidOperationException(Res.GetString("InstallEventException", "OnBeforeInstall", GetType().FullName), ex);
+                throw new InvalidOperationException(Res.GetString("InstallEventException", "OnBeforeInstall", GetType().FullName ?? string.Empty), ex);
             }
             var num = -1;
             var arrayList = new List<IDictionary>();
             try
             {
-                for (var i = 0; i < Installers.Count; i++)
+                foreach (var installer in Installers)
                 {
-                    Installers[i].Context = Context;
+                    installer.Context = Context;
                 }
+
                 for (var j = 0; j < Installers.Count; j++)
                 {
                     var installer = Installers[j];
@@ -203,7 +191,7 @@ namespace System.Configuration.Install
             catch (Exception ex2)
             {
                 WriteEventHandlerError(Res.GetString("InstallSeverityError"), "OnAfterInstall", ex2);
-                throw new InvalidOperationException(Res.GetString("InstallEventException", "OnAfterInstall", GetType().FullName), ex2);
+                throw new InvalidOperationException(Res.GetString("InstallEventException", "OnAfterInstall", GetType().FullName ?? string.Empty), ex2);
             }
         }
 
@@ -215,7 +203,7 @@ namespace System.Configuration.Install
             }
             if (savedState["_reserved_lastInstallerAttempted"] != null && savedState["_reserved_nestedSavedStates"] != null)
             {
-                Exception ex = null;
+                Exception? ex = null;
                 try
                 {
                     OnBeforeRollback(savedState);
@@ -223,12 +211,11 @@ namespace System.Configuration.Install
                 catch (Exception ex2)
                 {
                     WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnBeforeRollback", ex2);
-                    Context.LogMessage(Res.GetString("InstallRollbackException"));
+                    Context?.LogMessage(Res.GetString("InstallRollbackException"));
                     ex = ex2;
                 }
-                var num = (int)savedState["_reserved_lastInstallerAttempted"];
-                var array = (IDictionary[])savedState["_reserved_nestedSavedStates"];
-                if (num + 1 == array.Length && num < Installers.Count)
+                var num = (int)(savedState["_reserved_lastInstallerAttempted"] ?? 0);
+                if (savedState["_reserved_nestedSavedStates"] is IDictionary[] array && num + 1 == array.Length && num < Installers.Count)
                 {
                     for (var num2 = Installers.Count - 1; num2 >= 0; num2--)
                     {
@@ -244,9 +231,9 @@ namespace System.Configuration.Install
                         {
                             if (!IsWrappedException(ex3))
                             {
-                                Context.LogMessage(Res.GetString("InstallLogRollbackException", Installers[num3].ToString()));
+                                Context?.LogMessage(Res.GetString("InstallLogRollbackException", Installers[num3].ToString()));
                                 LogException(ex3, Context);
-                                Context.LogMessage(Res.GetString("InstallRollbackException"));
+                                Context?.LogMessage(Res.GetString("InstallRollbackException"));
                             }
                             ex = ex3;
                         }
@@ -258,7 +245,7 @@ namespace System.Configuration.Install
                     catch (Exception ex4)
                     {
                         WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnAfterRollback", ex4);
-                        Context.LogMessage(Res.GetString("InstallRollbackException"));
+                        Context?.LogMessage(Res.GetString("InstallRollbackException"));
                         ex = ex4;
                     }
                     if (ex == null)
@@ -290,13 +277,13 @@ namespace System.Configuration.Install
             catch (Exception ex2)
             {
                 WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnBeforeUninstall", ex2);
-                Context.LogMessage(Res.GetString("InstallUninstallException"));
+                Context?.LogMessage(Res.GetString("InstallUninstallException"));
                 ex = ex2;
             }
             IDictionary[] array;
             if (savedState != null)
             {
-                array = (IDictionary[])savedState["_reserved_nestedSavedStates"];
+                array = savedState["_reserved_nestedSavedStates"] as IDictionary[];
                 if (array != null && array.Length == Installers.Count)
                 {
                     goto IL_0091;
@@ -320,9 +307,9 @@ namespace System.Configuration.Install
                 {
                     if (!IsWrappedException(ex3))
                     {
-                        Context.LogMessage(Res.GetString("InstallLogUninstallException", Installers[num2].ToString()));
+                        Context?.LogMessage(Res.GetString("InstallLogUninstallException", Installers[num2].ToString()));
                         LogException(ex3, Context);
-                        Context.LogMessage(Res.GetString("InstallUninstallException"));
+                        Context?.LogMessage(Res.GetString("InstallUninstallException"));
                     }
                     ex = ex3;
                 }
@@ -334,7 +321,7 @@ namespace System.Configuration.Install
             catch (Exception ex4)
             {
                 WriteEventHandlerError(Res.GetString("InstallSeverityWarning"), "OnAfterUninstall", ex4);
-                Context.LogMessage(Res.GetString("InstallUninstallException"));
+                Context?.LogMessage(Res.GetString("InstallUninstallException"));
                 ex = ex4;
             }
             if (ex == null)
@@ -498,21 +485,21 @@ namespace System.Configuration.Install
 
         #endregion Event Handlers
 
-        internal static void LogException(Exception e, InstallContext context)
+        internal static void LogException(Exception? e, InstallContext? context)
         {
             var flag = true;
             while (e != null)
             {
                 if (flag)
                 {
-                    context.LogMessage(e.GetType().FullName + ": " + e.Message);
+                    context?.LogMessage(e.GetType().FullName + ": " + e.Message);
                     flag = false;
                 }
                 else
                 {
-                    context.LogMessage(Res.GetString("InstallLogInner", e.GetType().FullName, e.Message));
+                    context?.LogMessage(Res.GetString("InstallLogInner", e.GetType().FullName ?? string.Empty, e.Message));
                 }
-                if (context.IsParameterTrue("showcallstack"))
+                if (context?.IsParameterTrue("showcallstack") == true)
                 {
                     context.LogMessage(e.StackTrace);
                 }
@@ -520,9 +507,9 @@ namespace System.Configuration.Install
             }
         }
 
-        internal bool InstallerTreeContains(Installer target)
+        internal bool InstallerTreeContains(Installer? target)
         {
-            if (Installers.Contains(target))
+            if (target != null && Installers.Contains(target))
             {
                 return true;
             }
@@ -536,18 +523,18 @@ namespace System.Configuration.Install
             return false;
         }
 
-        private bool IsWrappedException(Exception e)
+        private static bool IsWrappedException(Exception e)
         {
             if (e is InstallException && e.Source == "WrappedExceptionSource")
             {
-                return e.TargetSite.ReflectedType == typeof(Installer);
+                return e.TargetSite?.ReflectedType == typeof(Installer);
             }
             return false;
         }
 
-        private void WriteEventHandlerError(string severity, string eventName, Exception e)
+        private void WriteEventHandlerError(string? severity, string eventName, Exception e)
         {
-            Context.LogMessage(Res.GetString("InstallLogError", severity, eventName, GetType().FullName));
+            Context?.LogMessage(Res.GetString("InstallLogError", severity, eventName, GetType().FullName));
             LogException(e, Context);
         }
     }

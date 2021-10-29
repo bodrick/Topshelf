@@ -17,23 +17,20 @@ using System.ServiceProcess;
 using Topshelf.Hosts;
 using Topshelf.Runtime;
 
-namespace Topshelf.Builders
+namespace Topshelf.Configuration.Builders
 {
-    public class InstallBuilder :
-        HostBuilder
+    public class InstallBuilder : IHostBuilder
     {
         private readonly IList<string> _dependencies;
-        private readonly IHostEnvironment _environment;
         private readonly IList<Action<IInstallHostSettings>> _postActions;
         private readonly IList<Action<IInstallHostSettings>> _postRollbackActions;
         private readonly IList<Action<IInstallHostSettings>> _preActions;
         private readonly IList<Action<IInstallHostSettings>> _preRollbackActions;
-        private readonly HostSettings _settings;
         private Credentials _credentials;
         private HostStartMode _startMode;
         private bool _sudo;
 
-        public InstallBuilder(IHostEnvironment environment, HostSettings settings)
+        public InstallBuilder(IHostEnvironment environment, IHostSettings settings)
         {
             _preActions = new List<Action<IInstallHostSettings>>();
             _postActions = new List<Action<IInstallHostSettings>>();
@@ -43,13 +40,13 @@ namespace Topshelf.Builders
             _startMode = HostStartMode.Automatic;
             _credentials = new Credentials("", "", ServiceAccount.LocalSystem);
 
-            _environment = environment;
-            _settings = settings;
+            Environment = environment;
+            Settings = settings;
         }
 
-        public IHostEnvironment Environment => _environment;
+        public IHostEnvironment Environment { get; }
 
-        public HostSettings Settings => _settings;
+        public IHostSettings Settings { get; }
 
         public void AddDependency(string name) => _dependencies.Add(name);
 
@@ -61,15 +58,14 @@ namespace Topshelf.Builders
 
         public void BeforeRollback(Action<IInstallHostSettings> callback) => _preRollbackActions.Add(callback);
 
-        public IHost Build(ServiceBuilder serviceBuilder) => new InstallHost(_environment, _settings, _startMode, _dependencies.ToArray(), _credentials,
+        public IHost Build(IServiceBuilder serviceBuilder) => new InstallHost(Environment, Settings, _startMode, _dependencies.ToArray(), _credentials,
                                                         _preActions, _postActions, _preRollbackActions, _postRollbackActions, _sudo);
 
-        public void Match<T>(Action<T> callback)
-            where T : class, HostBuilder
+        public void Match<T>(Action<T> callback) where T : class, IHostBuilder
         {
             if (callback == null)
             {
-                throw new ArgumentNullException("callback");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             var self = this as T;

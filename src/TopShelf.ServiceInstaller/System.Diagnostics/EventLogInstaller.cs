@@ -38,7 +38,7 @@ namespace System.Diagnostics
         /// <returns>The name of the log. This can be Application, System, or a custom log name. The default is an empty string ("").</returns>
         [TypeConverter("System.Diagnostics.Design.StringValueConverter, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [ResDescription("Desc_Log")]
-        public string Log
+        public string? Log
         {
             get
             {
@@ -79,7 +79,7 @@ namespace System.Diagnostics
         /// <returns>The name to register with the event log as a source of entries. The default is an empty string ("").</returns>
         [TypeConverter("System.Diagnostics.Design.StringValueConverter, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [ResDescription("Desc_Source")]
-        public string Source
+        public string? Source
         {
             get => _sourceData.Source;
             set => _sourceData.Source = value;
@@ -130,7 +130,7 @@ namespace System.Diagnostics
         public override void Install(IDictionary stateSaver)
         {
             base.Install(stateSaver);
-            Context.LogMessage(Res.GetString("CreatingEventLog", Source, Log));
+            Context?.LogMessage(Res.GetString("CreatingEventLog", Source, Log));
             if (Environment.OSVersion.Platform != PlatformID.Win32NT)
             {
                 throw new PlatformNotSupportedException(Res.GetString("WinNTRequired"));
@@ -163,7 +163,7 @@ namespace System.Diagnostics
         public override void Rollback(IDictionary savedState)
         {
             base.Rollback(savedState);
-            Context.LogMessage(Res.GetString("RestoringEventLog", Source));
+            Context?.LogMessage(Res.GetString("RestoringEventLog", Source));
             if (savedState["baseInstalledAndPlatformOK"] != null)
             {
                 var logExists = (bool)(savedState["logExists"] ?? false);
@@ -190,7 +190,7 @@ namespace System.Diagnostics
             base.Uninstall(savedState);
             if (UninstallAction == UninstallAction.Remove)
             {
-                Context.LogMessage(Res.GetString("RemovingEventLog", Source));
+                Context?.LogMessage(Res.GetString("RemovingEventLog", Source));
                 if (EventLog.SourceExists(Source, "."))
                 {
                     if (!string.Equals(Log, Source, StringComparison.OrdinalIgnoreCase))
@@ -200,7 +200,7 @@ namespace System.Diagnostics
                 }
                 else
                 {
-                    Context.LogMessage(Res.GetString("LocalSourceNotRegisteredWarning", Source));
+                    Context?.LogMessage(Res.GetString("LocalSourceNotRegisteredWarning", Source));
                 }
                 var registryKey = Registry.LocalMachine;
                 RegistryKey? registryKey2 = null;
@@ -216,7 +216,7 @@ namespace System.Diagnostics
                         var subKeyNames = registryKey2.GetSubKeyNames();
                         if (subKeyNames.Length == 0 || (subKeyNames.Length == 1 && string.Equals(subKeyNames[0], Log, StringComparison.OrdinalIgnoreCase)))
                         {
-                            Context.LogMessage(Res.GetString("DeletingEventLog", Log));
+                            Context?.LogMessage(Res.GetString("DeletingEventLog", Log));
                             EventLog.Delete(Log, ".");
                         }
                     }

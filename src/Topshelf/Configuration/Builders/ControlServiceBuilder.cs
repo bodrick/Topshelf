@@ -11,24 +11,23 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
+using Topshelf.Exceptions;
 using Topshelf.Runtime;
 
-namespace Topshelf.Builders
+namespace Topshelf.Configuration.Builders
 {
-    public class ControlServiceBuilder<T> :
-        ServiceBuilder
-        where T : class, IServiceControl
+    public class ControlServiceBuilder<T> : IServiceBuilder where T : class, IServiceControl
     {
         private readonly IServiceEvents _serviceEvents;
-        private readonly Func<HostSettings, T> _serviceFactory;
+        private readonly Func<IHostSettings, T> _serviceFactory;
 
-        public ControlServiceBuilder(Func<HostSettings, T> serviceFactory, IServiceEvents serviceEvents)
+        public ControlServiceBuilder(Func<IHostSettings, T> serviceFactory, IServiceEvents serviceEvents)
         {
             _serviceFactory = serviceFactory;
             _serviceEvents = serviceEvents;
         }
 
-        public IServiceHandle Build(HostSettings settings)
+        public IServiceHandle Build(IHostSettings settings)
         {
             try
             {
@@ -42,8 +41,7 @@ namespace Topshelf.Builders
             }
         }
 
-        private class ControlServiceHandle :
-            IServiceHandle
+        private class ControlServiceHandle : IServiceHandle
         {
             private readonly T _service;
             private readonly IServiceEvents _serviceEvents;
@@ -54,17 +52,11 @@ namespace Topshelf.Builders
                 _serviceEvents = serviceEvents;
             }
 
-            public bool Continue(HostControl hostControl)
-            {
-                var service = _service as IServiceSuspend;
+            public bool Continue(IHostControl hostControl) => _service is IServiceSuspend service && service.Continue(hostControl);
 
-                return service != null && service.Continue(hostControl);
-            }
-
-            public void CustomCommand(HostControl hostControl, int command)
+            public void CustomCommand(IHostControl hostControl, int command)
             {
-                var customCommand = _service as IServiceCustomCommand;
-                if (customCommand != null)
+                if (_service is IServiceCustomCommand customCommand)
                 {
                     customCommand.CustomCommand(hostControl, command);
                 }
@@ -72,24 +64,17 @@ namespace Topshelf.Builders
 
             public void Dispose()
             {
-                var disposable = _service as IDisposable;
-                if (disposable != null)
+                if (_service is IDisposable disposable)
                 {
                     disposable.Dispose();
                 }
             }
 
-            public bool Pause(HostControl hostControl)
-            {
-                var service = _service as IServiceSuspend;
+            public bool Pause(IHostControl hostControl) => _service is IServiceSuspend service && service.Pause(hostControl);
 
-                return service != null && service.Pause(hostControl);
-            }
-
-            public bool PowerEvent(HostControl hostControl, IPowerEventArguments arguments)
+            public bool PowerEvent(IHostControl hostControl, IPowerEventArguments arguments)
             {
-                var powerEvent = _service as IServicePowerEvent;
-                if (powerEvent != null)
+                if (_service is IServicePowerEvent powerEvent)
                 {
                     return powerEvent.PowerEvent(hostControl, arguments);
                 }
@@ -97,25 +82,23 @@ namespace Topshelf.Builders
                 return false;
             }
 
-            public void SessionChanged(HostControl hostControl, ISessionChangedArguments arguments)
+            public void SessionChanged(IHostControl hostControl, ISessionChangedArguments arguments)
             {
-                var sessionChange = _service as IServiceSessionChange;
-                if (sessionChange != null)
+                if (_service is IServiceSessionChange sessionChange)
                 {
                     sessionChange.SessionChange(hostControl, arguments);
                 }
             }
 
-            public void Shutdown(HostControl hostControl)
+            public void Shutdown(IHostControl hostControl)
             {
-                var serviceShutdown = _service as IServiceShutdown;
-                if (serviceShutdown != null)
+                if (_service is IServiceShutdown serviceShutdown)
                 {
                     serviceShutdown.Shutdown(hostControl);
                 }
             }
 
-            public bool Start(HostControl hostControl)
+            public bool Start(IHostControl hostControl)
             {
                 _serviceEvents.BeforeStart(hostControl);
                 var started = _service.Start(hostControl);
@@ -127,7 +110,7 @@ namespace Topshelf.Builders
                 return started;
             }
 
-            public bool Stop(HostControl hostControl)
+            public bool Stop(IHostControl hostControl)
             {
                 _serviceEvents.BeforeStop(hostControl);
                 var stopped = _service.Stop(hostControl);

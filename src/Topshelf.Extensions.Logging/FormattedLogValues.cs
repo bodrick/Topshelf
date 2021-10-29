@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Topshelf.Logging
+namespace Topshelf.Extensions.Logging
 {
     /// <summary>
     /// LogValues to enable formatting options supported by <see cref="string.Format(IFormatProvider, string, object?)"/>.
@@ -12,9 +12,9 @@ namespace Topshelf.Logging
     /// </summary>
     internal readonly struct FormattedLogValues : IReadOnlyList<KeyValuePair<string, object?>>
     {
-        internal const int MaxCachedFormatters = 1024;
+        private const int MaxCachedFormatters = 1024;
         private const string NullFormat = "[null]";
-        private static readonly ConcurrentDictionary<string, LogValuesFormatter> _formatters = new ConcurrentDictionary<string, LogValuesFormatter>();
+        private static readonly ConcurrentDictionary<string, LogValuesFormatter> Formatters = new();
         private static int _count;
         private readonly LogValuesFormatter? _formatter;
         private readonly string _originalMessage;
@@ -26,14 +26,14 @@ namespace Topshelf.Logging
             {
                 if (_count >= MaxCachedFormatters)
                 {
-                    if (!_formatters.TryGetValue(format, out _formatter))
+                    if (!Formatters.TryGetValue(format, out _formatter))
                     {
                         _formatter = new LogValuesFormatter(format);
                     }
                 }
                 else
                 {
-                    _formatter = _formatters.GetOrAdd(format, f =>
+                    _formatter = Formatters.GetOrAdd(format, f =>
                     {
                         Interlocked.Increment(ref _count);
                         return new LogValuesFormatter(f);
@@ -93,14 +93,6 @@ namespace Topshelf.Logging
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public override string ToString()
-        {
-            if (_formatter == null)
-            {
-                return _originalMessage;
-            }
-
-            return _formatter.Format(_values);
-        }
+        public override string ToString() => _formatter == null ? _originalMessage : _formatter.Format(_values);
     }
 }

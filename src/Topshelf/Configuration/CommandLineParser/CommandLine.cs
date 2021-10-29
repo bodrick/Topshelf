@@ -12,16 +12,15 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace Topshelf.CommandLineParser
+namespace Topshelf.Configuration.CommandLineParser
 {
     /// <summary>
     ///   Tools for parsing the command line
     /// </summary>
     internal static class CommandLine
     {
-        private static readonly StringCommandLineParser _parser = new StringCommandLineParser();
+        private static readonly StringCommandLineParser _parser = new();
 
         /// <summary>
         ///   Gets the command line from the Environment.CommandLine, removing the application name if present
@@ -31,23 +30,23 @@ namespace Topshelf.CommandLineParser
         {
             var line = Environment.CommandLine;
 
-            var applicationPath = Environment.GetCommandLineArgs().First();
+            var applicationPath = Environment.GetCommandLineArgs()[0];
 
             if (line == applicationPath)
             {
                 return "";
             }
 
-            if (line.Substring(0, applicationPath.Length) == applicationPath)
+            if (line[..applicationPath.Length] == applicationPath)
             {
-                return line.Substring(applicationPath.Length);
+                return line[applicationPath.Length..];
             }
 
             var quotedApplicationPath = "\"" + applicationPath + "\"";
 
-            if (line.Substring(0, quotedApplicationPath.Length) == quotedApplicationPath)
+            if (line[..quotedApplicationPath.Length] == quotedApplicationPath)
             {
-                return line.Substring(quotedApplicationPath.Length);
+                return line[quotedApplicationPath.Length..];
             }
 
             return line;
@@ -59,8 +58,8 @@ namespace Topshelf.CommandLineParser
         ///   Parses the command line and matches any specified patterns
         /// </summary>
         /// <typeparam name="T"> The output type of the parser </typeparam>
-        /// <param name="commandLine"> The command line text </param>
         /// <param name="initializer"> Used by the caller to add patterns and object generators </param>
+        /// <param name="commandLine"> The command line text </param>
         /// <returns> The elements that were found on the command line </returns>
         public static IEnumerable<T> Parse<T>(Action<ICommandLineElementParser<T>> initializer, string commandLine)
         {

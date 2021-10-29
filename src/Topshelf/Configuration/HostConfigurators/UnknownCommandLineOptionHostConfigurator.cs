@@ -11,21 +11,21 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System.Collections.Generic;
-using Topshelf.Builders;
-using Topshelf.Configurators;
+using Topshelf.Configuration.Builders;
+using Topshelf.Configuration.Configurators;
 
-namespace Topshelf.HostConfigurators
+namespace Topshelf.Configuration.HostConfigurators
 {
     public class UnknownCommandLineOptionHostConfigurator :
-        HostBuilderConfigurator
+        IHostBuilderConfigurator
     {
         private readonly string _text;
 
         public UnknownCommandLineOptionHostConfigurator(string text) => _text = text;
 
-        public HostBuilder Configure(HostBuilder builder) => builder;
+        public IHostBuilder Configure(IHostBuilder builder) => builder;
 
-        public IEnumerable<ValidateResult> Validate()
+        public IEnumerable<IValidateResult> Validate()
         {
             yield return this.Failure("Command Line", "An unknown command-line option was found: " + _text);
         }

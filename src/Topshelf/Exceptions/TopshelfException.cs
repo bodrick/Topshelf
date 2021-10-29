@@ -13,7 +13,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Topshelf
+namespace Topshelf.Exceptions
 {
     [Serializable]
     public class TopshelfException : Exception

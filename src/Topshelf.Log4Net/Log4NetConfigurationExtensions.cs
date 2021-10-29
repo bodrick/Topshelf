@@ -10,10 +10,9 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-using Topshelf.HostConfigurators;
-using Topshelf.Logging;
+using Topshelf.Configuration.HostConfigurators;
 
-namespace Topshelf
+namespace Topshelf.Log4Net
 {
     /// <summary>
     ///   Extensions for configuring Logging for log4net
@@ -24,14 +23,22 @@ namespace Topshelf
         ///   Specify that you want to use the Log4net logging engine.
         /// </summary>
         /// <param name="configurator"> </param>
-        public static void UseLog4Net(this HostConfigurator configurator) => Log4NetLogWriterFactory.Use();
+        public static IHostConfigurator UseLog4Net(this IHostConfigurator configurator)
+        {
+            Log4NetLogWriterFactory.Use();
+            return configurator;
+        }
 
         /// <summary>
         ///   Specify that you want to use the Log4net logging engine.
         /// </summary>
         /// <param name="configurator"> </param>
         /// <param name="configFileName"> The name of the log4net xml configuration file </param>
-        public static void UseLog4Net(this HostConfigurator configurator, string configFileName) => Log4NetLogWriterFactory.Use(configFileName);
+        public static IHostConfigurator UseLog4Net(this IHostConfigurator configurator, string configFileName)
+        {
+            Log4NetLogWriterFactory.Use(configFileName);
+            return configurator;
+        }
 
         /// <summary>
         ///   Specify that you want to use the Log4net logging engine.
@@ -39,6 +46,10 @@ namespace Topshelf
         /// <param name="configurator"> </param>
         /// <param name="configFileName"> The name of the log4net xml configuration file </param>
         /// <param name="watchFile"> Should log4net watch the config file? </param>
-        public static void UseLog4Net(this HostConfigurator configurator, string configFileName, bool watchFile) => Log4NetLogWriterFactory.Use(configFileName, watchFile);
+        public static IHostConfigurator UseLog4Net(this IHostConfigurator configurator, string configFileName, bool watchFile)
+        {
+            Log4NetLogWriterFactory.Use(configFileName, watchFile);
+            return configurator;
+        }
     }
 }

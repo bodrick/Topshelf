@@ -14,12 +14,12 @@ namespace Topshelf.Runtime
 {
     public interface IServiceEvents
     {
-        void AfterStart(HostControl hostControl);
+        void AfterStart(IHostControl hostControl);
 
-        void AfterStop(HostControl hostControl);
+        void AfterStop(IHostControl hostControl);
 
-        void BeforeStart(HostControl hostControl);
+        void BeforeStart(IHostControl hostControl);
 
-        void BeforeStop(HostControl hostControl);
+        void BeforeStop(IHostControl hostControl);
     }
 }

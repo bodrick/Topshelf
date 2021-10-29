@@ -10,18 +10,15 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-namespace Topshelf.CommandLineParser
+namespace Topshelf.Configuration.CommandLineParser
 {
-    internal class SwitchElement :
-        ISwitchElement
+    internal class SwitchElement : ISwitchElement
     {
-        public SwitchElement(char key)
-            : this(key.ToString())
+        public SwitchElement(char key) : this(key.ToString())
         {
         }
 
-        public SwitchElement(string key)
-            : this(key, true)
+        public SwitchElement(string key) : this(key, true)
         {
         }
 

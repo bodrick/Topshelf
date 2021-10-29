@@ -12,7 +12,7 @@
 // specific language governing permissions and limitations under the License.
 namespace Topshelf
 {
-    public interface IHostStartContext : HostControl
+    public interface IHostStartContext : IHostControl
     {
         /// <summary>
         /// If called, prevents the service from starting

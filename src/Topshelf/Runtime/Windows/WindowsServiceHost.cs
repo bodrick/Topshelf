@@ -16,23 +16,24 @@ using System.Reflection;
 using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.HostConfigurators;
+using Topshelf.Exceptions;
 using Topshelf.Logging;
 
 namespace Topshelf.Runtime.Windows
 {
-    public class WindowsServiceHost : ServiceBase, IHost, HostControl
+    public class WindowsServiceHost : ServiceBase, IHost, IHostControl
     {
         private static readonly ILogWriter _log = HostLogger.Get<WindowsServiceHost>();
-        private readonly HostConfigurator _configurator;
+        private readonly IHostConfigurator _configurator;
         private readonly IHostEnvironment _environment;
         private readonly IServiceHandle _serviceHandle;
-        private readonly HostSettings _settings;
+        private readonly IHostSettings _settings;
         private int _deadThread;
         private bool _disposed;
         private Exception _unhandledException;
 
-        public WindowsServiceHost(IHostEnvironment environment, HostSettings settings, IServiceHandle serviceHandle, HostConfigurator configurator)
+        public WindowsServiceHost(IHostEnvironment environment, IHostSettings settings, IServiceHandle serviceHandle, IHostConfigurator configurator)
         {
             if (settings == null)
             {
@@ -56,7 +57,7 @@ namespace Topshelf.Runtime.Windows
             ServiceName = _settings.ServiceName;
         }
 
-        void HostControl.RequestAdditionalTime(TimeSpan timeRemaining)
+        void IHostControl.RequestAdditionalTime(TimeSpan timeRemaining)
         {
             _log.DebugFormat("Requesting additional time: {0}", timeRemaining);
 
@@ -89,9 +90,9 @@ namespace Topshelf.Runtime.Windows
             return (TopshelfExitCode)Enum.ToObject(typeof(TopshelfExitCode), ExitCode);
         }
 
-        void HostControl.Stop() => InternalStop();
+        void IHostControl.Stop() => InternalStop();
 
-        void HostControl.Stop(TopshelfExitCode exitCode) => InternalStop(exitCode);
+        void IHostControl.Stop(TopshelfExitCode exitCode) => InternalStop(exitCode);
 
         protected override void Dispose(bool disposing)
         {

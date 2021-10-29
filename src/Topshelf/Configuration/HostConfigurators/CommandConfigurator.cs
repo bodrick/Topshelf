@@ -11,23 +11,22 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System.Collections.Generic;
-using Topshelf.Builders;
-using Topshelf.Configurators;
+using Topshelf.Configuration.Builders;
+using Topshelf.Configuration.Configurators;
 
-namespace Topshelf.HostConfigurators
+namespace Topshelf.Configuration.HostConfigurators
 {
-    public class CommandConfigurator :
-        HostBuilderConfigurator
+    public class CommandConfigurator : IHostBuilderConfigurator
     {
         private readonly int _command;
 
         public CommandConfigurator(int command) => _command = command;
 
-        public HostBuilder Configure(HostBuilder builder) => new CommandBuilder(builder, _command);
+        public IHostBuilder Configure(IHostBuilder builder) => new CommandBuilder(builder, _command);
 
-        public IEnumerable<ValidateResult> Validate()
+        public IEnumerable<IValidateResult> Validate()
         {
-            if (_command < 128 || _command > 256)
+            if (_command is < 128 or > 256)
             {
                 yield return this.Failure("Command", "must be between 128 and 256");
             }

@@ -15,14 +15,13 @@ using Topshelf.Hosts;
 using Topshelf.Logging;
 using Topshelf.Runtime;
 
-namespace Topshelf.Builders
+namespace Topshelf.Configuration.Builders
 {
-    public class RunBuilder :
-        HostBuilder
+    public class RunBuilder : IHostBuilder
     {
         private static readonly ILogWriter _log = HostLogger.Get<RunBuilder>();
 
-        public RunBuilder(IHostEnvironment environment, HostSettings settings)
+        public RunBuilder(IHostEnvironment environment, IHostSettings settings)
         {
             if (settings == null)
             {
@@ -35,17 +34,16 @@ namespace Topshelf.Builders
 
         public IHostEnvironment Environment { get; }
 
-        public HostSettings Settings { get; }
+        public IHostSettings Settings { get; }
 
-        public virtual IHost Build(ServiceBuilder serviceBuilder)
+        public virtual IHost Build(IServiceBuilder serviceBuilder)
         {
             var serviceHandle = serviceBuilder.Build(Settings);
 
             return CreateHost(serviceHandle);
         }
 
-        public void Match<T>(Action<T> callback)
-            where T : class, HostBuilder
+        public void Match<T>(Action<T> callback) where T : class, IHostBuilder
         {
             if (callback == null)
             {

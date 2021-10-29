@@ -11,13 +11,12 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
-using Topshelf.CommandLineParser;
-using Topshelf.Options;
+using Topshelf.Configuration.CommandLineParser;
+using Topshelf.Configuration.Options;
 
-namespace Topshelf.HostConfigurators
+namespace Topshelf.Configuration.HostConfigurators
 {
-    internal class CommandLineSwitchConfigurator :
-        CommandLineConfigurator
+    internal class CommandLineSwitchConfigurator : ICommandLineConfigurator
     {
         private readonly Action<bool> _callback;
         private readonly string _name;
@@ -28,11 +27,11 @@ namespace Topshelf.HostConfigurators
             _callback = callback;
         }
 
-        public void Configure(ICommandLineElementParser<Option> parser) => parser.Add(from s in parser.Switch(_name)
-                                                                                      select (Option)new ServiceSwitchOption(s, _callback));
+        public void Configure(ICommandLineElementParser<IOption> parser) => parser.Add(from s in parser.Switch(_name)
+                                                                                      select (IOption)new ServiceSwitchOption(s, _callback));
 
         private class ServiceSwitchOption :
-            Option
+            IOption
         {
             private readonly Action<bool> _callback;
             private readonly bool _value;
@@ -43,7 +42,7 @@ namespace Topshelf.HostConfigurators
                 _value = element.Value;
             }
 
-            public void ApplyTo(HostConfigurator configurator) => _callback(_value);
+            public void ApplyTo(IHostConfigurator configurator) => _callback(_value);
         }
     }
 }

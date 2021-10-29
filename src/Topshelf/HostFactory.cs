@@ -11,8 +11,8 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
-using Topshelf.Configurators;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.Configurators;
+using Topshelf.Configuration.HostConfigurators;
 using Topshelf.Logging;
 
 namespace Topshelf
@@ -27,7 +27,8 @@ namespace Topshelf
         /// </summary>
         /// <param name="configureCallback"> Configuration method to call </param>
         /// <returns> A Topshelf service host, ready to run </returns>
-        public static IHost New(Action<HostConfigurator> configureCallback)
+        /// <exception cref="ArgumentNullException"><paramref name="configureCallback"/> is <c>null</c>.</exception>
+        public static IHost New(Action<IHostConfigurator> configureCallback)
         {
             try
             {
@@ -75,7 +76,7 @@ namespace Topshelf
         /// </summary>
         /// <param name="configureCallback"> Configuration method to call </param>
         /// <returns> Returns the exit code of the process that should be returned by your application's main method </returns>
-        public static TopshelfExitCode Run(Action<HostConfigurator> configureCallback)
+        public static TopshelfExitCode Run(Action<IHostConfigurator> configureCallback)
         {
             try
             {

@@ -41,6 +41,6 @@ namespace Topshelf.Runtime.Windows
             public int pcPriClassBase;
             public uint dwFlags;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)] public string szExeFile;
-        };
+        }
     }
 }

@@ -14,12 +14,13 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Topshelf.Exceptions;
 
 namespace Topshelf.Runtime.Windows
 {
     public class WindowsServiceRecoveryController
     {
-        public void SetServiceRecoveryOptions(HostSettings settings, ServiceRecoveryOptions options)
+        public void SetServiceRecoveryOptions(IHostSettings settings, ServiceRecoveryOptions options)
         {
             SCMHandle scmHandle = null;
             SCMHandle serviceHandle = null;

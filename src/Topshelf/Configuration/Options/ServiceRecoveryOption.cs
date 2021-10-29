@@ -10,17 +10,17 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.HostConfigurators;
 using Topshelf.Runtime.Windows;
 
-namespace Topshelf.Options
+namespace Topshelf.Configuration.Options
 {
     /// <summary>
     /// Represents an option to set a service recovery options.
     /// </summary>
-    /// <seealso cref="Option" />
+    /// <seealso cref="IOption" />
     public class ServiceRecoveryOption
-        : Option
+        : IOption
     {
         private readonly ServiceRecoveryOptions serviceRecoveryOptions;
 
@@ -34,7 +34,7 @@ namespace Topshelf.Options
         /// Applies the option to the specified host configurator.
         /// </summary>
         /// <param name="configurator">The host configurator.</param>
-        public void ApplyTo(HostConfigurator configurator)
+        public void ApplyTo(IHostConfigurator configurator)
         {
             var recoveryHostConfigurator = new ServiceRecoveryHostConfigurator();
 

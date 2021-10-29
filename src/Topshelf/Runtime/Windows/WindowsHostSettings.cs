@@ -16,7 +16,7 @@ namespace Topshelf.Runtime.Windows
 {
     [Serializable]
     public class WindowsHostSettings :
-        HostSettings
+        IHostSettings
     {
         public const string InstanceSeparator = "$";
         private string _description;

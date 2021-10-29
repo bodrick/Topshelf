@@ -11,10 +11,10 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using Microsoft.Extensions.Logging;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.HostConfigurators;
 using Topshelf.Logging;
 
-namespace Topshelf
+namespace Topshelf.Extensions.Logging
 {
     /// <summary>
     /// Provides Topshelf extensions for Microsoft extensions for logging.
@@ -26,6 +26,10 @@ namespace Topshelf
         /// </summary>
         /// <param name="configurator">The configurator.</param>
         /// <param name="loggerFactory">The logger factory.</param>
-        public static void UseLoggingExtensions(this HostConfigurator configurator, ILoggerFactory loggerFactory) => HostLogger.UseLogger(new LoggingExtensionsLogWriterFactory.LoggingExtensionsHostLoggerConfigurator(loggerFactory));
+        public static IHostConfigurator UseLoggingExtensions(this IHostConfigurator configurator, ILoggerFactory loggerFactory)
+        {
+            HostLogger.UseLogger(new LoggingExtensionsLogWriterFactory.LoggingExtensionsHostLoggerConfigurator(loggerFactory));
+            return configurator;
+        }
     }
 }

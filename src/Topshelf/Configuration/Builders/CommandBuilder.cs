@@ -14,30 +14,28 @@ using System;
 using Topshelf.Hosts;
 using Topshelf.Runtime;
 
-namespace Topshelf.Builders
+namespace Topshelf.Configuration.Builders
 {
     public class CommandBuilder :
-        HostBuilder
+        IHostBuilder
     {
         private readonly int _command;
-        private readonly IHostEnvironment _environment;
-        private readonly HostSettings _settings;
 
-        public CommandBuilder(HostBuilder builder, int command)
+        public CommandBuilder(IHostBuilder builder, int command)
         {
             _command = command;
-            _settings = builder.Settings;
-            _environment = builder.Environment;
+            Settings = builder.Settings;
+            Environment = builder.Environment;
         }
 
-        public IHostEnvironment Environment => _environment;
+        public IHostEnvironment Environment { get; }
 
-        public HostSettings Settings => _settings;
+        public IHostSettings Settings { get; }
 
-        public IHost Build(ServiceBuilder serviceBuilder) => new CommandHost(_environment, _settings, _command);
+        public IHost Build(IServiceBuilder serviceBuilder) => new CommandHost(Environment, Settings, _command);
 
         public void Match<T>(Action<T> callback)
-            where T : class, HostBuilder
+            where T : class, IHostBuilder
         {
             if (callback == null)
             {

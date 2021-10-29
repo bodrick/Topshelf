@@ -11,13 +11,13 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.HostConfigurators;
 
-namespace Topshelf
+namespace Topshelf.Configuration
 {
     public static class UninstallHostConfiguratorExtensions
     {
-        public static HostConfigurator AfterUninstall(this HostConfigurator configurator, Action callback)
+        public static IHostConfigurator AfterUninstall(this IHostConfigurator configurator, Action callback)
         {
             if (configurator == null)
             {
@@ -29,7 +29,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static HostConfigurator BeforeUninstall(this HostConfigurator configurator, Action callback)
+        public static IHostConfigurator BeforeUninstall(this IHostConfigurator configurator, Action callback)
         {
             if (configurator == null)
             {

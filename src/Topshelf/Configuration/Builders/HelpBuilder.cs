@@ -14,27 +14,24 @@ using System;
 using Topshelf.Hosts;
 using Topshelf.Runtime;
 
-namespace Topshelf.Builders
+namespace Topshelf.Configuration.Builders
 {
-    public class HelpBuilder :
-        HostBuilder
+    public class HelpBuilder : IHostBuilder
     {
-        private readonly IHostEnvironment _environment;
-        private readonly HostSettings _settings;
         private string _prefixText;
         private bool _systemHelpTextOnly;
 
-        public HelpBuilder(IHostEnvironment environment, HostSettings settings)
+        public HelpBuilder(IHostEnvironment environment, IHostSettings settings)
         {
-            _settings = settings;
-            _environment = environment;
+            Settings = settings;
+            Environment = environment;
         }
 
-        public IHostEnvironment Environment => _environment;
+        public IHostEnvironment Environment { get; }
 
-        public HostSettings Settings => _settings;
+        public IHostSettings Settings { get; }
 
-        public IHost Build(ServiceBuilder serviceBuilder)
+        public IHost Build(IServiceBuilder serviceBuilder)
         {
             var prefixText = _systemHelpTextOnly
                                     ? null
@@ -43,12 +40,11 @@ namespace Topshelf.Builders
             return new HelpHost(prefixText);
         }
 
-        public void Match<T>(Action<T> callback)
-            where T : class, HostBuilder
+        public void Match<T>(Action<T> callback) where T : class, IHostBuilder
         {
             if (callback == null)
             {
-                throw new ArgumentNullException("callback");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             var self = this as T;

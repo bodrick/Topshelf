@@ -11,15 +11,15 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
-using Topshelf.Builders;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.Builders;
+using Topshelf.Configuration.HostConfigurators;
 
-namespace Topshelf.Options
+namespace Topshelf.Configuration.Options
 {
     public class StopOption :
-        Option
+        IOption
     {
-        public void ApplyTo(HostConfigurator configurator)
+        public void ApplyTo(IHostConfigurator configurator)
         {
             if (configurator == null)
             {

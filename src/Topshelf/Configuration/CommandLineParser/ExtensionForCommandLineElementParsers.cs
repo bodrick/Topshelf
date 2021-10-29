@@ -13,46 +13,46 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Topshelf.CommandLineParser
+namespace Topshelf.Configuration.CommandLineParser
 {
     internal static class ExtensionForCommandLineElementParsers
     {
         public static Parser<IEnumerable<ICommandLineElement>, ISwitchElement> Optional(
             this Parser<IEnumerable<ICommandLineElement>, ISwitchElement> source, string key, bool defaultValue) => input =>
-                                                                                                                                  {
-                                                                                                                                      var query = input
-                                                                                                                                          .Where(x => x.GetType() == typeof(SwitchElement))
-                                                                                                                                          .Where(x => ((SwitchElement)x).Key == key);
+        {
+            var query = input
+                .Where(x => x.GetType() == typeof(SwitchElement))
+                .Where(x => ((SwitchElement)x).Key == key);
 
-                                                                                                                                      if (query.Any())
-                                                                                                                                      {
-                                                                                                                                          return
-                                                                                                                                              new Result<IEnumerable<ICommandLineElement>, ISwitchElement>(
-                                                                                                                                                  query.First() as ISwitchElement, input.Except(query));
-                                                                                                                                      }
+            if (query.Any())
+            {
+                return
+                    new Result<IEnumerable<ICommandLineElement>, ISwitchElement>(
+                        query.First() as ISwitchElement, input.Except(query));
+            }
 
-                                                                                                                                      return
-                                                                                                                                          new Result<IEnumerable<ICommandLineElement>, ISwitchElement>(
-                                                                                                                                              new SwitchElement(key, defaultValue), input);
-                                                                                                                                  };
+            return
+                new Result<IEnumerable<ICommandLineElement>, ISwitchElement>(
+                    new SwitchElement(key, defaultValue), input);
+        };
 
         public static Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Optional(
             this Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> source, string key, string defaultValue) => input =>
-                                                                                                                                        {
-                                                                                                                                            var query = input
-                                                                                                                                                .Where(x => x.GetType() == typeof(DefinitionElement))
-                                                                                                                                                .Where(x => ((DefinitionElement)x).Key == key);
+        {
+            var query = input
+                .Where(x => x.GetType() == typeof(DefinitionElement))
+                .Where(x => ((DefinitionElement)x).Key == key);
 
-                                                                                                                                            if (query.Any())
-                                                                                                                                            {
-                                                                                                                                                return
-                                                                                                                                                    new Result<IEnumerable<ICommandLineElement>, IDefinitionElement>(
-                                                                                                                                                        query.First() as IDefinitionElement, input.Except(query));
-                                                                                                                                            }
+            if (query.Any())
+            {
+                return
+                    new Result<IEnumerable<ICommandLineElement>, IDefinitionElement>(
+                        query.First() as IDefinitionElement, input.Except(query));
+            }
 
-                                                                                                                                            return
-                                                                                                                                                new Result<IEnumerable<ICommandLineElement>, IDefinitionElement>(
-                                                                                                                                                    new DefinitionElement(key, defaultValue), input);
-                                                                                                                                        };
+            return
+                new Result<IEnumerable<ICommandLineElement>, IDefinitionElement>(
+                    new DefinitionElement(key, defaultValue), input);
+        };
     }
 }

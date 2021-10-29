@@ -22,9 +22,9 @@ namespace Topshelf.Runtime.Windows
         private static readonly ILogWriter _log = HostLogger.Get<HostInstaller>();
         private readonly string _arguments;
         private readonly Installer[] _installers;
-        private readonly HostSettings _settings;
+        private readonly IHostSettings _settings;
 
-        public HostInstaller(HostSettings settings, string arguments, Installer[] installers)
+        public HostInstaller(IHostSettings settings, string arguments, Installer[] installers)
         {
             _installers = installers;
             _arguments = arguments;

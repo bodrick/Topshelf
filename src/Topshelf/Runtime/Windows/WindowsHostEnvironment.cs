@@ -19,19 +19,19 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.ServiceProcess;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.HostConfigurators;
 using Topshelf.Logging;
 
 namespace Topshelf.Runtime.Windows
 {
     public class WindowsHostEnvironment : IHostEnvironment
     {
-        private readonly HostConfigurator _hostConfigurator;
+        private readonly IHostConfigurator _hostConfigurator;
         private readonly ILogWriter _log = HostLogger.Get(typeof(WindowsHostEnvironment));
 
-        public WindowsHostEnvironment(HostConfigurator configurator) => _hostConfigurator = configurator;
+        public WindowsHostEnvironment(IHostConfigurator configurator) => _hostConfigurator = configurator;
 
-        public string CommandLine => CommandLineParser.CommandLine.GetUnparsedCommandLine();
+        public string CommandLine => Configuration.CommandLineParser.CommandLine.GetUnparsedCommandLine();
 
         public bool IsAdministrator
         {
@@ -52,7 +52,7 @@ namespace Topshelf.Runtime.Windows
                 try
                 {
                     var process = GetParent(Process.GetCurrentProcess());
-                    if (process != null && process.ProcessName == "services")
+                    if (process?.ProcessName == "services")
                     {
                         _log.Debug("Started by the Windows services process");
                         return true;
@@ -66,50 +66,48 @@ namespace Topshelf.Runtime.Windows
             }
         }
 
-        public IHost CreateServiceHost(HostSettings settings, IServiceHandle serviceHandle) => new WindowsServiceHost(this, settings, serviceHandle, _hostConfigurator);
+        public IHost CreateServiceHost(IHostSettings settings, IServiceHandle serviceHandle) => new WindowsServiceHost(this, settings, serviceHandle, _hostConfigurator);
 
         public void InstallService(IInstallHostSettings settings, Action<IInstallHostSettings> beforeInstall, Action afterInstall, Action beforeRollback, Action afterRollback)
         {
-            using (var installer = new HostServiceInstaller(settings))
+            using var installer = new HostServiceInstaller(settings);
+            Action<InstallEventArgs> before = x =>
             {
-                Action<InstallEventArgs> before = x =>
+                if (beforeInstall != null)
+                {
+                    beforeInstall(settings);
+                    installer.ServiceProcessInstaller.Username = settings.Credentials.Username;
+                    installer.ServiceProcessInstaller.Account = settings.Credentials.Account;
+
+                    var gMSA = false;
+                    // Group Managed Service Account (gMSA) workaround per
+                    // https://connect.microsoft.com/VisualStudio/feedback/details/795196/service-process-installer-should-support-virtual-service-accounts
+                    if (settings.Credentials.Account == ServiceAccount.User &&
+                        settings.Credentials.Username != null &&
+                        ((gMSA = settings.Credentials.Username.EndsWith("$", StringComparison.OrdinalIgnoreCase)) ||
+                         string.Equals(settings.Credentials.Username, "NT SERVICE\\" + settings.ServiceName, StringComparison.OrdinalIgnoreCase)))
                     {
-                        if (beforeInstall != null)
-                        {
-                            beforeInstall(settings);
-                            installer.ServiceProcessInstaller.Username = settings.Credentials.Username;
-                            installer.ServiceProcessInstaller.Account = settings.Credentials.Account;
+                        _log.InfoFormat(gMSA ? "Installing as gMSA {0}." : "Installing as virtual service account", settings.Credentials.Username);
+                        installer.ServiceProcessInstaller.Password = string.Empty;
+                        installer.ServiceProcessInstaller
+                            .GetType()
+                            .GetField("haveLoginInfo", BindingFlags.Instance | BindingFlags.NonPublic)
+                            .SetValue(installer.ServiceProcessInstaller, true);
+                    }
+                    else
+                    {
+                        installer.ServiceProcessInstaller.Password = settings.Credentials.Password;
+                    }
+                }
+            };
 
-                            var gMSA = false;
-                            // Group Managed Service Account (gMSA) workaround per
-                            // https://connect.microsoft.com/VisualStudio/feedback/details/795196/service-process-installer-should-support-virtual-service-accounts
-                            if (settings.Credentials.Account == ServiceAccount.User &&
-                                settings.Credentials.Username != null &&
-                                ((gMSA = settings.Credentials.Username.EndsWith("$", StringComparison.InvariantCulture)) ||
-                                string.Equals(settings.Credentials.Username, "NT SERVICE\\" + settings.ServiceName, StringComparison.InvariantCulture)))
-                            {
-                                _log.InfoFormat(gMSA ? "Installing as gMSA {0}." : "Installing as virtual service account", settings.Credentials.Username);
-                                installer.ServiceProcessInstaller.Password = null;
-                                installer.ServiceProcessInstaller
-                                    .GetType()
-                                    .GetField("haveLoginInfo", BindingFlags.Instance | BindingFlags.NonPublic)
-                                    .SetValue(installer.ServiceProcessInstaller, true);
-                            }
-                            else
-                            {
-                                installer.ServiceProcessInstaller.Password = settings.Credentials.Password;
-                            }
-                        }
-                    };
+            Action<InstallEventArgs> after = x => afterInstall?.Invoke();
 
-                Action<InstallEventArgs> after = x => afterInstall?.Invoke();
+            Action<InstallEventArgs> before2 = x => beforeRollback?.Invoke();
 
-                Action<InstallEventArgs> before2 = x => beforeRollback?.Invoke();
+            Action<InstallEventArgs> after2 = x => afterRollback?.Invoke();
 
-                Action<InstallEventArgs> after2 = x => afterRollback?.Invoke();
-
-                installer.InstallService(before, after, before2, after2);
-            }
+            installer.InstallService(before, after, before2, after2);
         }
 
         public bool IsServiceInstalled(string serviceName)
@@ -228,7 +226,7 @@ namespace Topshelf.Runtime.Windows
             }
         }
 
-        public void UninstallService(HostSettings settings, Action beforeUninstall, Action afterUninstall)
+        public void UninstallService(IHostSettings settings, Action beforeUninstall, Action afterUninstall)
         {
             using var installer = new HostServiceInstaller(settings);
             Action<InstallEventArgs> before = x => beforeUninstall?.Invoke();

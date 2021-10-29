@@ -13,7 +13,7 @@
 using System;
 using Topshelf.Runtime;
 
-namespace Topshelf.ServiceConfigurators
+namespace Topshelf.Configuration.ServiceConfigurators
 {
     public abstract class ServiceConfiguratorBase
     {

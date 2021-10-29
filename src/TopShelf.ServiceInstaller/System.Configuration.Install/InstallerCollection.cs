@@ -4,9 +4,9 @@ namespace System.Configuration.Install
 {
     public class InstallerCollection : Collections.ObjectModel.Collection<Installer>
     {
-        private readonly Installer owner;
+        private readonly Installer _owner;
 
-        internal InstallerCollection(Installer owner) => this.owner = owner;
+        internal InstallerCollection(Installer owner) => _owner = owner;
 
         public void AddRange(IEnumerable<Installer> value)
         {
@@ -22,30 +22,30 @@ namespace System.Configuration.Install
 
         protected override void InsertItem(int index, Installer item)
         {
-            if (item == owner)
+            if (item == _owner)
             {
                 throw new ArgumentException(Res.GetString("CantAddSelf"));
             }
 
-            item.parent = owner;
+            item.Parent = _owner;
             base.InsertItem(index, item);
         }
 
         protected override void RemoveItem(int index)
         {
-            this[index].parent = null;
+            this[index].Parent = null;
             base.RemoveItem(index);
         }
 
         protected override void SetItem(int index, Installer item)
         {
-            if (item == owner)
+            if (item == _owner)
             {
                 throw new ArgumentException(Res.GetString("CantAddSelf"));
             }
 
-            this[index].parent = null;
-            item.parent = owner;
+            this[index].Parent = null;
+            item.Parent = _owner;
             base.SetItem(index, item);
         }
     }

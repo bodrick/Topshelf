@@ -12,10 +12,10 @@
 // specific language governing permissions and limitations under the License.
 using System.Collections.Generic;
 
-namespace Topshelf.Configurators
+namespace Topshelf.Configuration.Configurators
 {
     public interface Configurator
     {
-        IEnumerable<ValidateResult> Validate();
+        IEnumerable<IValidateResult> Validate();
     }
 }

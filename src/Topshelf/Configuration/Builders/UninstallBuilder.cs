@@ -15,42 +15,39 @@ using System.Collections.Generic;
 using Topshelf.Hosts;
 using Topshelf.Runtime;
 
-namespace Topshelf.Builders
+namespace Topshelf.Configuration.Builders
 {
-    public class UninstallBuilder :
-        HostBuilder
+    public class UninstallBuilder : IHostBuilder
     {
-        private readonly IHostEnvironment _environment;
         private readonly IList<Action> _postActions;
         private readonly IList<Action> _preActions;
-        private readonly HostSettings _settings;
         private bool _sudo;
 
-        public UninstallBuilder(IHostEnvironment environment, HostSettings settings)
+        public UninstallBuilder(IHostEnvironment environment, IHostSettings settings)
         {
             _preActions = new List<Action>();
             _postActions = new List<Action>();
 
-            _environment = environment;
-            _settings = settings;
+            Environment = environment;
+            Settings = settings;
         }
 
-        public IHostEnvironment Environment => _environment;
+        public IHostEnvironment Environment { get; }
 
-        public HostSettings Settings => _settings;
+        public IHostSettings Settings { get; }
 
         public void AfterUninstall(Action callback) => _postActions.Add(callback);
 
         public void BeforeUninstall(Action callback) => _preActions.Add(callback);
 
-        public IHost Build(ServiceBuilder serviceBuilder) => new UninstallHost(_environment, _settings, _preActions, _postActions, _sudo);
+        public IHost Build(IServiceBuilder serviceBuilder) => new UninstallHost(Environment, Settings, _preActions, _postActions, _sudo);
 
         public void Match<T>(Action<T> callback)
-            where T : class, HostBuilder
+            where T : class, IHostBuilder
         {
             if (callback == null)
             {
-                throw new ArgumentNullException("callback");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             var self = this as T;

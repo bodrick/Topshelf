@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Topshelf.Configuration;
 using Topshelf.Logging;
 using Topshelf.Runtime;
 
@@ -28,7 +29,7 @@ namespace Topshelf.Hosts
         private readonly IEnumerable<Action<IInstallHostSettings>> _preRollbackActions;
         private readonly bool _sudo;
 
-        public InstallHost(IHostEnvironment environment, HostSettings settings, HostStartMode startMode,
+        public InstallHost(IHostEnvironment environment, IHostSettings settings, HostStartMode startMode,
             IEnumerable<string> dependencies,
             Credentials credentials, IEnumerable<Action<IInstallHostSettings>> preActions,
             IEnumerable<Action<IInstallHostSettings>> postActions,
@@ -50,7 +51,7 @@ namespace Topshelf.Hosts
 
         public IInstallHostSettings InstallSettings { get; }
 
-        public HostSettings Settings { get; }
+        public IHostSettings Settings { get; }
 
         public TopshelfExitCode Run()
         {
@@ -112,9 +113,9 @@ namespace Topshelf.Hosts
 
         private class InstallServiceSettingsImpl : IInstallHostSettings
         {
-            private readonly HostSettings _settings;
+            private readonly IHostSettings _settings;
 
-            public InstallServiceSettingsImpl(HostSettings settings, Credentials credentials, HostStartMode startMode, string[] dependencies)
+            public InstallServiceSettingsImpl(IHostSettings settings, Credentials credentials, HostStartMode startMode, string[] dependencies)
             {
                 Credentials = credentials;
                 _settings = settings;

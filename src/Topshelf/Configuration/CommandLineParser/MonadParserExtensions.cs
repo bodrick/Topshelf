@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Topshelf.CommandLineParser
+namespace Topshelf.Configuration.CommandLineParser
 {
     internal static class MonadParserExtensions
     {
@@ -23,58 +23,58 @@ namespace Topshelf.CommandLineParser
             Parser<TInput, TSecondValue> second) => input => second(first(input).Rest);
 
         public static Parser<TInput, TValue> FirstMatch<TInput, TValue>(this IEnumerable<Parser<TInput, TValue>> options) => input =>
-                                                                                                                                           {
-                                                                                                                                               return options
-                                                                                                                                                   .Select(option => option(input))
-                                                                                                                                                   .Where(result => result != null)
-                                                                                                                                                   .FirstOrDefault();
-                                                                                                                                           };
+        {
+            return options
+                .Select(option => option(input))
+                .Where(result => result != null)
+                .FirstOrDefault();
+        };
 
         public static Parser<TInput, TValue> Or<TInput, TValue>(this Parser<TInput, TValue> first,
             Parser<TInput, TValue> second) => input => first(input) ?? second(input);
 
         public static Parser<TInput, TSelect> Select<TInput, TValue, TSelect>(this Parser<TInput, TValue> parser,
             Func<TValue, TSelect> selector) => input =>
-                                                             {
-                                                                 var result = parser(input);
-                                                                 if (result == null)
-                                                                 {
-                                                                     return null;
-                                                                 }
+        {
+            var result = parser(input);
+            if (result == null)
+            {
+                return null;
+            }
 
-                                                                 return new Result<TInput, TSelect>(selector(result.Value), result.Rest);
-                                                             };
+            return new Result<TInput, TSelect>(selector(result.Value), result.Rest);
+        };
 
         public static Parser<TInput, TSelect> SelectMany<TInput, TValue, TIntermediate, TSelect>(
             this Parser<TInput, TValue> parser, Func<TValue, Parser<TInput, TIntermediate>> selector,
             Func<TValue, TIntermediate, TSelect> projector) => input =>
-                                                                             {
-                                                                                 var result = parser(input);
-                                                                                 if (result == null)
-                                                                                 {
-                                                                                     return null;
-                                                                                 }
+        {
+            var result = parser(input);
+            if (result == null)
+            {
+                return null;
+            }
 
-                                                                                 var val = result.Value;
-                                                                                 var nextResult = selector(val)(result.Rest);
-                                                                                 if (nextResult == null)
-                                                                                 {
-                                                                                     return null;
-                                                                                 }
+            var val = result.Value;
+            var nextResult = selector(val)(result.Rest);
+            if (nextResult == null)
+            {
+                return null;
+            }
 
-                                                                                 return new Result<TInput, TSelect>(projector(val, nextResult.Value), nextResult.Rest);
-                                                                             };
+            return new Result<TInput, TSelect>(projector(val, nextResult.Value), nextResult.Rest);
+        };
 
         public static Parser<TInput, TValue> Where<TInput, TValue>(this Parser<TInput, TValue> parser,
-                                                    Func<TValue, bool> pred) => input =>
-                                                      {
-                                                          var result = parser(input);
-                                                          if (result == null || !pred(result.Value))
-                                                          {
-                                                              return null;
-                                                          }
+            Func<TValue, bool> pred) => input =>
+        {
+            var result = parser(input);
+            if (result == null || !pred(result.Value))
+            {
+                return null;
+            }
 
-                                                          return result;
-                                                      };
+            return result;
+        };
     }
 }

@@ -11,6 +11,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using NUnit.Framework;
+using Topshelf.Configuration;
 
 namespace Topshelf.Tests
 {
@@ -23,25 +24,25 @@ namespace Topshelf.Tests
             var started = false;
 
             var exitCode = HostFactory.Run(x =>
+            {
+                x.UseTestHost();
+
+                x.Service(settings => new MyService(), s =>
                 {
-                    x.UseTestHost();
-
-                    x.Service(settings => new MyService(), s =>
-                        {
-                            s.BeforeStartingService(hsc => hsc.CancelStart());
-                            s.AfterStartingService(hsc => { started = true; });
-                        });
+                    s.BeforeStartingService(hsc => hsc.CancelStart());
+                    s.AfterStartingService(hsc => started = true);
                 });
+            });
 
-            Assert.IsFalse(started);
-            Assert.AreEqual(TopshelfExitCode.ServiceControlRequestFailed, exitCode);
+            Assert.That(started, Is.False);
+            Assert.That(exitCode, Is.EqualTo(TopshelfExitCode.ServiceControlRequestFailed));
         }
 
         private class MyService : IServiceControl
         {
-            public bool Start(HostControl hostControl) => true;
+            public bool Start(IHostControl hostControl) => true;
 
-            public bool Stop(HostControl hostControl) => true;
+            public bool Stop(IHostControl hostControl) => true;
         }
     }
 }

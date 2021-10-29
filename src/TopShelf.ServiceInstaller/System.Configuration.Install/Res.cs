@@ -106,41 +106,36 @@ namespace System.Configuration.Install
         internal const string WinNTRequired = "WinNTRequired";
 
         internal const string WrappedExceptionSource = "WrappedExceptionSource";
-        private static Res loader;
+        private static Res? _loader;
 
-        private readonly ResourceManager resources;
+        private readonly ResourceManager? _resources;
 
-        internal Res() => resources = new ResourceManager("System.Configuration.Install", GetType().Assembly);
+        internal Res() => _resources = new ResourceManager("System.Configuration.Install", GetType().Assembly);
 
-        public static ResourceManager Resources => GetLoader().resources;
-        private static CultureInfo Culture => null;
+        public static ResourceManager? Resources => GetLoader()?._resources;
+        private static CultureInfo? Culture => null;
 
-        public static object GetObject(string name)
+        public static object? GetObject(string name)
         {
             var res = GetLoader();
-            if (res == null)
-            {
-                return null;
-            }
-            return res.resources.GetObject(name, Culture);
+            return res?._resources?.GetObject(name, Culture);
         }
 
-        public static string GetString(string name, params object[] args)
+        public static string? GetString(string name, params object[] args)
         {
             var res = GetLoader();
             if (res == null)
             {
                 return null;
             }
-            var @string = res.resources.GetString(name, Culture);
-            if (args != null && args.Length != 0)
+            var @string = res._resources?.GetString(name, Culture);
+            if (args.Length != 0)
             {
                 for (var i = 0; i < args.Length; i++)
                 {
-                    var text = args[i] as string;
-                    if (text != null && text.Length > 1024)
+                    if (args[i] is string { Length: > 1024 } text)
                     {
-                        args[i] = text.Substring(0, 1021) + "...";
+                        args[i] = text[..1021] + "...";
                     }
                 }
                 return string.Format(CultureInfo.CurrentCulture, @string, args);
@@ -148,30 +143,26 @@ namespace System.Configuration.Install
             return @string;
         }
 
-        public static string GetString(string name)
+        public static string? GetString(string name)
         {
             var res = GetLoader();
-            if (res == null)
-            {
-                return null;
-            }
-            return res.resources.GetString(name, Culture);
+            return res?._resources?.GetString(name, Culture);
         }
 
-        public static string GetString(string name, out bool usedFallback)
+        public static string? GetString(string name, out bool usedFallback)
         {
             usedFallback = false;
             return GetString(name);
         }
 
-        private static Res GetLoader()
+        private static Res? GetLoader()
         {
-            if (loader == null)
+            if (_loader == null)
             {
                 var value = new Res();
-                Interlocked.CompareExchange<Res>(ref loader, value, null);
+                Interlocked.CompareExchange<Res>(ref _loader, value, null);
             }
-            return loader;
+            return _loader;
         }
     }
 }

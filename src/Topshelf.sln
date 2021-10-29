@@ -25,6 +25,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Topshelf.Extensions.Configu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TopShelf.ServiceInstaller", "TopShelf.ServiceInstaller\TopShelf.ServiceInstaller.csproj", "{699FB86C-E57F-4750-BE0F-ACDCC3F19364}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{75D5FED8-96D8-4460-82DF-595A5F4B8114}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		SolutionVersion.cs = SolutionVersion.cs
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

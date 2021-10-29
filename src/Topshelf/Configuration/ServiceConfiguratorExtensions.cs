@@ -11,13 +11,13 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
-using Topshelf.ServiceConfigurators;
+using Topshelf.Configuration.ServiceConfigurators;
 
-namespace Topshelf
+namespace Topshelf.Configuration
 {
     public static class ServiceConfiguratorExtensions
     {
-        public static ServiceConfigurator<T> ConstructUsing<T>(this ServiceConfigurator<T> configurator, Func<T> factory)
+        public static IServiceConfigurator<T> ConstructUsing<T>(this IServiceConfigurator<T> configurator, Func<T> factory)
             where T : class
         {
             if (configurator == null)
@@ -30,7 +30,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static ServiceConfigurator<T> ConstructUsing<T>(this ServiceConfigurator<T> configurator,
+        public static IServiceConfigurator<T> ConstructUsing<T>(this IServiceConfigurator<T> configurator,
             Func<string, T> factory)
             where T : class
         {
@@ -44,7 +44,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static ServiceConfigurator<T> WhenContinued<T>(this ServiceConfigurator<T> configurator,
+        public static IServiceConfigurator<T> WhenContinued<T>(this IServiceConfigurator<T> configurator,
             Action<T> callback)
             where T : class
         {
@@ -63,7 +63,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static ServiceConfigurator<T> WhenPaused<T>(this ServiceConfigurator<T> configurator, Action<T> callback)
+        public static IServiceConfigurator<T> WhenPaused<T>(this IServiceConfigurator<T> configurator, Action<T> callback)
             where T : class
         {
             if (configurator == null)
@@ -81,7 +81,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static ServiceConfigurator<T> WhenPowerEvent<T>(this ServiceConfigurator<T> configurator,
+        public static IServiceConfigurator<T> WhenPowerEvent<T>(this IServiceConfigurator<T> configurator,
             Func<T, IPowerEventArguments, bool> callback)
             where T : class
         {
@@ -95,7 +95,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static ServiceConfigurator<T> WhenSessionChanged<T>(this ServiceConfigurator<T> configurator,
+        public static IServiceConfigurator<T> WhenSessionChanged<T>(this IServiceConfigurator<T> configurator,
            Action<T, ISessionChangedArguments> callback)
            where T : class
         {
@@ -112,7 +112,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static ServiceConfigurator<T> WhenShutdown<T>(this ServiceConfigurator<T> configurator,
+        public static IServiceConfigurator<T> WhenShutdown<T>(this IServiceConfigurator<T> configurator,
             Action<T> callback)
             where T : class
         {
@@ -129,7 +129,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static ServiceConfigurator<T> WhenStarted<T>(this ServiceConfigurator<T> configurator, Action<T> callback)
+        public static IServiceConfigurator<T> WhenStarted<T>(this IServiceConfigurator<T> configurator, Action<T> callback)
                                                     where T : class
         {
             if (configurator == null)
@@ -147,7 +147,7 @@ namespace Topshelf
             return configurator;
         }
 
-        public static ServiceConfigurator<T> WhenStopped<T>(this ServiceConfigurator<T> configurator, Action<T> callback)
+        public static IServiceConfigurator<T> WhenStopped<T>(this IServiceConfigurator<T> configurator, Action<T> callback)
             where T : class
         {
             if (configurator == null)

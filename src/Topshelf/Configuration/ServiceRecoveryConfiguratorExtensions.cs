@@ -11,13 +11,13 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.HostConfigurators;
 
-namespace Topshelf
+namespace Topshelf.Configuration
 {
     public static class ServiceRecoveryConfiguratorExtensions
     {
-        public static HostConfigurator EnableServiceRecovery(this HostConfigurator configurator, Action<ServiceRecoveryConfigurator> configureCallback)
+        public static IHostConfigurator EnableServiceRecovery(this IHostConfigurator configurator, Action<IServiceRecoveryConfigurator> configureCallback)
         {
             if (configurator == null)
             {

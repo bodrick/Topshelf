@@ -24,54 +24,54 @@ namespace Topshelf.Runtime
         /// </summary>
         /// <param name="hostControl"></param>
         /// <returns>True if the service was able to continue, otherwise false</returns>
-        bool Continue(HostControl hostControl);
+        bool Continue(IHostControl hostControl);
 
         /// <summary>
         /// Handle the custom command
         /// </summary>
         /// <param name="hostControl"></param>
         /// <param name="command"></param>
-        void CustomCommand(HostControl hostControl, int command);
+        void CustomCommand(IHostControl hostControl, int command);
 
         /// <summary>
         /// Pause the service
         /// </summary>
         /// <param name="hostControl"></param>
         /// <returns>True if the service was paused, otherwise false</returns>
-        bool Pause(HostControl hostControl);
+        bool Pause(IHostControl hostControl);
 
         /// <summary>
         /// Handle the power change event
         /// </summary>
         /// <param name="hostControl"></param>
         /// <param name="arguments"></param>
-        bool PowerEvent(HostControl hostControl, IPowerEventArguments arguments);
+        bool PowerEvent(IHostControl hostControl, IPowerEventArguments arguments);
 
         /// <summary>
         /// Handle the session change event
         /// </summary>
         /// <param name="hostControl"></param>
         /// <param name="arguments"></param>
-        void SessionChanged(HostControl hostControl, ISessionChangedArguments arguments);
+        void SessionChanged(IHostControl hostControl, ISessionChangedArguments arguments);
 
         /// <summary>
         /// Handle the shutdown event
         /// </summary>
         /// <param name="hostControl"></param>
-        void Shutdown(HostControl hostControl);
+        void Shutdown(IHostControl hostControl);
 
         /// <summary>
         /// Start the service
         /// </summary>
         /// <param name="hostControl"></param>
         /// <returns>True if the service was started, otherwise false</returns>
-        bool Start(HostControl hostControl);
+        bool Start(IHostControl hostControl);
 
         /// <summary>
         /// Stop the service
         /// </summary>
         /// <param name="hostControl"></param>
         /// <returns>True if the service was stopped, or false if the service cannot be stopped at this time</returns>
-        bool Stop(HostControl hostControl);
+        bool Stop(IHostControl hostControl);
     }
 }

@@ -23,6 +23,6 @@ namespace Topshelf
         /// but this is really a shut down quick and bail method.
         /// </summary>
         /// <param name="hostControl"></param>
-        void Shutdown(HostControl hostControl);
+        void Shutdown(IHostControl hostControl);
     }
 }

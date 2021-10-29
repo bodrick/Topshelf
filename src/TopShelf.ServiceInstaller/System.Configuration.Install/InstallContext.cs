@@ -11,7 +11,7 @@ namespace System.Configuration.Install
         {
         }
 
-        public InstallContext(string logFilePath, string[] commandLine)
+        public InstallContext(string? logFilePath, string[]? commandLine)
         {
             Parameters = ParseCommandLine(commandLine);
             if (Parameters["logfile"] == null && logFilePath != null)
@@ -30,29 +30,29 @@ namespace System.Configuration.Install
                 return false;
             }
 
-            if (string.Compare(text, "true", StringComparison.OrdinalIgnoreCase) != 0
-                && string.Compare(text, "yes", StringComparison.OrdinalIgnoreCase) != 0
-                && string.Compare(text, "1", StringComparison.OrdinalIgnoreCase) != 0)
+            if (!string.Equals(text, "true", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(text, "yes", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(text, "1", StringComparison.OrdinalIgnoreCase))
             {
-                return "".Equals(text);
+                return string.IsNullOrEmpty(text);
             }
             return true;
         }
 
-        public void LogMessage(string message)
+        public void LogMessage(string? message)
         {
             try
             {
                 LogMessageHelper(message);
             }
-            catch (Exception)
+            catch
             {
                 try
                 {
-                    Parameters["logfile"] = Path.Combine(Path.GetTempPath(), Path.GetFileName(Parameters["logfile"]));
+                    Parameters["logfile"] = Path.Combine(Path.GetTempPath(), Path.GetFileName(Parameters["logfile"]) ?? string.Empty);
                     LogMessageHelper(message);
                 }
-                catch (Exception)
+                catch
                 {
                     Parameters["logfile"] = null;
                 }
@@ -64,27 +64,25 @@ namespace System.Configuration.Install
             Console.WriteLine(message);
         }
 
-        internal void LogMessageHelper(string message)
+        internal void LogMessageHelper(string? message)
         {
-            StreamWriter streamWriter = null;
+            StreamWriter? streamWriter = null;
             try
             {
-                if (!string.IsNullOrEmpty(Parameters["logfile"]))
+                var parameter = Parameters["logfile"];
+                if (!string.IsNullOrEmpty(parameter))
                 {
-                    streamWriter = new StreamWriter(Parameters["logfile"], true, Encoding.UTF8);
+                    streamWriter = new StreamWriter(parameter, true, Encoding.UTF8);
                     streamWriter.WriteLine(message);
                 }
             }
             finally
             {
-                if (streamWriter != null)
-                {
-                    streamWriter.Close();
-                }
+                streamWriter?.Close();
             }
         }
 
-        protected static StringDictionary ParseCommandLine(string[] args)
+        protected static StringDictionary ParseCommandLine(string[]? args)
         {
             var stringDictionary = new StringDictionary();
             if (args == null)
@@ -95,7 +93,7 @@ namespace System.Configuration.Install
             {
                 if (args[i].StartsWith("/", StringComparison.Ordinal) || args[i].StartsWith("-", StringComparison.Ordinal))
                 {
-                    args[i] = args[i].Substring(1);
+                    args[i] = args[i][1..];
                 }
                 var num = args[i].IndexOf('=');
                 if (num < 0)
@@ -104,7 +102,7 @@ namespace System.Configuration.Install
                 }
                 else
                 {
-                    stringDictionary[args[i].Substring(0, num).ToLower(CultureInfo.InvariantCulture)] = args[i].Substring(num + 1);
+                    stringDictionary[args[i][..num].ToLower(CultureInfo.InvariantCulture)] = args[i][(num + 1)..];
                 }
             }
             return stringDictionary;

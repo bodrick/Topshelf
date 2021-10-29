@@ -12,6 +12,8 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using NUnit.Framework;
+using Topshelf.Configuration;
+using Topshelf.Exceptions;
 using Topshelf.Hosts;
 using Topshelf.Runtime;
 
@@ -21,348 +23,37 @@ namespace Topshelf.Tests
     public class Passing_install
     {
         [Test]
-        public void Should_create_an_install_host()
-        {
-            var host = HostFactory.New(x =>
-                {
-                    x.Service<MyService>();
-                    x.ApplyCommandLine("install");
-                });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-        }
-
-        [Test]
-        public void Should_create_an_install_host_without_being_case_sensitive()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("Install");
-            });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-        }
-
-        [Test]
-        public void Should_throw_an_exception_on_an_invalid_command_line()
-        {
-            var exception = Assert.Throws<HostConfigurationException>(() =>
-                {
-                    HostFactory.New(x =>
-                    {
-                        x.Service<MyService>();
-                        x.ApplyCommandLine("explode");
-                    });
-                });
-
-            Assert.IsTrue(exception.Message.Contains("explode"));
-        }
-
-        [Test]
-        public void Should_create_an_install_host_with_service_name()
-        {
-            var host = HostFactory.New(x =>
-                {
-                    x.Service<MyService>();
-                    x.ApplyCommandLine("install -servicename \"Joe\"");
-                });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual("Joe", installHost.Settings.Name);
-            Assert.AreEqual("Joe", installHost.Settings.ServiceName);
-        }
-
-        [Test]
-        public void Should_create_an_install_host_with_service_name_no_quotes()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("install -servicename Joe");
-            });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual("Joe", installHost.Settings.Name);
-            Assert.AreEqual("Joe", installHost.Settings.ServiceName);
-        }
-
-        [Test]
-        public void Should_create_an_install_host_with_display_name()
-        {
-            var host = HostFactory.New(x =>
-                {
-                    x.Service<MyService>();
-                    x.ApplyCommandLine("install -displayname \"Joe\"");
-                });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual("Joe", installHost.Settings.DisplayName);
-        }
-
-        [Test]
-        public void Should_create_an_install_host_with_display_name_and_instance_name()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("install -displayname \"Joe\" -instance \"42\"");
-            });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual("Joe (Instance: 42)", installHost.Settings.DisplayName);
-        }
-
-        [Test]
-        public void Should_create_an_install_host_with_display_name_and_instance_name_no_quotes()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("install -displayname Joe -instance 42");
-            });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual("Joe (Instance: 42)", installHost.Settings.DisplayName);
-        }
-
-        [Test]
-        public void Should_create_an_install_host_with_display_name_with_instance_name()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("install -displayname \"Joe (Instance: 42)\" -instance \"42\"");
-            });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual("Joe (Instance: 42)", installHost.Settings.DisplayName);
-        }
-
-        [Test]
-        public void Should_create_an_install_host_with_display_name_with_instance_name_no_quotes()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("install -displayname \"Joe (Instance: 42)\" -instance 42");
-            });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual("Joe (Instance: 42)", installHost.Settings.DisplayName);
-        }
-
-        [Test]
-        public void Should_create_an_install_host_with_description()
-        {
-            var host = HostFactory.New(x =>
-                {
-                    x.Service<MyService>();
-                    x.ApplyCommandLine("install -description \"Joe is good\"");
-                });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual("Joe is good", installHost.Settings.Description);
-        }
-
-        [Test]
-        public void Should_create_an_install_host_with_service_name_and_instance_name()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("install -servicename \"Joe\" -instance \"42\"");
-            });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual("Joe", installHost.Settings.Name);
-            Assert.AreEqual("42", installHost.Settings.InstanceName);
-            Assert.AreEqual("Joe$42", installHost.Settings.ServiceName);
-        }
-
-        [Test]
-        public void Should_create_an_install_host_with_service_name_and_instance_name_no_quotes()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("install -servicename Joe -instance 42");
-            });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual("Joe", installHost.Settings.Name);
-            Assert.AreEqual("42", installHost.Settings.InstanceName);
-            Assert.AreEqual("Joe$42", installHost.Settings.ServiceName);
-        }
-
-        [Test]
-        public void Should_create_and_install_host_with_service_name_containing_space()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("install -servicename \"Joe's Service\" -instance \"42\"");
-            });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual("Joe's Service", installHost.Settings.Name);
-            Assert.AreEqual("42", installHost.Settings.InstanceName);
-            Assert.AreEqual("Joe's Service$42", installHost.Settings.ServiceName);
-        }
-
-        [Test]
-        public void Should_create_an_install_host_to_start_automatically()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("install --autostart");
-            });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual(HostStartMode.Automatic, installHost.InstallSettings.StartMode);
-        }
-
-        [Test]
-        public void Should_create_an_install_host_to_start_manually()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("install --manual");
-            });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual(HostStartMode.Manual, installHost.InstallSettings.StartMode);
-        }
-
-        [Test]
-        public void Should_create_an_install_host_to_start_manually_without_being_case_sensitive()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("InstAll --ManuAl");
-            });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual(HostStartMode.Manual, installHost.InstallSettings.StartMode);
-        }
-
-        [Test]
-        public void Should_create_an_install_host_to_set_disabled()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("install --disabled");
-            });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual(HostStartMode.Disabled, installHost.InstallSettings.StartMode);
-        }
-
-#if !NET35
-
-        [Test]
-        public void Should_create_an_install_host_to_start_delayed()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("install --delayed");
-            });
-
-            Assert.IsInstanceOf<InstallHost>(host);
-            var installHost = (InstallHost)host;
-            Assert.AreEqual(HostStartMode.AutomaticDelayed, installHost.InstallSettings.StartMode);
-        }
-
-#endif
-
-        [Test]
-        public void Should_create_an_uninstall_host()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("uninstall");
-            });
-
-            Assert.IsInstanceOf<UninstallHost>(host);
-        }
-
-        [Test]
-        public void Should_create_a_start_host()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("start");
-            });
-
-            Assert.IsInstanceOf<StartHost>(host);
-        }
-
-        [Test]
-        public void Should_create_a_stop_host()
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("stop");
-            });
-
-            Assert.IsInstanceOf<StopHost>(host);
-        }
-
-        [Test]
         public void Extensible_the_command_line_should_be_yes()
         {
             var isSuperfly = false;
 
             var host = HostFactory.New(x =>
-                {
-                    x.Service<MyService>();
+            {
+                x.Service<MyService>();
 
-                    x.AddCommandLineSwitch("superfly", v => isSuperfly = v);
+                x.AddCommandLineSwitch("superfly", v => isSuperfly = v);
 
-                    x.ApplyCommandLine("--superfly");
-                });
+                x.ApplyCommandLine("--superfly");
+            });
 
             Assert.IsTrue(isSuperfly);
         }
 
         [Test]
-        public void Need_to_handle_crazy_special_characters_in_arguments()
+        public void Extensible_the_command_line_should_be_yet_again()
         {
-            string password = null;
+            string volumeLevel = null;
 
             var host = HostFactory.New(x =>
-                {
-                    x.Service<MyService>();
+            {
+                x.Service<MyService>();
 
-                    x.AddCommandLineDefinition("password", v => password = v);
+                x.AddCommandLineDefinition("volumeLevel", v => volumeLevel = v);
 
-                    x.ApplyCommandLine("-password:abc123!@#=$%^&*()-+");
-                });
+                x.ApplyCommandLine("-volumeLevel:11");
+            });
 
-            Assert.AreEqual("abc123!@#=$%^&*()-+", password);
+            Assert.That(volumeLevel, Is.EqualTo("11"));
         }
 
         [Test]
@@ -371,15 +62,15 @@ namespace Topshelf.Tests
             string password = null;
 
             var host = HostFactory.New(x =>
-                {
-                    x.Service<MyService>();
+            {
+                x.Service<MyService>();
 
-                    x.AddCommandLineDefinition("password", v => password = v);
+                x.AddCommandLineDefinition("password", v => password = v);
 
-                    x.ApplyCommandLine("-password \"abc123=:,.<>/?;!@#$%^&*()-+\"");
-                });
+                x.ApplyCommandLine("-password \"abc123=:,.<>/?;!@#$%^&*()-+\"");
+            });
 
-            Assert.AreEqual("abc123=:,.<>/?;!@#$%^&*()-+", password);
+            Assert.That(password, Is.EqualTo("abc123=:,.<>/?;!@#$%^&*()-+"));
         }
 
         [Test]
@@ -396,60 +87,367 @@ namespace Topshelf.Tests
                 x.ApplyCommandLine("-password abc123=:,.<>/?;!@#$%^&*()-+");
             });
 
-            Assert.AreEqual("abc123=:,.<>/?;!@#$%^&*()-+", password);
+            Assert.That(password, Is.EqualTo("abc123=:,.<>/?;!@#$%^&*()-+"));
         }
 
         [Test]
-        public void Extensible_the_command_line_should_be_yet_again()
+        public void Need_to_handle_crazy_special_characters_in_arguments()
         {
-            string volumeLevel = null;
+            string password = null;
 
             var host = HostFactory.New(x =>
-                {
-                    x.Service<MyService>();
+            {
+                x.Service<MyService>();
 
-                    x.AddCommandLineDefinition("volumeLevel", v => volumeLevel = v);
+                x.AddCommandLineDefinition("password", v => password = v);
 
-                    x.ApplyCommandLine("-volumeLevel:11");
-                });
+                x.ApplyCommandLine("-password:abc123!@#=$%^&*()-+");
+            });
 
-            Assert.AreEqual("11", volumeLevel);
+            Assert.That(password, Is.EqualTo("abc123!@#=$%^&*()-+"));
         }
 
         [Test]
-        public void Should_require_password_option_when_specifying_username() => Assert.Throws<Topshelf.HostConfigurationException>(() =>
-                                                                               {
-                                                                                   var host = HostFactory.New(x =>
-                                                                                   {
-                                                                                       x.Service<MyService>();
-                                                                                       x.ApplyCommandLine("install -username \"Joe\"");
-                                                                                   });
-                                                                               });
+        public void Should_create_a_start_host()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("start");
+            });
+
+            Assert.That(host, Is.InstanceOf<StartHost>());
+        }
+
+        [Test]
+        public void Should_create_a_stop_host()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("stop");
+            });
+
+            Assert.That(host, Is.InstanceOf<StopHost>());
+        }
+
+        [Test]
+        public void Should_create_an_install_host()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+        }
+
+        [Test]
+        public void Should_create_an_install_host_to_set_disabled()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install --disabled");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.InstallSettings.StartMode, Is.EqualTo(HostStartMode.Disabled));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_to_start_automatically()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install --autostart");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.InstallSettings.StartMode, Is.EqualTo(HostStartMode.Automatic));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_to_start_delayed()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install --delayed");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.InstallSettings.StartMode, Is.EqualTo(HostStartMode.AutomaticDelayed));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_to_start_manually()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install --manual");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.InstallSettings.StartMode, Is.EqualTo(HostStartMode.Manual));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_to_start_manually_without_being_case_sensitive()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("InstAll --ManuAl");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.InstallSettings.StartMode, Is.EqualTo(HostStartMode.Manual));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_with_description()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install -description \"Joe is good\"");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.Settings.Description, Is.EqualTo("Joe is good"));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_with_display_name()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install -displayname \"Joe\"");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.Settings.DisplayName, Is.EqualTo("Joe"));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_with_display_name_and_instance_name()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install -displayname \"Joe\" -instance \"42\"");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.Settings.DisplayName, Is.EqualTo("Joe (Instance: 42)"));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_with_display_name_and_instance_name_no_quotes()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install -displayname Joe -instance 42");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.Settings.DisplayName, Is.EqualTo("Joe (Instance: 42)"));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_with_display_name_with_instance_name()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install -displayname \"Joe (Instance: 42)\" -instance \"42\"");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.Settings.DisplayName, Is.EqualTo("Joe (Instance: 42)"));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_with_display_name_with_instance_name_no_quotes()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install -displayname \"Joe (Instance: 42)\" -instance 42");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.Settings.DisplayName, Is.EqualTo("Joe (Instance: 42)"));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_with_service_name()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install -servicename \"Joe\"");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.Settings.Name, Is.EqualTo("Joe"));
+            Assert.That(installHost.Settings.ServiceName, Is.EqualTo("Joe"));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_with_service_name_and_instance_name()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install -servicename \"Joe\" -instance \"42\"");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.Settings.Name, Is.EqualTo("Joe"));
+            Assert.That(installHost.Settings.InstanceName, Is.EqualTo("42"));
+            Assert.That(installHost.Settings.ServiceName, Is.EqualTo("Joe$42"));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_with_service_name_and_instance_name_no_quotes()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install -servicename Joe -instance 42");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.Settings.Name, Is.EqualTo("Joe"));
+            Assert.That(installHost.Settings.InstanceName, Is.EqualTo("42"));
+            Assert.That(installHost.Settings.ServiceName, Is.EqualTo("Joe$42"));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_with_service_name_no_quotes()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install -servicename Joe");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.Settings.Name, Is.EqualTo("Joe"));
+            Assert.That(installHost.Settings.ServiceName, Is.EqualTo("Joe"));
+        }
+
+        [Test]
+        public void Should_create_an_install_host_without_being_case_sensitive()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("Install");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+        }
+
+        [Test]
+        public void Should_create_an_uninstall_host()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("uninstall");
+            });
+
+            Assert.That(host, Is.InstanceOf<UninstallHost>());
+        }
+
+        [Test]
+        public void Should_create_and_install_host_with_service_name_containing_space()
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install -servicename \"Joe's Service\" -instance \"42\"");
+            });
+
+            Assert.That(host, Is.InstanceOf<InstallHost>());
+            var installHost = (InstallHost)host;
+            Assert.That(installHost.Settings.Name, Is.EqualTo("Joe's Service"));
+            Assert.That(installHost.Settings.InstanceName, Is.EqualTo("42"));
+            Assert.That(installHost.Settings.ServiceName, Is.EqualTo("Joe's Service$42"));
+        }
+
+        [Test]
+        public void Should_require_password_option_when_specifying_username() => Assert.Throws<HostConfigurationException>(() =>
+        {
+            var host = HostFactory.New(x =>
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install -username \"Joe\"");
+            });
+        });
+
+        [Test]
+        public void Should_throw_an_exception_on_an_invalid_command_line()
+        {
+            var exception = Assert.Throws<HostConfigurationException>(() =>
+            {
+                HostFactory.New(x =>
+                {
+                    x.Service<MyService>();
+                    x.ApplyCommandLine("explode");
+                });
+            });
+
+            Assert.That(exception.Message.Contains("explode"), Is.True);
+        }
 
         [Test]
         public void Will_allow_blank_password_when_specifying_username()
         {
             var host = HostFactory.New(x =>
-                {
-                    x.Service<MyService>();
-                    x.ApplyCommandLine("install -username \"Joe\" -password \"\"");
-                });
+            {
+                x.Service<MyService>();
+                x.ApplyCommandLine("install -username \"Joe\" -password \"\"");
+            });
 
-            Assert.IsInstanceOf<InstallHost>(host);
+            Assert.That(host, Is.InstanceOf<InstallHost>());
             var installHost = (InstallHost)host;
-            Assert.AreEqual("Joe", installHost.InstallSettings.Credentials.Username);
-            Assert.AreEqual("", installHost.InstallSettings.Credentials.Password);
+            Assert.That(installHost.InstallSettings.Credentials.Username, Is.EqualTo("Joe"));
+            Assert.That(installHost.InstallSettings.Credentials.Password, Is.EqualTo(""));
         }
 
         private class MyService : IServiceControl
         {
-            public bool Start(HostControl hostControl) => throw new NotImplementedException();
+            public bool Continue(IHostControl hostControl) => throw new NotImplementedException();
 
-            public bool Stop(HostControl hostControl) => throw new NotImplementedException();
+            public bool Pause(IHostControl hostControl) => throw new NotImplementedException();
 
-            public bool Pause(HostControl hostControl) => throw new NotImplementedException();
+            public bool Start(IHostControl hostControl) => throw new NotImplementedException();
 
-            public bool Continue(HostControl hostControl) => throw new NotImplementedException();
+            public bool Stop(IHostControl hostControl) => throw new NotImplementedException();
         }
     }
 }

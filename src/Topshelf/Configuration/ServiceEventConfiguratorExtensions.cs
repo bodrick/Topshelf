@@ -11,17 +11,20 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
-using Topshelf.ServiceConfigurators;
+using Topshelf.Configuration.ServiceConfigurators;
 
-namespace Topshelf
+namespace Topshelf.Configuration
 {
     public static class ServiceEventConfiguratorExtensions
     {
         /// <summary>
         /// Registers a callback invoked after the service Start method is called.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="configurator"></param>
+        /// <param name="callback"></param>
         public static T AfterStartingService<T>(this T configurator, Action callback)
-            where T : ServiceConfigurator
+            where T : IServiceConfigurator
         {
             if (configurator == null)
             {
@@ -36,8 +39,11 @@ namespace Topshelf
         /// <summary>
         /// Registers a callback invoked after the service Stop method is called.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="configurator"></param>
+        /// <param name="callback"></param>
         public static T AfterStoppingService<T>(this T configurator, Action callback)
-            where T : ServiceConfigurator
+            where T : IServiceConfigurator
         {
             if (configurator == null)
             {
@@ -52,8 +58,11 @@ namespace Topshelf
         /// <summary>
         /// Registers a callback invoked before the service Start method is called.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="configurator"></param>
+        /// <param name="callback"></param>
         public static T BeforeStartingService<T>(this T configurator, Action callback)
-            where T : ServiceConfigurator
+            where T : IServiceConfigurator
         {
             if (configurator == null)
             {
@@ -68,8 +77,11 @@ namespace Topshelf
         /// <summary>
         /// Registers a callback invoked before the service Stop method is called.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="configurator"></param>
+        /// <param name="callback"></param>
         public static T BeforeStoppingService<T>(this T configurator, Action callback)
-            where T : ServiceConfigurator
+            where T : IServiceConfigurator
         {
             if (configurator == null)
             {

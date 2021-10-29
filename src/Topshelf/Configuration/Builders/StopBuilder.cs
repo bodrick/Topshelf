@@ -14,32 +14,27 @@ using System;
 using Topshelf.Hosts;
 using Topshelf.Runtime;
 
-namespace Topshelf.Builders
+namespace Topshelf.Configuration.Builders
 {
-    public class StopBuilder :
-        HostBuilder
+    public class StopBuilder : IHostBuilder
     {
-        private readonly IHostEnvironment _environment;
-        private readonly HostSettings _settings;
-
-        public StopBuilder(IHostEnvironment environment, HostSettings settings)
+        public StopBuilder(IHostEnvironment environment, IHostSettings settings)
         {
-            _environment = environment;
-            _settings = settings;
+            Environment = environment;
+            Settings = settings;
         }
 
-        public IHostEnvironment Environment => _environment;
+        public IHostEnvironment Environment { get; }
 
-        public HostSettings Settings => _settings;
+        public IHostSettings Settings { get; }
 
-        public IHost Build(ServiceBuilder serviceBuilder) => new StopHost(_environment, _settings);
+        public IHost Build(IServiceBuilder serviceBuilder) => new StopHost(Environment, Settings);
 
-        public void Match<T>(Action<T> callback)
-            where T : class, HostBuilder
+        public void Match<T>(Action<T> callback) where T : class, IHostBuilder
         {
             if (callback == null)
             {
-                throw new ArgumentNullException("callback");
+                throw new ArgumentNullException(nameof(callback));
             }
 
             var self = this as T;

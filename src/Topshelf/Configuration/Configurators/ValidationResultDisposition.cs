@@ -12,7 +12,7 @@
 // specific language governing permissions and limitations under the License.
 using System;
 
-namespace Topshelf.Configurators
+namespace Topshelf.Configuration.Configurators
 {
     [Serializable]
     public enum ValidationResultDisposition

@@ -10,16 +10,16 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-using Topshelf.Builders;
-using Topshelf.HostConfigurators;
+using Topshelf.Configuration.Builders;
+using Topshelf.Configuration.HostConfigurators;
 
 namespace Topshelf.Runtime.Windows
 {
-    public class WindowsHostEnvironmentBuilder : EnvironmentBuilder
+    public class WindowsHostEnvironmentBuilder : IEnvironmentBuilder
     {
-        private readonly HostConfigurator _hostConfigurator;
+        private readonly IHostConfigurator _hostConfigurator;
 
-        public WindowsHostEnvironmentBuilder(HostConfigurator configurator) => _hostConfigurator = configurator;
+        public WindowsHostEnvironmentBuilder(IHostConfigurator configurator) => _hostConfigurator = configurator;
 
         public IHostEnvironment Build() => new WindowsHostEnvironment(_hostConfigurator);
     }
