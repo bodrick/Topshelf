@@ -20,7 +20,7 @@ namespace Topshelf.Builders
         HostBuilder
     {
         private readonly int _command;
-        private readonly HostEnvironment _environment;
+        private readonly IHostEnvironment _environment;
         private readonly HostSettings _settings;
 
         public CommandBuilder(HostBuilder builder, int command)
@@ -30,11 +30,11 @@ namespace Topshelf.Builders
             _environment = builder.Environment;
         }
 
-        public HostEnvironment Environment => _environment;
+        public IHostEnvironment Environment => _environment;
 
         public HostSettings Settings => _settings;
 
-        public Host Build(ServiceBuilder serviceBuilder) => new CommandHost(_environment, _settings, _command);
+        public IHost Build(ServiceBuilder serviceBuilder) => new CommandHost(_environment, _settings, _command);
 
         public void Match<T>(Action<T> callback)
             where T : class, HostBuilder

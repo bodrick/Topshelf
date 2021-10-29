@@ -9,8 +9,7 @@ namespace Topshelf.Caching
     /// </summary>
     /// <typeparam name="TKey">The key type of the cache</typeparam>
     /// <typeparam name="TValue">The value type of the cache</typeparam>
-    internal interface Cache<TKey, TValue> :
-        ReadCache<TKey, TValue>
+    internal interface ICache<TKey, TValue> : IReadCache<TKey, TValue>
     {
         /// <summary>
         /// Sets the callback that is called when a duplicate value is added to the cache

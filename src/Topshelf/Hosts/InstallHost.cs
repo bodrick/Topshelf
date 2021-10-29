@@ -18,31 +18,28 @@ using Topshelf.Runtime;
 
 namespace Topshelf.Hosts
 {
-    public class InstallHost :
-        Host
+    public class InstallHost : IHost
     {
-        private static readonly LogWriter _log = HostLogger.Get<InstallHost>();
-        private readonly HostEnvironment _environment;
-        private readonly InstallHostSettings _installSettings;
-        private readonly IEnumerable<Action<InstallHostSettings>> _postActions;
-        private readonly IEnumerable<Action<InstallHostSettings>> _postRollbackActions;
-        private readonly IEnumerable<Action<InstallHostSettings>> _preActions;
-        private readonly IEnumerable<Action<InstallHostSettings>> _preRollbackActions;
-        private readonly HostSettings _settings;
+        private static readonly ILogWriter _log = HostLogger.Get<InstallHost>();
+        private readonly IHostEnvironment _environment;
+        private readonly IEnumerable<Action<IInstallHostSettings>> _postActions;
+        private readonly IEnumerable<Action<IInstallHostSettings>> _postRollbackActions;
+        private readonly IEnumerable<Action<IInstallHostSettings>> _preActions;
+        private readonly IEnumerable<Action<IInstallHostSettings>> _preRollbackActions;
         private readonly bool _sudo;
 
-        public InstallHost(HostEnvironment environment, HostSettings settings, HostStartMode startMode,
+        public InstallHost(IHostEnvironment environment, HostSettings settings, HostStartMode startMode,
             IEnumerable<string> dependencies,
-            Credentials credentials, IEnumerable<Action<InstallHostSettings>> preActions,
-            IEnumerable<Action<InstallHostSettings>> postActions,
-            IEnumerable<Action<InstallHostSettings>> preRollbackActions,
-            IEnumerable<Action<InstallHostSettings>> postRollbackActions,
+            Credentials credentials, IEnumerable<Action<IInstallHostSettings>> preActions,
+            IEnumerable<Action<IInstallHostSettings>> postActions,
+            IEnumerable<Action<IInstallHostSettings>> preRollbackActions,
+            IEnumerable<Action<IInstallHostSettings>> postRollbackActions,
             bool sudo)
         {
             _environment = environment;
-            _settings = settings;
+            Settings = settings;
 
-            _installSettings = new InstallServiceSettingsImpl(settings, credentials, startMode, dependencies.ToArray());
+            InstallSettings = new InstallServiceSettingsImpl(settings, credentials, startMode, dependencies.ToArray());
 
             _preActions = preActions;
             _postActions = postActions;
@@ -51,35 +48,32 @@ namespace Topshelf.Hosts
             _sudo = sudo;
         }
 
-        public InstallHostSettings InstallSettings => _installSettings;
+        public IInstallHostSettings InstallSettings { get; }
 
-        public HostSettings Settings => _settings;
+        public HostSettings Settings { get; }
 
         public TopshelfExitCode Run()
         {
-            if (_environment.IsServiceInstalled(_settings.ServiceName))
+            if (_environment.IsServiceInstalled(Settings.ServiceName))
             {
-                _log.ErrorFormat("The {0} service is already installed.", _settings.ServiceName);
+                _log.ErrorFormat("The {0} service is already installed.", Settings.ServiceName);
                 return TopshelfExitCode.ServiceAlreadyInstalled;
             }
 
             if (!_environment.IsAdministrator)
             {
-                if (_sudo)
+                if (_sudo && _environment.RunAsAdministrator())
                 {
-                    if (_environment.RunAsAdministrator())
-                    {
-                        return TopshelfExitCode.Ok;
-                    }
+                    return TopshelfExitCode.Ok;
                 }
 
-                _log.ErrorFormat("The {0} service can only be installed as an administrator", _settings.ServiceName);
+                _log.ErrorFormat("The {0} service can only be installed as an administrator", Settings.ServiceName);
                 return TopshelfExitCode.SudoRequired;
             }
 
-            _log.DebugFormat("Attempting to install '{0}'", _settings.ServiceName);
+            _log.DebugFormat("Attempting to install '{0}'", Settings.ServiceName);
 
-            _environment.InstallService(_installSettings, ExecutePreActions, ExecutePostActions, ExecutePreRollbackActions, ExecutePostRollbackActions);
+            _environment.InstallService(InstallSettings, ExecutePreActions, ExecutePostActions, ExecutePreRollbackActions, ExecutePostRollbackActions);
 
             return TopshelfExitCode.Ok;
         }
@@ -88,7 +82,7 @@ namespace Topshelf.Hosts
         {
             foreach (var action in _postActions)
             {
-                action(_installSettings);
+                action(InstallSettings);
             }
         }
 
@@ -96,15 +90,15 @@ namespace Topshelf.Hosts
         {
             foreach (var action in _postRollbackActions)
             {
-                action(_installSettings);
+                action(InstallSettings);
             }
         }
 
-        private void ExecutePreActions(InstallHostSettings settings)
+        private void ExecutePreActions(IInstallHostSettings settings)
         {
             foreach (var action in _preActions)
             {
-                action(_installSettings);
+                action(InstallSettings);
             }
         }
 
@@ -112,25 +106,20 @@ namespace Topshelf.Hosts
         {
             foreach (var action in _preRollbackActions)
             {
-                action(_installSettings);
+                action(InstallSettings);
             }
         }
 
-        private class InstallServiceSettingsImpl :
-            InstallHostSettings
+        private class InstallServiceSettingsImpl : IInstallHostSettings
         {
-            private readonly string[] _dependencies;
             private readonly HostSettings _settings;
-            private readonly HostStartMode _startMode;
-            private Credentials _credentials;
 
-            public InstallServiceSettingsImpl(HostSettings settings, Credentials credentials, HostStartMode startMode,
-                string[] dependencies)
+            public InstallServiceSettingsImpl(HostSettings settings, Credentials credentials, HostStartMode startMode, string[] dependencies)
             {
-                _credentials = credentials;
+                Credentials = credentials;
                 _settings = settings;
-                _startMode = startMode;
-                _dependencies = dependencies;
+                StartMode = startMode;
+                Dependencies = dependencies;
             }
 
             public bool CanHandleCtrlBreak => _settings.CanHandleCtrlBreak;
@@ -144,20 +133,16 @@ namespace Topshelf.Hosts
             public bool CanSessionChanged => _settings.CanSessionChanged;
             public bool CanShutdown => _settings.CanShutdown;
 
-            public Credentials Credentials
-            {
-                get => _credentials;
-                set => _credentials = value;
-            }
+            public Credentials Credentials { get; set; }
 
-            public string[] Dependencies => _dependencies;
+            public string[] Dependencies { get; }
             public string Description => _settings.Description;
             public string DisplayName => _settings.DisplayName;
             public Action<Exception> ExceptionCallback => _settings.ExceptionCallback;
             public string InstanceName => _settings.InstanceName;
             public string Name => _settings.Name;
             public string ServiceName => _settings.ServiceName;
-            public HostStartMode StartMode => _startMode;
+            public HostStartMode StartMode { get; }
 
             public TimeSpan StartTimeOut => _settings.StartTimeOut;
 

@@ -27,7 +27,7 @@ namespace Topshelf
         /// </summary>
         /// <param name="configureCallback"> Configuration method to call </param>
         /// <returns> A Topshelf service host, ready to run </returns>
-        public static Host New(Action<HostConfigurator> configureCallback)
+        public static IHost New(Action<HostConfigurator> configureCallback)
         {
             try
             {

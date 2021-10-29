@@ -17,14 +17,12 @@ namespace Topshelf.Runtime.Windows
     /// <summary>
     /// Represents a take no action recovery action.
     /// </summary>
-    public class TakeNoActionAction :
-        ServiceRecoveryAction
+    public class TakeNoActionAction : ServiceRecoveryAction
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TakeNoActionAction"/> class.
         /// </summary>
-        public TakeNoActionAction()
-            : base(TimeSpan.Zero)
+        public TakeNoActionAction() : base(TimeSpan.Zero)
         {
         }
 
@@ -32,7 +30,7 @@ namespace Topshelf.Runtime.Windows
         /// Gets the service recovery configuration action.
         /// </summary>
         /// <returns>A <see cref="NativeMethods.SC_ACTION"/> representing the take no action service recovery configuration action.</returns>
-        public override NativeMethods.SC_ACTION GetAction() => new NativeMethods.SC_ACTION
+        public override NativeMethods.SC_ACTION GetAction() => new()
         {
             Delay = Delay,
             Type = (int)NativeMethods.SC_ACTION_TYPE.None

@@ -504,7 +504,7 @@ namespace Topshelf.Extensions.Configuration.Tests
             Assert.AreEqual(TimeSpan.FromMinutes(8901).TotalMilliseconds, runProgramRecoveryAction.Delay);
         }
 
-        private class MyService : ServiceControl
+        private class MyService : IServiceControl
         {
             public bool Start(HostControl hostControl) => throw new NotImplementedException();
 

@@ -87,7 +87,7 @@ namespace Topshelf.HostConfigurators
             _commandLineApplied = true;
         }
 
-        public Host CreateHost()
+        public IHost CreateHost()
         {
             var type = typeof(HostFactory);
             HostLogger.Get<HostConfiguratorImpl>()
@@ -211,7 +211,7 @@ namespace Topshelf.HostConfigurators
 
         private static EnvironmentBuilder DefaultEnvironmentBuilderFactory(HostConfigurator configurator) => new WindowsHostEnvironmentBuilder(configurator);
 
-        private static HostBuilder DefaultHostBuilderFactory(HostEnvironment environment, HostSettings settings) => new RunBuilder(environment, settings);
+        private static HostBuilder DefaultHostBuilderFactory(IHostEnvironment environment, HostSettings settings) => new RunBuilder(environment, settings);
 
         private void ApplyCommandLineOptions(IEnumerable<Option> options)
         {

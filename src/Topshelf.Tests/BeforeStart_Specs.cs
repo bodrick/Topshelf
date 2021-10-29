@@ -37,7 +37,7 @@ namespace Topshelf.Tests
             Assert.AreEqual(TopshelfExitCode.ServiceControlRequestFailed, exitCode);
         }
 
-        private class MyService : ServiceControl
+        private class MyService : IServiceControl
         {
             public bool Start(HostControl hostControl) => true;
 

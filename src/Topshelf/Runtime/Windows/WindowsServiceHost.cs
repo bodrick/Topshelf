@@ -21,21 +21,18 @@ using Topshelf.Logging;
 
 namespace Topshelf.Runtime.Windows
 {
-    public class WindowsServiceHost :
-        ServiceBase,
-        Host,
-        HostControl
+    public class WindowsServiceHost : ServiceBase, IHost, HostControl
     {
-        private static readonly LogWriter _log = HostLogger.Get<WindowsServiceHost>();
+        private static readonly ILogWriter _log = HostLogger.Get<WindowsServiceHost>();
         private readonly HostConfigurator _configurator;
-        private readonly HostEnvironment _environment;
-        private readonly ServiceHandle _serviceHandle;
+        private readonly IHostEnvironment _environment;
+        private readonly IServiceHandle _serviceHandle;
         private readonly HostSettings _settings;
         private int _deadThread;
         private bool _disposed;
         private Exception _unhandledException;
 
-        public WindowsServiceHost(HostEnvironment environment, HostSettings settings, ServiceHandle serviceHandle, HostConfigurator configurator)
+        public WindowsServiceHost(IHostEnvironment environment, HostSettings settings, IServiceHandle serviceHandle, HostConfigurator configurator)
         {
             if (settings == null)
             {
@@ -363,14 +360,14 @@ namespace Topshelf.Runtime.Windows
         }
 
         private class WindowsPowerEventArguments :
-            PowerEventArguments
+            IPowerEventArguments
         {
             public WindowsPowerEventArguments(PowerBroadcastStatus powerStatus) => EventCode = (PowerEventCode)Enum.ToObject(typeof(PowerEventCode), (int)powerStatus);
 
             public PowerEventCode EventCode { get; }
         }
         private class WindowsSessionChangedArguments :
-                    SessionChangedArguments
+                    ISessionChangedArguments
         {
             public WindowsSessionChangedArguments(SessionChangeDescription changeDescription)
             {

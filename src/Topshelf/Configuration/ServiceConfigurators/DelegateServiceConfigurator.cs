@@ -30,10 +30,10 @@ namespace Topshelf.ServiceConfigurators
         private ServiceFactory<T> _factory;
         private Func<T, HostControl, bool> _pause;
         private bool _pauseConfigured;
-        private Func<T, HostControl, PowerEventArguments, bool> _powerEvent;
+        private Func<T, HostControl, IPowerEventArguments, bool> _powerEvent;
         private bool _powerEventConfigured;
         private bool _sessionChangeConfigured;
-        private Action<T, HostControl, SessionChangedArguments> _sessionChanged;
+        private Action<T, HostControl, ISessionChangedArguments> _sessionChanged;
         private Action<T, HostControl> _shutdown;
         private bool _shutdownConfigured;
         private Func<T, HostControl, bool> _start;
@@ -114,13 +114,13 @@ namespace Topshelf.ServiceConfigurators
             _pause = pause;
         }
 
-        public void WhenPowerEvent(Func<T, HostControl, PowerEventArguments, bool> powerEvent)
+        public void WhenPowerEvent(Func<T, HostControl, IPowerEventArguments, bool> powerEvent)
         {
             _powerEventConfigured = true;
             _powerEvent = powerEvent;
         }
 
-        public void WhenSessionChanged(Action<T, HostControl, SessionChangedArguments> sessionChanged)
+        public void WhenSessionChanged(Action<T, HostControl, ISessionChangedArguments> sessionChanged)
         {
             _sessionChangeConfigured = true;
             _sessionChanged = sessionChanged;

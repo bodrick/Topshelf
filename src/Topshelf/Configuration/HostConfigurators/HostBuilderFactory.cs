@@ -15,5 +15,5 @@ using Topshelf.Runtime;
 
 namespace Topshelf.HostConfigurators
 {
-    public delegate HostBuilder HostBuilderFactory(HostEnvironment environment, HostSettings settings);
+    public delegate HostBuilder HostBuilderFactory(IHostEnvironment environment, HostSettings settings);
 }

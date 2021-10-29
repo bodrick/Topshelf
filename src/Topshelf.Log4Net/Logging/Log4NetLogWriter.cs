@@ -16,7 +16,7 @@ using System.Globalization;
 namespace Topshelf.Logging
 {
     public class Log4NetLogWriter :
-        LogWriter
+        ILogWriter
     {
         private readonly log4net.ILog _log;
 

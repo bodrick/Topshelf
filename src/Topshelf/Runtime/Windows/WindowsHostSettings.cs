@@ -25,8 +25,7 @@ namespace Topshelf.Runtime.Windows
         /// <summary>
         ///   Creates a new WindowsServiceDescription using empty strings for the properties. The class is required to have names by the consumers.
         /// </summary>
-        public WindowsHostSettings()
-            : this(string.Empty, string.Empty)
+        public WindowsHostSettings() : this(string.Empty, string.Empty)
         {
         }
 
@@ -39,12 +38,12 @@ namespace Topshelf.Runtime.Windows
         {
             if (name == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
 
             if (instanceName == null)
             {
-                throw new ArgumentNullException("instanceName");
+                throw new ArgumentNullException(nameof(instanceName));
             }
 
             Name = name;
@@ -79,7 +78,7 @@ namespace Topshelf.Runtime.Windows
                                          ? Name
                                          : _displayName;
 
-                var instance = string.Format(" (Instance: {0})", InstanceName);
+                var instance = $" (Instance: {InstanceName})";
                 if (!string.IsNullOrEmpty(InstanceName) && !displayName.EndsWith(instance))
                 {
                     return displayName + instance;

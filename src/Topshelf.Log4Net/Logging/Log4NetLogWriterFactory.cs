@@ -17,7 +17,7 @@ using log4net.Config;
 
 namespace Topshelf.Logging
 {
-    public class Log4NetLogWriterFactory : LogWriterFactory
+    public class Log4NetLogWriterFactory : ILogWriterFactory
     {
         private static readonly System.Reflection.Assembly CallingAssembly = typeof(Log4NetLogWriterFactory).Assembly;
 
@@ -27,12 +27,12 @@ namespace Topshelf.Logging
 
         public static void Use(string file, bool watch) => HostLogger.UseLogger(new Log4NetLoggerConfigurator(file, watch));
 
-        public LogWriter Get(string name) => new Log4NetLogWriter(LogManager.GetLogger(CallingAssembly, name));
+        public ILogWriter Get(string name) => new Log4NetLogWriter(LogManager.GetLogger(CallingAssembly, name));
 
         public void Shutdown() => LogManager.Shutdown();
 
         [Serializable]
-        public class Log4NetLoggerConfigurator : HostLoggerConfigurator
+        public class Log4NetLoggerConfigurator : IHostLoggerConfigurator
         {
             private readonly string _file;
             private readonly bool _watch;
@@ -43,7 +43,7 @@ namespace Topshelf.Logging
                 _watch = watch;
             }
 
-            public LogWriterFactory CreateLogWriterFactory()
+            public ILogWriterFactory CreateLogWriterFactory()
             {
                 if (!string.IsNullOrEmpty(_file))
                 {

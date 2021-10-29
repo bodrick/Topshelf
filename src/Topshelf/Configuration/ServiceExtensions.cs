@@ -25,7 +25,7 @@ namespace Topshelf
         public static ServiceBuilderFactory CreateServiceBuilderFactory<TService>(
             Func<HostSettings, TService> serviceFactory,
             Action<ServiceConfigurator> callback)
-            where TService : class, ServiceControl
+            where TService : class, IServiceControl
         {
             if (serviceFactory == null)
             {
@@ -87,7 +87,7 @@ namespace Topshelf
 
         public static HostConfigurator Service<TService>(this HostConfigurator configurator,
                             Func<HostSettings, TService> serviceFactory, Action<ServiceConfigurator> callback)
-            where TService : class, ServiceControl
+            where TService : class, IServiceControl
         {
             if (configurator == null)
             {
@@ -102,18 +102,18 @@ namespace Topshelf
         }
 
         public static HostConfigurator Service<T>(this HostConfigurator configurator)
-            where T : class, ServiceControl, new() => Service(configurator, x => new T(), x => { });
+            where T : class, IServiceControl, new() => Service(configurator, x => new T(), x => { });
 
         public static HostConfigurator Service<T>(this HostConfigurator configurator, Func<T> serviceFactory)
-            where T : class, ServiceControl => Service(configurator, x => serviceFactory(), x => { });
+            where T : class, IServiceControl => Service(configurator, x => serviceFactory(), x => { });
 
         public static HostConfigurator Service<T>(this HostConfigurator configurator, Func<T> serviceFactory,
             Action<ServiceConfigurator> callback)
-            where T : class, ServiceControl => Service(configurator, x => serviceFactory(), callback);
+            where T : class, IServiceControl => Service(configurator, x => serviceFactory(), callback);
 
         public static HostConfigurator Service<T>(this HostConfigurator configurator,
             Func<HostSettings, T> serviceFactory)
-            where T : class, ServiceControl => Service(configurator, serviceFactory, x => { });
+            where T : class, IServiceControl => Service(configurator, serviceFactory, x => { });
 
         public static HostConfigurator Service<TService>(this HostConfigurator configurator,
             Action<ServiceConfigurator<TService>> callback)

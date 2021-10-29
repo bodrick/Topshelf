@@ -18,20 +18,17 @@ namespace Topshelf.Hosts
     /// <summary>
     ///   Displays the Topshelf command line reference
     /// </summary>
-    public class HelpHost :
-        Host
+    public class HelpHost : IHost
     {
-        private readonly string _prefixText;
+        public HelpHost(string prefixText) => PrefixText = prefixText;
 
-        public HelpHost(string prefixText) => _prefixText = prefixText;
-
-        public string PrefixText => _prefixText;
+        public string PrefixText { get; }
 
         public TopshelfExitCode Run()
         {
-            if (!string.IsNullOrEmpty(_prefixText))
+            if (!string.IsNullOrEmpty(PrefixText))
             {
-                Console.WriteLine(_prefixText);
+                Console.WriteLine(PrefixText);
             }
 
             const string helpText = "Topshelf.HelpText.txt";
@@ -43,11 +40,9 @@ namespace Topshelf.Hosts
                 return TopshelfExitCode.AbnormalExit;
             }
 
-            using (TextReader reader = new StreamReader(stream))
-            {
-                var text = reader.ReadToEnd();
-                Console.WriteLine(text);
-            }
+            using TextReader reader = new StreamReader(stream);
+            var text = reader.ReadToEnd();
+            Console.WriteLine(text);
 
             return TopshelfExitCode.Ok;
         }

@@ -16,12 +16,11 @@ using Topshelf.Caching;
 
 namespace Topshelf.Logging
 {
-    public class TraceLogWriterFactory :
-        LogWriterFactory
+    public class TraceLogWriterFactory : ILogWriterFactory
     {
         private readonly TraceSource _defaultSource;
-        private readonly Cache<string, TraceLogWriter> _logs;
-        private readonly Cache<string, TraceSource> _sources;
+        private readonly ICache<string, TraceLogWriter> _logs;
+        private readonly ICache<string, TraceSource> _sources;
         private TraceListener _listener;
 
         public TraceLogWriterFactory()
@@ -36,7 +35,7 @@ namespace Topshelf.Logging
             _sources.Get("Topshelf");
         }
 
-        public LogWriter Get(string name) => _logs[name];
+        public ILogWriter Get(string name) => _logs[name];
 
         public void Shutdown()
         {
@@ -65,7 +64,7 @@ namespace Topshelf.Logging
         }
 
         private static bool IsSourceConfigured(TraceSource source) => source.Listeners.Count != 1
-                   || !(source.Listeners[0] is DefaultTraceListener)
+                   || source.Listeners[0] is not DefaultTraceListener
                    || source.Listeners[0].Name != "Default";
 
         private static string ShortenName(string name)
@@ -101,7 +100,7 @@ namespace Topshelf.Logging
             }
         }
 
-        private TraceLogWriter CreateTraceLog(string name) => new TraceLogWriter(_sources[name]);
+        private TraceLogWriter CreateTraceLog(string name) => new(_sources[name]);
 
         private TraceSource CreateTraceSource(string name)
         {

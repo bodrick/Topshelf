@@ -14,29 +14,28 @@ using System;
 
 namespace Topshelf.Runtime
 {
-    public class ServiceEventsImpl :
-        ServiceEvents
+    public class ServiceEventsImpl : IServiceEvents
     {
-        private readonly EventCallbackList<HostStartedContext> _afterStart;
-        private readonly EventCallbackList<HostStoppedContext> _afterStop;
-        private readonly EventCallbackList<HostStartContext> _beforeStart;
-        private readonly EventCallbackList<HostStopContext> _beforeStop;
+        private readonly EventCallbackList<IHostStartedContext> _afterStart;
+        private readonly EventCallbackList<IHostStoppedContext> _afterStop;
+        private readonly EventCallbackList<IHostStartContext> _beforeStart;
+        private readonly EventCallbackList<IHostStopContext> _beforeStop;
 
         public ServiceEventsImpl()
         {
-            _afterStart = new EventCallbackList<HostStartedContext>();
-            _afterStop = new EventCallbackList<HostStoppedContext>();
-            _beforeStart = new EventCallbackList<HostStartContext>();
-            _beforeStop = new EventCallbackList<HostStopContext>();
+            _afterStart = new EventCallbackList<IHostStartedContext>();
+            _afterStop = new EventCallbackList<IHostStoppedContext>();
+            _beforeStart = new EventCallbackList<IHostStartContext>();
+            _beforeStop = new EventCallbackList<IHostStopContext>();
         }
 
-        public void AddAfterStart(Action<HostStartedContext> callback) => _afterStart.Add(callback);
+        public void AddAfterStart(Action<IHostStartedContext> callback) => _afterStart.Add(callback);
 
-        public void AddAfterStop(Action<HostStoppedContext> callback) => _afterStop.Add(callback);
+        public void AddAfterStop(Action<IHostStoppedContext> callback) => _afterStop.Add(callback);
 
-        public void AddBeforeStart(Action<HostStartContext> callback) => _beforeStart.Add(callback);
+        public void AddBeforeStart(Action<IHostStartContext> callback) => _beforeStart.Add(callback);
 
-        public void AddBeforeStop(Action<HostStopContext> callback) => _beforeStop.Add(callback);
+        public void AddBeforeStop(Action<IHostStopContext> callback) => _beforeStop.Add(callback);
 
         public void AfterStart(HostControl hostControl)
         {
@@ -79,44 +78,32 @@ namespace Topshelf.Runtime
             public void Stop(TopshelfExitCode exitCode) => _hostControl.Stop(exitCode);
         }
 
-        private class HostStartContextImpl :
-            ContextImpl,
-            HostStartContext
+        private class HostStartContextImpl : ContextImpl, IHostStartContext
         {
-            public HostStartContextImpl(HostControl hostControl)
-                : base(hostControl)
+            public HostStartContextImpl(HostControl hostControl) : base(hostControl)
             {
             }
 
             public void CancelStart() => throw new ServiceControlException("The start service operation was canceled.");
         }
 
-        private class HostStartedContextImpl :
-            ContextImpl,
-            HostStartedContext
+        private class HostStartedContextImpl : ContextImpl, IHostStartedContext
         {
-            public HostStartedContextImpl(HostControl hostControl)
-                : base(hostControl)
+            public HostStartedContextImpl(HostControl hostControl) : base(hostControl)
             {
             }
         }
 
-        private class HostStopContextImpl :
-            ContextImpl,
-            HostStopContext
+        private class HostStopContextImpl : ContextImpl, IHostStopContext
         {
-            public HostStopContextImpl(HostControl hostControl)
-                : base(hostControl)
+            public HostStopContextImpl(HostControl hostControl) : base(hostControl)
             {
             }
         }
 
-        private class HostStoppedContextImpl :
-            ContextImpl,
-            HostStoppedContext
+        private class HostStoppedContextImpl : ContextImpl, IHostStoppedContext
         {
-            public HostStoppedContextImpl(HostControl hostControl)
-                : base(hostControl)
+            public HostStoppedContextImpl(HostControl hostControl) : base(hostControl)
             {
             }
         }

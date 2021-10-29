@@ -17,17 +17,16 @@ using Topshelf.Runtime;
 
 namespace Topshelf.Hosts
 {
-    public class UninstallHost :
-        Host
+    public class UninstallHost : IHost
     {
-        private static readonly LogWriter _log = HostLogger.Get<UninstallHost>();
-        private readonly HostEnvironment _environment;
+        private static readonly ILogWriter _log = HostLogger.Get<UninstallHost>();
+        private readonly IHostEnvironment _environment;
         private readonly IEnumerable<Action> _postActions;
         private readonly IEnumerable<Action> _preActions;
         private readonly HostSettings _settings;
         private readonly bool _sudo;
 
-        public UninstallHost(HostEnvironment environment, HostSettings settings, IEnumerable<Action> preActions,
+        public UninstallHost(IHostEnvironment environment, HostSettings settings, IEnumerable<Action> preActions,
             IEnumerable<Action> postActions,
             bool sudo)
         {
@@ -48,12 +47,9 @@ namespace Topshelf.Hosts
 
             if (!_environment.IsAdministrator)
             {
-                if (_sudo)
+                if (_sudo && _environment.RunAsAdministrator())
                 {
-                    if (_environment.RunAsAdministrator())
-                    {
-                        return TopshelfExitCode.Ok;
-                    }
+                    return TopshelfExitCode.Ok;
                 }
 
                 _log.ErrorFormat("The {0} service can only be uninstalled as an administrator", _settings.ServiceName);

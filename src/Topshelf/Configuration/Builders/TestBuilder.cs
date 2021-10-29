@@ -20,11 +20,11 @@ namespace Topshelf.Builders
     public class TestBuilder :
         HostBuilder
     {
-        private static readonly LogWriter _log = HostLogger.Get<TestBuilder>();
-        private readonly HostEnvironment _environment;
+        private static readonly ILogWriter _log = HostLogger.Get<TestBuilder>();
+        private readonly IHostEnvironment _environment;
         private readonly HostSettings _settings;
 
-        public TestBuilder(HostEnvironment environment, HostSettings settings)
+        public TestBuilder(IHostEnvironment environment, HostSettings settings)
         {
             if (settings == null)
             {
@@ -35,11 +35,11 @@ namespace Topshelf.Builders
             _settings = settings;
         }
 
-        public HostEnvironment Environment => _environment;
+        public IHostEnvironment Environment => _environment;
 
         public HostSettings Settings => _settings;
 
-        public virtual Host Build(ServiceBuilder serviceBuilder)
+        public virtual IHost Build(ServiceBuilder serviceBuilder)
         {
             var serviceHandle = serviceBuilder.Build(_settings);
 
@@ -61,7 +61,7 @@ namespace Topshelf.Builders
             }
         }
 
-        private Host CreateHost(ServiceHandle serviceHandle)
+        private IHost CreateHost(IServiceHandle serviceHandle)
         {
             _log.Debug("Running as a test host.");
             return new TestHost(_settings, _environment, serviceHandle);

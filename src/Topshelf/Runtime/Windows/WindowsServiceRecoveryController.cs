@@ -14,13 +14,11 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.Permissions;
 
 namespace Topshelf.Runtime.Windows
 {
     public class WindowsServiceRecoveryController
     {
-        [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
         public void SetServiceRecoveryOptions(HostSettings settings, ServiceRecoveryOptions options)
         {
             SCMHandle scmHandle = null;
@@ -58,25 +56,23 @@ namespace Topshelf.Runtime.Windows
                 }
 
                 var nextAction = lpsaActions;
-                for (var i = 0; i < actions.Count; i++)
+                foreach (var action in actions)
                 {
-                    Marshal.StructureToPtr(actions[i], nextAction, false);
+                    Marshal.StructureToPtr(action, nextAction, false);
                     nextAction = (IntPtr)(nextAction.ToInt64() + actionSize);
                 }
 
                 var rebootMessage = options.Actions.Where(x => x.GetType() == typeof(RestartSystemRecoveryAction))
-                                           .OfType<RestartSystemRecoveryAction>().Select(x => x.RestartMessage).
-                                           FirstOrDefault() ?? "";
+                    .OfType<RestartSystemRecoveryAction>().Select(x => x.RestartMessage).FirstOrDefault() ?? "";
 
                 var runProgramCommand = options.Actions.Where(x => x.GetType() == typeof(RunProgramRecoveryAction))
-                                               .OfType<RunProgramRecoveryAction>().Select(x => x.Command).
-                                               FirstOrDefault() ?? "";
+                    .OfType<RunProgramRecoveryAction>().Select(x => x.Command).FirstOrDefault() ?? "";
 
 
                 var failureActions = new NativeMethods.SERVICE_FAILURE_ACTIONS
                 {
                     dwResetPeriod =
-                    (int)TimeSpan.FromDays(options.ResetPeriod).TotalSeconds,
+                        (int)TimeSpan.FromDays(options.ResetPeriod).TotalSeconds,
                     lpRebootMsg = rebootMessage,
                     lpCommand = runProgramCommand,
                     cActions = actions.Count,
@@ -97,18 +93,15 @@ namespace Topshelf.Runtime.Windows
                     RequestShutdownPrivileges();
                 }
 
-                if (!NativeMethods.ChangeServiceConfig2(serviceHandle,
-                    NativeMethods.SERVICE_CONFIG_FAILURE_ACTIONS, lpInfo))
+                if (!NativeMethods.ChangeServiceConfig2(serviceHandle, NativeMethods.SERVICE_CONFIG_FAILURE_ACTIONS, lpInfo))
                 {
-                    throw new TopshelfException(string.Format("Failed to change service recovery options. Windows Error: {0}", new Win32Exception().Message));
+                    throw new TopshelfException(
+                        $"Failed to change service recovery options. Windows Error: {new Win32Exception().Message}");
                 }
 
-                if (false == options.RecoverOnCrashOnly)
+                if (!options.RecoverOnCrashOnly)
                 {
-                    var flag = new NativeMethods.SERVICE_FAILURE_ACTIONS_FLAG
-                    {
-                        fFailureActionsOnNonCrashFailures = true
-                    };
+                    var flag = new NativeMethods.SERVICE_FAILURE_ACTIONS_FLAG { fFailureActionsOnNonCrashFailures = true };
 
                     lpFlagInfo = Marshal.AllocHGlobal(Marshal.SizeOf(flag));
                     if (lpFlagInfo == IntPtr.Zero)
@@ -120,8 +113,7 @@ namespace Topshelf.Runtime.Windows
 
                     try
                     {
-                        NativeMethods.ChangeServiceConfig2(serviceHandle,
-                            NativeMethods.SERVICE_CONFIG_FAILURE_ACTIONS_FLAG, lpFlagInfo);
+                        NativeMethods.ChangeServiceConfig2(serviceHandle, NativeMethods.SERVICE_CONFIG_FAILURE_ACTIONS_FLAG, lpFlagInfo);
                     }
                     catch
                     {
@@ -146,15 +138,8 @@ namespace Topshelf.Runtime.Windows
                     Marshal.FreeHGlobal(lpsaActions);
                 }
 
-                if (serviceHandle != null)
-                {
-                    serviceHandle.Close();
-                }
-
-                if (scmHandle != null)
-                {
-                    scmHandle.Close();
-                }
+                serviceHandle?.Close();
+                scmHandle?.Close();
             }
         }
 
@@ -162,8 +147,8 @@ namespace Topshelf.Runtime.Windows
         {
             ThrowOnFail(
                 NativeMethods.OpenProcessToken(System.Diagnostics.Process.GetCurrentProcess().Handle,
-                (int)NativeMethods.SYSTEM_ACCESS.TOKEN_ADJUST_PRIVILEGES |
-                (int)NativeMethods.SYSTEM_ACCESS.TOKEN_QUERY, out var hToken));
+                    (int)NativeMethods.SYSTEM_ACCESS.TOKEN_ADJUST_PRIVILEGES |
+                    (int)NativeMethods.SYSTEM_ACCESS.TOKEN_QUERY, out var hToken));
 
             NativeMethods.TOKEN_PRIVILEGES tkp;
             tkp.PrivilegeCount = 1;
@@ -180,9 +165,8 @@ namespace Topshelf.Runtime.Windows
         {
             if (!success)
             {
-                throw new TopshelfException(string.Format(
-                    "Computer shutdown was specified as a recovery option, but privileges could not be acquired. Windows Error: {0}",
-                    new Win32Exception().Message));
+                throw new TopshelfException(
+                    $"Computer shutdown was specified as a recovery option, but privileges could not be acquired. Windows Error: {new Win32Exception().Message}");
             }
         }
     }

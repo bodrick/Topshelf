@@ -441,7 +441,7 @@ namespace Topshelf.Tests
             Assert.AreEqual("", installHost.InstallSettings.Credentials.Password);
         }
 
-        private class MyService : ServiceControl
+        private class MyService : IServiceControl
         {
             public bool Start(HostControl hostControl) => throw new NotImplementedException();
 

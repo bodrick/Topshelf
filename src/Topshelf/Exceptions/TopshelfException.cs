@@ -16,25 +16,21 @@ using System.Runtime.Serialization;
 namespace Topshelf
 {
     [Serializable]
-    public class TopshelfException :
-        Exception
+    public class TopshelfException : Exception
     {
         public TopshelfException()
         {
         }
 
-        public TopshelfException(string message)
-            : base(message)
+        public TopshelfException(string message) : base(message)
         {
         }
 
-        public TopshelfException(string message, Exception innerException)
-            : base(message, innerException)
+        public TopshelfException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
-        protected TopshelfException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
+        protected TopshelfException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

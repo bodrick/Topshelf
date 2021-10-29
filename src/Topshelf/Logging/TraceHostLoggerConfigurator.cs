@@ -15,9 +15,8 @@ using System;
 namespace Topshelf.Logging
 {
     [Serializable]
-    public class TraceHostLoggerConfigurator :
-        HostLoggerConfigurator
+    public class TraceHostLoggerConfigurator : IHostLoggerConfigurator
     {
-        public LogWriterFactory CreateLogWriterFactory() => new TraceLogWriterFactory();
+        public ILogWriterFactory CreateLogWriterFactory() => new TraceLogWriterFactory();
     }
 }

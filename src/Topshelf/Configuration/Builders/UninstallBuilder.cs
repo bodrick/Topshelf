@@ -20,13 +20,13 @@ namespace Topshelf.Builders
     public class UninstallBuilder :
         HostBuilder
     {
-        private readonly HostEnvironment _environment;
+        private readonly IHostEnvironment _environment;
         private readonly IList<Action> _postActions;
         private readonly IList<Action> _preActions;
         private readonly HostSettings _settings;
         private bool _sudo;
 
-        public UninstallBuilder(HostEnvironment environment, HostSettings settings)
+        public UninstallBuilder(IHostEnvironment environment, HostSettings settings)
         {
             _preActions = new List<Action>();
             _postActions = new List<Action>();
@@ -35,7 +35,7 @@ namespace Topshelf.Builders
             _settings = settings;
         }
 
-        public HostEnvironment Environment => _environment;
+        public IHostEnvironment Environment => _environment;
 
         public HostSettings Settings => _settings;
 
@@ -43,7 +43,7 @@ namespace Topshelf.Builders
 
         public void BeforeUninstall(Action callback) => _preActions.Add(callback);
 
-        public Host Build(ServiceBuilder serviceBuilder) => new UninstallHost(_environment, _settings, _preActions, _postActions, _sudo);
+        public IHost Build(ServiceBuilder serviceBuilder) => new UninstallHost(_environment, _settings, _preActions, _postActions, _sudo);
 
         public void Match<T>(Action<T> callback)
             where T : class, HostBuilder

@@ -15,7 +15,7 @@ using NLog;
 
 namespace Topshelf.Logging
 {
-    public class NLogLogWriterFactory : LogWriterFactory
+    public class NLogLogWriterFactory : ILogWriterFactory
     {
         private readonly LogFactory _logFactory;
 
@@ -29,7 +29,7 @@ namespace Topshelf.Logging
 
         public static void Use(LogFactory factory) => HostLogger.UseLogger(new NLogHostLoggerConfigurator(factory));
 
-        public LogWriter Get(string name) => new NLogLogWriter(_logFactory.GetLogger(name), name);
+        public ILogWriter Get(string name) => new NLogLogWriter(_logFactory.GetLogger(name), name);
 
         public void Shutdown()
         {
@@ -40,7 +40,7 @@ namespace Topshelf.Logging
         }
 
         [Serializable]
-        public class NLogHostLoggerConfigurator : HostLoggerConfigurator
+        public class NLogHostLoggerConfigurator : IHostLoggerConfigurator
         {
             private readonly LogFactory? _factory;
 
@@ -50,7 +50,7 @@ namespace Topshelf.Logging
             {
             }
 
-            public LogWriterFactory CreateLogWriterFactory() => _factory != null ? new NLogLogWriterFactory(_factory) : new NLogLogWriterFactory();
+            public ILogWriterFactory CreateLogWriterFactory() => _factory != null ? new NLogLogWriterFactory(_factory) : new NLogLogWriterFactory();
         }
     }
 }

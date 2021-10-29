@@ -15,13 +15,12 @@ using Topshelf.HostConfigurators;
 
 namespace Topshelf.Runtime.Windows
 {
-    public class WindowsHostEnvironmentBuilder :
-        EnvironmentBuilder
+    public class WindowsHostEnvironmentBuilder : EnvironmentBuilder
     {
         private readonly HostConfigurator _hostConfigurator;
 
         public WindowsHostEnvironmentBuilder(HostConfigurator configurator) => _hostConfigurator = configurator;
 
-        public HostEnvironment Build() => new WindowsHostEnvironment(_hostConfigurator);
+        public IHostEnvironment Build() => new WindowsHostEnvironment(_hostConfigurator);
     }
 }

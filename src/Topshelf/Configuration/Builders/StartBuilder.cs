@@ -20,7 +20,7 @@ namespace Topshelf.Builders
         HostBuilder
     {
         private readonly HostBuilder _builder;
-        private readonly HostEnvironment _environment;
+        private readonly IHostEnvironment _environment;
         private readonly HostSettings _settings;
 
         public StartBuilder(HostBuilder builder)
@@ -30,11 +30,11 @@ namespace Topshelf.Builders
             _environment = builder.Environment;
         }
 
-        public HostEnvironment Environment => _environment;
+        public IHostEnvironment Environment => _environment;
 
         public HostSettings Settings => _settings;
 
-        public Host Build(ServiceBuilder serviceBuilder)
+        public IHost Build(ServiceBuilder serviceBuilder)
         {
             if (_builder != null)
             {

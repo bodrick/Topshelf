@@ -20,22 +20,22 @@ namespace Topshelf.ServiceConfigurators
         /// <summary>
         /// Registers a callback invoked after the service Start method is called.
         /// </summary>
-        void AfterStartingService(Action<HostStartedContext> callback);
+        void AfterStartingService(Action<IHostStartedContext> callback);
 
         /// <summary>
         /// Registers a callback invoked after the service Stop method is called.
         /// </summary>
-        void AfterStoppingService(Action<HostStoppedContext> callback);
+        void AfterStoppingService(Action<IHostStoppedContext> callback);
 
         /// <summary>
         /// Registers a callback invoked before the service Start method is called.
         /// </summary>
-        void BeforeStartingService(Action<HostStartContext> callback);
+        void BeforeStartingService(Action<IHostStartContext> callback);
 
         /// <summary>
         /// Registers a callback invoked before the service Stop method is called.
         /// </summary>
-        void BeforeStoppingService(Action<HostStopContext> callback);
+        void BeforeStoppingService(Action<IHostStopContext> callback);
     }
 
     public interface ServiceConfigurator<T> :
@@ -50,9 +50,9 @@ namespace Topshelf.ServiceConfigurators
 
         void WhenPaused(Func<T, HostControl, bool> pause);
 
-        void WhenPowerEvent(Func<T, HostControl, PowerEventArguments, bool> powerEvent);
+        void WhenPowerEvent(Func<T, HostControl, IPowerEventArguments, bool> powerEvent);
 
-        void WhenSessionChanged(Action<T, HostControl, SessionChangedArguments> sessionChanged);
+        void WhenSessionChanged(Action<T, HostControl, ISessionChangedArguments> sessionChanged);
 
         void WhenShutdown(Action<T, HostControl> shutdown);
 

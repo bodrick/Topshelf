@@ -17,15 +17,13 @@ using Topshelf.Runtime;
 
 namespace Topshelf.Hosts
 {
-    public class TestHost :
-        Host,
-        HostControl
+    public class TestHost : IHost, HostControl
     {
-        private readonly LogWriter _log = HostLogger.Get<TestHost>();
-        private readonly ServiceHandle _serviceHandle;
+        private readonly ILogWriter _log = HostLogger.Get<TestHost>();
+        private readonly IServiceHandle _serviceHandle;
         private readonly HostSettings _settings;
 
-        public TestHost(HostSettings settings, HostEnvironment environment, ServiceHandle serviceHandle)
+        public TestHost(HostSettings settings, IHostEnvironment environment, IServiceHandle serviceHandle)
         {
             if (settings == null)
             {

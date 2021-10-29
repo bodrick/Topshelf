@@ -170,7 +170,7 @@ namespace Topshelf.Tests
         /// <summary>
         /// A simple service that can be configured to throw exceptions while starting or stopping.
         /// </summary>
-        private class ExceptionThrowingService : ServiceControl
+        private class ExceptionThrowingService : IServiceControl
         {
             private readonly bool _throwOnStart;
             private readonly bool _throwOnStop;
@@ -201,7 +201,7 @@ namespace Topshelf.Tests
                 return true;
             }
         }
-        private class ServiceThrowingExceptionInConstructor : ServiceControl
+        private class ServiceThrowingExceptionInConstructor : IServiceControl
         {
             public ServiceThrowingExceptionInConstructor()
                 => throw new Exception("Exception from constructor");

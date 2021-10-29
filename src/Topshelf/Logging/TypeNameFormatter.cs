@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Text;
 using Topshelf.Caching;
 
@@ -6,15 +7,14 @@ namespace Topshelf.Logging
 {
     internal class TypeNameFormatter
     {
-        private readonly Cache<Type, string> _cache;
+        private readonly ICache<Type, string> _cache;
         private readonly string _genericArgumentSeparator;
-        private readonly string _genericOpen;
         private readonly string _genericClose;
+        private readonly string _genericOpen;
         private readonly string _namespaceSeparator;
         private readonly string _nestedTypeSeparator;
 
-        public TypeNameFormatter()
-            : this(",", "<", ">", ".", "+")
+        public TypeNameFormatter() : this(",", "<", ">", ".", "+")
         {
         }
 
@@ -34,12 +34,10 @@ namespace Topshelf.Logging
 
         private string FormatTypeName(Type type)
         {
-#if !NETFX_CORE
-            if (type.IsGenericTypeDefinition)
-#else
             if (type.GetTypeInfo().IsGenericTypeDefinition)
-#endif
+            {
                 throw new ArgumentException("An open generic type cannot be used as a message name");
+            }
 
             var sb = new StringBuilder("");
 
@@ -68,11 +66,8 @@ namespace Topshelf.Logging
                 FormatTypeName(sb, type.DeclaringType, type.Namespace);
                 sb.Append(_nestedTypeSeparator);
             }
-#if !NETFX_CORE
-            if (type.IsGenericType)
-#else
+
             if (type.GetTypeInfo().IsGenericType)
-#endif
             {
                 var name = type.GetGenericTypeDefinition().Name;
 
@@ -85,11 +80,9 @@ namespace Topshelf.Logging
 
                 sb.Append(name);
                 sb.Append(_genericOpen);
-#if !NETFX_CORE
-                var arguments = type.GetGenericArguments();
-#else
-                Type[] arguments = type.GetTypeInfo().GenericTypeArguments;
-#endif
+
+                var arguments = type.GetTypeInfo().GenericTypeArguments;
+
                 for (var i = 0; i < arguments.Length; i++)
                 {
                     if (i > 0)

@@ -16,15 +16,14 @@ using Topshelf.Runtime;
 
 namespace Topshelf.Hosts
 {
-    public class CommandHost :
-        Host
+    public class CommandHost : IHost
     {
         private readonly int _command;
-        private readonly HostEnvironment _environment;
-        private readonly LogWriter _log = HostLogger.Get<StartHost>();
+        private readonly IHostEnvironment _environment;
+        private readonly ILogWriter _log = HostLogger.Get<StartHost>();
         private readonly HostSettings _settings;
 
-        public CommandHost(HostEnvironment environment, HostSettings settings, int command)
+        public CommandHost(IHostEnvironment environment, HostSettings settings, int command)
         {
             _environment = environment;
             _settings = settings;

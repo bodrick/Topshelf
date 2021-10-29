@@ -17,18 +17,18 @@ namespace Topshelf.Builders
 {
     public class ControlServiceBuilder<T> :
         ServiceBuilder
-        where T : class, ServiceControl
+        where T : class, IServiceControl
     {
-        private readonly ServiceEvents _serviceEvents;
+        private readonly IServiceEvents _serviceEvents;
         private readonly Func<HostSettings, T> _serviceFactory;
 
-        public ControlServiceBuilder(Func<HostSettings, T> serviceFactory, ServiceEvents serviceEvents)
+        public ControlServiceBuilder(Func<HostSettings, T> serviceFactory, IServiceEvents serviceEvents)
         {
             _serviceFactory = serviceFactory;
             _serviceEvents = serviceEvents;
         }
 
-        public ServiceHandle Build(HostSettings settings)
+        public IServiceHandle Build(HostSettings settings)
         {
             try
             {
@@ -43,12 +43,12 @@ namespace Topshelf.Builders
         }
 
         private class ControlServiceHandle :
-            ServiceHandle
+            IServiceHandle
         {
             private readonly T _service;
-            private readonly ServiceEvents _serviceEvents;
+            private readonly IServiceEvents _serviceEvents;
 
-            public ControlServiceHandle(T service, ServiceEvents serviceEvents)
+            public ControlServiceHandle(T service, IServiceEvents serviceEvents)
             {
                 _service = service;
                 _serviceEvents = serviceEvents;
@@ -56,14 +56,14 @@ namespace Topshelf.Builders
 
             public bool Continue(HostControl hostControl)
             {
-                var service = _service as ServiceSuspend;
+                var service = _service as IServiceSuspend;
 
                 return service != null && service.Continue(hostControl);
             }
 
             public void CustomCommand(HostControl hostControl, int command)
             {
-                var customCommand = _service as ServiceCustomCommand;
+                var customCommand = _service as IServiceCustomCommand;
                 if (customCommand != null)
                 {
                     customCommand.CustomCommand(hostControl, command);
@@ -81,14 +81,14 @@ namespace Topshelf.Builders
 
             public bool Pause(HostControl hostControl)
             {
-                var service = _service as ServiceSuspend;
+                var service = _service as IServiceSuspend;
 
                 return service != null && service.Pause(hostControl);
             }
 
-            public bool PowerEvent(HostControl hostControl, PowerEventArguments arguments)
+            public bool PowerEvent(HostControl hostControl, IPowerEventArguments arguments)
             {
-                var powerEvent = _service as ServicePowerEvent;
+                var powerEvent = _service as IServicePowerEvent;
                 if (powerEvent != null)
                 {
                     return powerEvent.PowerEvent(hostControl, arguments);
@@ -97,9 +97,9 @@ namespace Topshelf.Builders
                 return false;
             }
 
-            public void SessionChanged(HostControl hostControl, SessionChangedArguments arguments)
+            public void SessionChanged(HostControl hostControl, ISessionChangedArguments arguments)
             {
-                var sessionChange = _service as ServiceSessionChange;
+                var sessionChange = _service as IServiceSessionChange;
                 if (sessionChange != null)
                 {
                     sessionChange.SessionChange(hostControl, arguments);
@@ -108,7 +108,7 @@ namespace Topshelf.Builders
 
             public void Shutdown(HostControl hostControl)
             {
-                var serviceShutdown = _service as ServiceShutdown;
+                var serviceShutdown = _service as IServiceShutdown;
                 if (serviceShutdown != null)
                 {
                     serviceShutdown.Shutdown(hostControl);

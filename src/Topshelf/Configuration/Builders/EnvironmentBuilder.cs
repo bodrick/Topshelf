@@ -16,6 +16,6 @@ namespace Topshelf.Builders
 {
     public interface EnvironmentBuilder
     {
-        HostEnvironment Build();
+        IHostEnvironment Build();
     }
 }

@@ -17,10 +17,9 @@ using Topshelf.Logging;
 
 namespace Topshelf.Runtime.Windows
 {
-    public class HostInstaller :
-        Installer
+    public class HostInstaller : Installer
     {
-        private static readonly LogWriter _log = HostLogger.Get<HostInstaller>();
+        private static readonly ILogWriter _log = HostLogger.Get<HostInstaller>();
         private readonly string _arguments;
         private readonly Installer[] _installers;
         private readonly HostSettings _settings;

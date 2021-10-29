@@ -105,7 +105,7 @@ namespace Topshelf.Tests
             Assert.IsTrue(afterStop);
         }
 
-        private class MyService : ServiceControl
+        private class MyService : IServiceControl
         {
             public bool Start(HostControl hostControl) => true;
 

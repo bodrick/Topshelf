@@ -82,7 +82,7 @@ namespace Topshelf
         }
 
         public static ServiceConfigurator<T> WhenPowerEvent<T>(this ServiceConfigurator<T> configurator,
-            Func<T, PowerEventArguments, bool> callback)
+            Func<T, IPowerEventArguments, bool> callback)
             where T : class
         {
             if (configurator == null)
@@ -96,7 +96,7 @@ namespace Topshelf
         }
 
         public static ServiceConfigurator<T> WhenSessionChanged<T>(this ServiceConfigurator<T> configurator,
-           Action<T, SessionChangedArguments> callback)
+           Action<T, ISessionChangedArguments> callback)
            where T : class
         {
             if (configurator == null)

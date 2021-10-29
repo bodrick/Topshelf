@@ -10,8 +10,7 @@ namespace Topshelf.Caching
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
-    internal interface ReadCache<TKey, TValue> :
-        IEnumerable<TValue>
+    internal interface IReadCache<TKey, TValue> : IEnumerable<TValue>
     {
         /// <summary>
         /// The number of items in the cache

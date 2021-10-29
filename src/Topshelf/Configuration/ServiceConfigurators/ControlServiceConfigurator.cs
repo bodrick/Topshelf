@@ -22,7 +22,7 @@ namespace Topshelf.ServiceConfigurators
         ServiceConfiguratorBase,
         ServiceConfigurator,
         Configurator
-        where T : class, ServiceControl
+        where T : class, IServiceControl
     {
         private readonly Func<HostSettings, T> _serviceFactory;
 

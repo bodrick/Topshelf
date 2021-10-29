@@ -13,26 +13,24 @@
 namespace Topshelf.Runtime.Windows
 {
     /// <summary>
-    /// Represents a restart service service recovery action.
+    /// Represents a restart service recovery action.
     /// </summary>
-    /// <seealso cref="Topshelf.Runtime.Windows.ServiceRecoveryAction" />
-    public class RestartServiceRecoveryAction :
-        ServiceRecoveryAction
+    /// <seealso cref="ServiceRecoveryAction" />
+    public class RestartServiceRecoveryAction : ServiceRecoveryAction
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RestartServiceRecoveryAction"/> class.
         /// </summary>
         /// <param name="delay">The delay.</param>
-        public RestartServiceRecoveryAction(System.TimeSpan delay)
-            : base(delay)
+        public RestartServiceRecoveryAction(System.TimeSpan delay) : base(delay)
         {
         }
 
         /// <summary>
         /// Gets the service recovery configuration action.
         /// </summary>
-        /// <returns>A <see cref="NativeMethods.SC_ACTION"/> representing the restart service service recovery configuration action.</returns>
-        public override NativeMethods.SC_ACTION GetAction() => new NativeMethods.SC_ACTION
+        /// <returns>A <see cref="NativeMethods.SC_ACTION"/> representing the restart service recovery configuration action.</returns>
+        public override NativeMethods.SC_ACTION GetAction() => new()
         {
             Delay = Delay,
             Type = (int)NativeMethods.SC_ACTION_TYPE.RestartService,

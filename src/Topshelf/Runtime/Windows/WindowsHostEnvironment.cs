@@ -24,11 +24,10 @@ using Topshelf.Logging;
 
 namespace Topshelf.Runtime.Windows
 {
-    public class WindowsHostEnvironment :
-        HostEnvironment
+    public class WindowsHostEnvironment : IHostEnvironment
     {
         private readonly HostConfigurator _hostConfigurator;
-        private readonly LogWriter _log = HostLogger.Get(typeof(WindowsHostEnvironment));
+        private readonly ILogWriter _log = HostLogger.Get(typeof(WindowsHostEnvironment));
 
         public WindowsHostEnvironment(HostConfigurator configurator) => _hostConfigurator = configurator;
 
@@ -67,9 +66,9 @@ namespace Topshelf.Runtime.Windows
             }
         }
 
-        public Host CreateServiceHost(HostSettings settings, ServiceHandle serviceHandle) => new WindowsServiceHost(this, settings, serviceHandle, _hostConfigurator);
+        public IHost CreateServiceHost(HostSettings settings, IServiceHandle serviceHandle) => new WindowsServiceHost(this, settings, serviceHandle, _hostConfigurator);
 
-        public void InstallService(InstallHostSettings settings, Action<InstallHostSettings> beforeInstall, Action afterInstall, Action beforeRollback, Action afterRollback)
+        public void InstallService(IInstallHostSettings settings, Action<IInstallHostSettings> beforeInstall, Action afterInstall, Action beforeRollback, Action afterRollback)
         {
             using (var installer = new HostServiceInstaller(settings))
             {
@@ -103,29 +102,11 @@ namespace Topshelf.Runtime.Windows
                         }
                     };
 
-                Action<InstallEventArgs> after = x =>
-                    {
-                        if (afterInstall != null)
-                        {
-                            afterInstall();
-                        }
-                    };
+                Action<InstallEventArgs> after = x => afterInstall?.Invoke();
 
-                Action<InstallEventArgs> before2 = x =>
-                    {
-                        if (beforeRollback != null)
-                        {
-                            beforeRollback();
-                        }
-                    };
+                Action<InstallEventArgs> before2 = x => beforeRollback?.Invoke();
 
-                Action<InstallEventArgs> after2 = x =>
-                    {
-                        if (afterRollback != null)
-                        {
-                            afterRollback();
-                        }
-                    };
+                Action<InstallEventArgs> after2 = x => afterRollback?.Invoke();
 
                 installer.InstallService(before, after, before2, after2);
             }
@@ -182,107 +163,86 @@ namespace Topshelf.Runtime.Windows
 
         public void SendServiceCommand(string serviceName, int command)
         {
-            using (var sc = new ServiceController(serviceName))
+            using var sc = new ServiceController(serviceName);
+            if (sc.Status == ServiceControllerStatus.Running)
             {
-                if (sc.Status == ServiceControllerStatus.Running)
-                {
-                    sc.ExecuteCommand(command);
-                }
-                else
-                {
-                    _log.WarnFormat("The {0} service can't be commanded now as it has the status {1}. Try again later...",
-                        serviceName, sc.Status.ToString());
-                }
+                sc.ExecuteCommand(command);
+            }
+            else
+            {
+                _log.WarnFormat("The {0} service can't be commanded now as it has the status {1}. Try again later...", serviceName, sc.Status.ToString());
             }
         }
 
         public void StartService(string serviceName, TimeSpan startTimeOut)
         {
-            using (var sc = new ServiceController(serviceName))
+            using var sc = new ServiceController(serviceName);
+            if (sc.Status == ServiceControllerStatus.Running)
             {
-                if (sc.Status == ServiceControllerStatus.Running)
-                {
-                    _log.InfoFormat("The {0} service is already running.", serviceName);
-                    return;
-                }
+                _log.InfoFormat("The {0} service is already running.", serviceName);
+                return;
+            }
 
-                if (sc.Status == ServiceControllerStatus.StartPending)
-                {
-                    _log.InfoFormat("The {0} service is already starting.", serviceName);
-                    return;
-                }
+            if (sc.Status == ServiceControllerStatus.StartPending)
+            {
+                _log.InfoFormat("The {0} service is already starting.", serviceName);
+                return;
+            }
 
-                if (sc.Status == ServiceControllerStatus.Stopped || sc.Status == ServiceControllerStatus.Paused)
-                {
-                    sc.Start();
-                    sc.WaitForStatus(ServiceControllerStatus.Running, startTimeOut);
-                }
-                else
-                {
-                    // Status is StopPending, ContinuePending or PausedPending, print warning
-                    _log.WarnFormat("The {0} service can't be started now as it has the status {1}. Try again later...", serviceName, sc.Status.ToString());
-                }
+            if (sc.Status is ServiceControllerStatus.Stopped or ServiceControllerStatus.Paused)
+            {
+                sc.Start();
+                sc.WaitForStatus(ServiceControllerStatus.Running, startTimeOut);
+            }
+            else
+            {
+                // Status is StopPending, ContinuePending or PausedPending, print warning
+                _log.WarnFormat("The {0} service can't be started now as it has the status {1}. Try again later...", serviceName, sc.Status.ToString());
             }
         }
 
         public void StopService(string serviceName, TimeSpan stopTimeOut)
         {
-            using (var sc = new ServiceController(serviceName))
+            using var sc = new ServiceController(serviceName);
+            if (sc.Status == ServiceControllerStatus.Stopped)
             {
-                if (sc.Status == ServiceControllerStatus.Stopped)
-                {
-                    _log.InfoFormat("The {0} service is not running.", serviceName);
-                    return;
-                }
+                _log.InfoFormat("The {0} service is not running.", serviceName);
+                return;
+            }
 
-                if (sc.Status == ServiceControllerStatus.StopPending)
-                {
-                    _log.InfoFormat("The {0} service is already stopping.", serviceName);
-                    return;
-                }
+            if (sc.Status == ServiceControllerStatus.StopPending)
+            {
+                _log.InfoFormat("The {0} service is already stopping.", serviceName);
+                return;
+            }
 
-                if (sc.Status == ServiceControllerStatus.Running || sc.Status == ServiceControllerStatus.Paused)
-                {
-                    sc.Stop();
-                    sc.WaitForStatus(ServiceControllerStatus.Stopped, stopTimeOut);
-                }
-                else
-                {
-                    // Status is StartPending, ContinuePending or PausedPending, print warning
-                    _log.WarnFormat("The {0} service can't be stopped now as it has the status {1}. Try again later...", serviceName, sc.Status.ToString());
-                }
+            if (sc.Status is ServiceControllerStatus.Running or ServiceControllerStatus.Paused)
+            {
+                sc.Stop();
+                sc.WaitForStatus(ServiceControllerStatus.Stopped, stopTimeOut);
+            }
+            else
+            {
+                // Status is StartPending, ContinuePending or PausedPending, print warning
+                _log.WarnFormat("The {0} service can't be stopped now as it has the status {1}. Try again later...", serviceName, sc.Status.ToString());
             }
         }
 
         public void UninstallService(HostSettings settings, Action beforeUninstall, Action afterUninstall)
         {
-            using (var installer = new HostServiceInstaller(settings))
-            {
-                Action<InstallEventArgs> before = x =>
-                    {
-                        if (beforeUninstall != null)
-                        {
-                            beforeUninstall();
-                        }
-                    };
+            using var installer = new HostServiceInstaller(settings);
+            Action<InstallEventArgs> before = x => beforeUninstall?.Invoke();
 
-                Action<InstallEventArgs> after = x =>
-                    {
-                        if (afterUninstall != null)
-                        {
-                            afterUninstall();
-                        }
-                    };
+            Action<InstallEventArgs> after = x => afterUninstall?.Invoke();
 
-                installer.UninstallService(before, after);
-            }
+            installer.UninstallService(before, after);
         }
 
         private Process GetParent(Process child)
         {
             if (child == null)
             {
-                throw new ArgumentNullException("child");
+                throw new ArgumentNullException(nameof(child));
             }
 
             try
@@ -301,7 +261,7 @@ namespace Topshelf.Runtime.Windows
                     dwSize = (uint)Marshal.SizeOf(typeof(Kernel32.PROCESSENTRY32))
                 };
 
-                if (Kernel32.Process32First(hnd, ref processInfo) == false)
+                if (!Kernel32.Process32First(hnd, ref processInfo))
                 {
                     return null;
                 }

@@ -23,22 +23,22 @@ namespace Topshelf.Builders
         HostBuilder
     {
         private readonly IList<string> _dependencies;
-        private readonly HostEnvironment _environment;
-        private readonly IList<Action<InstallHostSettings>> _postActions;
-        private readonly IList<Action<InstallHostSettings>> _postRollbackActions;
-        private readonly IList<Action<InstallHostSettings>> _preActions;
-        private readonly IList<Action<InstallHostSettings>> _preRollbackActions;
+        private readonly IHostEnvironment _environment;
+        private readonly IList<Action<IInstallHostSettings>> _postActions;
+        private readonly IList<Action<IInstallHostSettings>> _postRollbackActions;
+        private readonly IList<Action<IInstallHostSettings>> _preActions;
+        private readonly IList<Action<IInstallHostSettings>> _preRollbackActions;
         private readonly HostSettings _settings;
         private Credentials _credentials;
         private HostStartMode _startMode;
         private bool _sudo;
 
-        public InstallBuilder(HostEnvironment environment, HostSettings settings)
+        public InstallBuilder(IHostEnvironment environment, HostSettings settings)
         {
-            _preActions = new List<Action<InstallHostSettings>>();
-            _postActions = new List<Action<InstallHostSettings>>();
-            _preRollbackActions = new List<Action<InstallHostSettings>>();
-            _postRollbackActions = new List<Action<InstallHostSettings>>();
+            _preActions = new List<Action<IInstallHostSettings>>();
+            _postActions = new List<Action<IInstallHostSettings>>();
+            _preRollbackActions = new List<Action<IInstallHostSettings>>();
+            _postRollbackActions = new List<Action<IInstallHostSettings>>();
             _dependencies = new List<string>();
             _startMode = HostStartMode.Automatic;
             _credentials = new Credentials("", "", ServiceAccount.LocalSystem);
@@ -47,21 +47,21 @@ namespace Topshelf.Builders
             _settings = settings;
         }
 
-        public HostEnvironment Environment => _environment;
+        public IHostEnvironment Environment => _environment;
 
         public HostSettings Settings => _settings;
 
         public void AddDependency(string name) => _dependencies.Add(name);
 
-        public void AfterInstall(Action<InstallHostSettings> callback) => _postActions.Add(callback);
+        public void AfterInstall(Action<IInstallHostSettings> callback) => _postActions.Add(callback);
 
-        public void AfterRollback(Action<InstallHostSettings> callback) => _postRollbackActions.Add(callback);
+        public void AfterRollback(Action<IInstallHostSettings> callback) => _postRollbackActions.Add(callback);
 
-        public void BeforeInstall(Action<InstallHostSettings> callback) => _preActions.Add(callback);
+        public void BeforeInstall(Action<IInstallHostSettings> callback) => _preActions.Add(callback);
 
-        public void BeforeRollback(Action<InstallHostSettings> callback) => _preRollbackActions.Add(callback);
+        public void BeforeRollback(Action<IInstallHostSettings> callback) => _preRollbackActions.Add(callback);
 
-        public Host Build(ServiceBuilder serviceBuilder) => new InstallHost(_environment, _settings, _startMode, _dependencies.ToArray(), _credentials,
+        public IHost Build(ServiceBuilder serviceBuilder) => new InstallHost(_environment, _settings, _startMode, _dependencies.ToArray(), _credentials,
                                                         _preActions, _postActions, _preRollbackActions, _postRollbackActions, _sudo);
 
         public void Match<T>(Action<T> callback)

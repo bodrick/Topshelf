@@ -11,20 +11,20 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
+using System.Runtime.InteropServices;
 using Topshelf.Logging;
 using Topshelf.Runtime;
 
 namespace Topshelf.Hosts
 {
-    public class StartHost :
-        Host
+    public class StartHost : IHost
     {
-        private readonly HostEnvironment _environment;
-        private readonly LogWriter _log = HostLogger.Get<StartHost>();
-        private readonly Host _parentHost;
+        private readonly IHostEnvironment _environment;
+        private readonly ILogWriter _log = HostLogger.Get<StartHost>();
+        private readonly IHost _parentHost;
         private readonly HostSettings _settings;
 
-        public StartHost(HostEnvironment environment, HostSettings settings, Host parentHost = null)
+        public StartHost(IHostEnvironment environment, HostSettings settings, IHost parentHost = null)
         {
             _environment = environment;
             _settings = settings;
@@ -33,10 +33,10 @@ namespace Topshelf.Hosts
 
         public TopshelfExitCode Run()
         {
-#if NETCORE
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
                 return TopshelfExitCode.NotRunningOnWindows;
-#endif
+            }
 
             if (!_environment.IsAdministrator)
             {

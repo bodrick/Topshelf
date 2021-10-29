@@ -19,20 +19,20 @@ namespace Topshelf.Builders
     public class StopBuilder :
         HostBuilder
     {
-        private readonly HostEnvironment _environment;
+        private readonly IHostEnvironment _environment;
         private readonly HostSettings _settings;
 
-        public StopBuilder(HostEnvironment environment, HostSettings settings)
+        public StopBuilder(IHostEnvironment environment, HostSettings settings)
         {
             _environment = environment;
             _settings = settings;
         }
 
-        public HostEnvironment Environment => _environment;
+        public IHostEnvironment Environment => _environment;
 
         public HostSettings Settings => _settings;
 
-        public Host Build(ServiceBuilder serviceBuilder) => new StopHost(_environment, _settings);
+        public IHost Build(ServiceBuilder serviceBuilder) => new StopHost(_environment, _settings);
 
         public void Match<T>(Action<T> callback)
             where T : class, HostBuilder

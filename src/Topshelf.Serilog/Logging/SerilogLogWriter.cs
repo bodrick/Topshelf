@@ -17,7 +17,7 @@ using Serilog.Events;
 
 namespace Topshelf.Logging
 {
-    public class SerilogLogWriter : LogWriter
+    public class SerilogLogWriter : ILogWriter
     {
         private readonly ILogger _logger;
 

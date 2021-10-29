@@ -16,10 +16,10 @@ using Microsoft.Extensions.Logging;
 namespace Topshelf.Logging
 {
     /// <summary>
-    /// Implements a Topshelf <see cref="LogWriter"/> for Microsoft extensions for logging.
+    /// Implements a Topshelf <see cref="ILogWriter"/> for Microsoft extensions for logging.
     /// </summary>
-    /// <seealso cref="Topshelf.Logging.LogWriter" />
-    public class LoggingExtensionsLogWriter : LogWriter
+    /// <seealso cref="Topshelf.Logging.ILogWriter" />
+    public class LoggingExtensionsLogWriter : ILogWriter
     {
         /// <summary>
         /// The logger

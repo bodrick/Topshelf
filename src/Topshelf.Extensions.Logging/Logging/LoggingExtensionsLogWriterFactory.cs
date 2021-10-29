@@ -15,10 +15,10 @@ using Microsoft.Extensions.Logging;
 namespace Topshelf.Logging
 {
     /// <summary>
-    /// Implements a <see cref="LogWriterFactory"/> for Microsoft extensions for logging.
+    /// Implements a <see cref="ILogWriterFactory"/> for Microsoft extensions for logging.
     /// </summary>
-    /// <seealso cref="Topshelf.Logging.LogWriterFactory" />
-    public partial class LoggingExtensionsLogWriterFactory : LogWriterFactory
+    /// <seealso cref="Topshelf.Logging.ILogWriterFactory" />
+    public partial class LoggingExtensionsLogWriterFactory : ILogWriterFactory
     {
         /// <summary>
         /// The logger factory
@@ -36,7 +36,7 @@ namespace Topshelf.Logging
         /// </summary>
         /// <param name="name">The name.</param>
         /// <returns>LogWriter.</returns>
-        public LogWriter Get(string name) => new LoggingExtensionsLogWriter(loggerFactory.CreateLogger(name));
+        public ILogWriter Get(string name) => new LoggingExtensionsLogWriter(loggerFactory.CreateLogger(name));
 
         /// <summary>
         /// Shutdowns this instance.

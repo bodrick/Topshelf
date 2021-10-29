@@ -18,7 +18,7 @@ namespace Topshelf.Logging
     /// <summary>
     ///   A logger that wraps to NLog. See http://stackoverflow.com/questions/7412156/how-to-retain-callsite-information-when-wrapping-nlog
     /// </summary>
-    public class NLogLogWriter : LogWriter
+    public class NLogLogWriter : ILogWriter
     {
         private readonly Logger _log;
 

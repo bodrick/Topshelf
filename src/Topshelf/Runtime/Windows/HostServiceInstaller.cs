@@ -21,13 +21,12 @@ using System.ServiceProcess;
 
 namespace Topshelf.Runtime.Windows
 {
-    public class HostServiceInstaller :
-        IDisposable
+    public class HostServiceInstaller : IDisposable
     {
         private readonly Installer _installer;
         private readonly TransactedInstaller _transactedInstaller;
 
-        public HostServiceInstaller(InstallHostSettings settings)
+        public HostServiceInstaller(IInstallHostSettings settings)
         {
             _installer = CreateInstaller(settings);
 
@@ -99,8 +98,7 @@ namespace Topshelf.Runtime.Windows
             _transactedInstaller.Uninstall(null);
         }
 
-        private static ServiceInstaller ConfigureServiceInstaller(HostSettings settings, string[] dependencies,
-            HostStartMode startMode)
+        private static ServiceInstaller ConfigureServiceInstaller(HostSettings settings, string[] dependencies, HostStartMode startMode)
         {
             var installer = new ServiceInstaller
             {
@@ -115,18 +113,12 @@ namespace Topshelf.Runtime.Windows
             return installer;
         }
 
-        private static ServiceProcessInstaller ConfigureServiceProcessInstaller(ServiceAccount account, string username,
-            string password)
+        private static ServiceProcessInstaller ConfigureServiceProcessInstaller(ServiceAccount account, string username, string password) => new ServiceProcessInstaller
         {
-            var installer = new ServiceProcessInstaller
-            {
-                Username = username,
-                Password = password,
-                Account = account,
-            };
-
-            return installer;
-        }
+            Username = username,
+            Password = password,
+            Account = account,
+        };
 
         private static Installer CreateHostInstaller(HostSettings settings, Installer[] installers)
         {
@@ -150,7 +142,7 @@ namespace Topshelf.Runtime.Windows
             return new HostInstaller(settings, arguments, installers);
         }
 
-        private static Installer CreateInstaller(InstallHostSettings settings)
+        private static Installer CreateInstaller(IInstallHostSettings settings)
         {
             var installers = new Installer[]
                 {
@@ -203,14 +195,13 @@ namespace Topshelf.Runtime.Windows
             process
             .MainModule
             .ModuleName
-            .Equals("dotnet.exe", StringComparison.InvariantCultureIgnoreCase);
+            .Equals("dotnet.exe", StringComparison.OrdinalIgnoreCase);
 
         private static void RemoveEventLogInstallers(Installer[] installers)
         {
             foreach (var installer in installers)
             {
-                var eventLogInstallers = installer.Installers.OfType<EventLogInstaller>().ToArray();
-                foreach (var eventLogInstaller in eventLogInstallers)
+                foreach (var eventLogInstaller in installer.Installers.OfType<EventLogInstaller>().ToArray())
                 {
                     installer.Installers.Remove(eventLogInstaller);
                 }
@@ -244,7 +235,7 @@ namespace Topshelf.Runtime.Windows
         {
             var installers = new Installer[]
                 {
-                    ConfigureServiceInstaller(settings, new string[] {}, HostStartMode.Automatic),
+                    ConfigureServiceInstaller(settings, Array.Empty<string>(), HostStartMode.Automatic),
                     ConfigureServiceProcessInstaller(ServiceAccount.LocalService, "", ""),
                 };
 

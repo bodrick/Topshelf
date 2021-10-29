@@ -21,12 +21,12 @@ namespace Topshelf.ServiceConfigurators
 
         protected ServiceConfiguratorBase() => ServiceEvents = new ServiceEventsImpl();
 
-        public void AfterStartingService(Action<HostStartedContext> callback) => ServiceEvents.AddAfterStart(callback);
+        public void AfterStartingService(Action<IHostStartedContext> callback) => ServiceEvents.AddAfterStart(callback);
 
-        public void AfterStoppingService(Action<HostStoppedContext> callback) => ServiceEvents.AddAfterStop(callback);
+        public void AfterStoppingService(Action<IHostStoppedContext> callback) => ServiceEvents.AddAfterStop(callback);
 
-        public void BeforeStartingService(Action<HostStartContext> callback) => ServiceEvents.AddBeforeStart(callback);
+        public void BeforeStartingService(Action<IHostStartContext> callback) => ServiceEvents.AddBeforeStart(callback);
 
-        public void BeforeStoppingService(Action<HostStopContext> callback) => ServiceEvents.AddBeforeStop(callback);
+        public void BeforeStoppingService(Action<IHostStopContext> callback) => ServiceEvents.AddBeforeStop(callback);
     }
 }

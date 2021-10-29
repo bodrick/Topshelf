@@ -15,8 +15,7 @@ using System.Diagnostics;
 
 namespace Topshelf.Logging
 {
-    public class TopshelfConsoleTraceListener :
-        TraceListener
+    public class TopshelfConsoleTraceListener : TraceListener
     {
         public override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id,
             string message) => WriteLine(message);

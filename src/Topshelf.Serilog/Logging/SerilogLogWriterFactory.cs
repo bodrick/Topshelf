@@ -15,7 +15,7 @@ using Serilog;
 
 namespace Topshelf.Logging
 {
-    public class SerilogLogWriterFactory : LogWriterFactory
+    public class SerilogLogWriterFactory : ILogWriterFactory
     {
         private readonly Func<string, ILogger> _loggerFactory;
 
@@ -23,20 +23,20 @@ namespace Topshelf.Logging
 
         public static void Use(ILogger logger) => HostLogger.UseLogger(new SerilogHostLoggerConfigurator(logger));
 
-        public LogWriter Get(string name) => new SerilogLogWriter(_loggerFactory(name));
+        public ILogWriter Get(string name) => new SerilogLogWriter(_loggerFactory(name));
 
         public void Shutdown()
         {
         }
 
         [Serializable]
-        public class SerilogHostLoggerConfigurator : HostLoggerConfigurator
+        public class SerilogHostLoggerConfigurator : IHostLoggerConfigurator
         {
             private readonly ILogger _logger;
 
             public SerilogHostLoggerConfigurator(ILogger logger) => _logger = logger;
 
-            public LogWriterFactory CreateLogWriterFactory() => new SerilogLogWriterFactory(_logger);
+            public ILogWriterFactory CreateLogWriterFactory() => new SerilogLogWriterFactory(_logger);
         }
     }
 }

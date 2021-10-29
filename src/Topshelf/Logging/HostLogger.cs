@@ -16,11 +16,11 @@ namespace Topshelf.Logging
 {
     public static class HostLogger
     {
-        private static readonly object _locker = new object();
-        private static HostLoggerConfigurator _configurator;
-        private static LogWriterFactory _logWriterFactory;
+        private static readonly object _locker = new();
+        private static IHostLoggerConfigurator? _configurator;
+        private static ILogWriterFactory? _logWriterFactory;
 
-        public static LogWriterFactory Current
+        public static ILogWriterFactory Current
         {
             get
             {
@@ -31,14 +31,13 @@ namespace Topshelf.Logging
             }
         }
 
-        public static HostLoggerConfigurator CurrentHostLoggerConfigurator => _configurator ?? (_configurator = new TraceHostLoggerConfigurator());
+        public static IHostLoggerConfigurator CurrentHostLoggerConfigurator => _configurator ??= new TraceHostLoggerConfigurator();
 
-        public static LogWriter Get<T>()
-            where T : class => Get(typeof(T).GetTypeName());
+        public static ILogWriter Get<T>() where T : class => Get(typeof(T).GetTypeName());
 
-        public static LogWriter Get(Type type) => Get(type.GetTypeName());
+        public static ILogWriter Get(Type type) => Get(type.GetTypeName());
 
-        public static LogWriter Get(string name) => Current.Get(name);
+        public static ILogWriter Get(string name) => Current.Get(name);
 
         public static void Shutdown()
         {
@@ -52,7 +51,7 @@ namespace Topshelf.Logging
             }
         }
 
-        public static void UseLogger(HostLoggerConfigurator configurator)
+        public static void UseLogger(IHostLoggerConfigurator configurator)
         {
             lock (_locker)
             {
@@ -60,18 +59,13 @@ namespace Topshelf.Logging
 
                 var logger = _configurator.CreateLogWriterFactory();
 
-                if (_logWriterFactory != null)
-                {
-                    _logWriterFactory.Shutdown();
-                }
-
+                _logWriterFactory?.Shutdown();
                 _logWriterFactory = null;
-
                 _logWriterFactory = logger;
             }
         }
 
-        private static LogWriterFactory CreateLogWriterFactory()
+        private static ILogWriterFactory CreateLogWriterFactory()
         {
             _logWriterFactory = CurrentHostLoggerConfigurator.CreateLogWriterFactory();
 

@@ -20,9 +20,9 @@ namespace Topshelf.Builders
     public class RunBuilder :
         HostBuilder
     {
-        private static readonly LogWriter _log = HostLogger.Get<RunBuilder>();
+        private static readonly ILogWriter _log = HostLogger.Get<RunBuilder>();
 
-        public RunBuilder(HostEnvironment environment, HostSettings settings)
+        public RunBuilder(IHostEnvironment environment, HostSettings settings)
         {
             if (settings == null)
             {
@@ -33,11 +33,11 @@ namespace Topshelf.Builders
             Settings = settings;
         }
 
-        public HostEnvironment Environment { get; }
+        public IHostEnvironment Environment { get; }
 
         public HostSettings Settings { get; }
 
-        public virtual Host Build(ServiceBuilder serviceBuilder)
+        public virtual IHost Build(ServiceBuilder serviceBuilder)
         {
             var serviceHandle = serviceBuilder.Build(Settings);
 
@@ -58,7 +58,7 @@ namespace Topshelf.Builders
             }
         }
 
-        private Host CreateHost(ServiceHandle serviceHandle)
+        private IHost CreateHost(IServiceHandle serviceHandle)
         {
             if (Environment.IsRunningAsAService)
             {

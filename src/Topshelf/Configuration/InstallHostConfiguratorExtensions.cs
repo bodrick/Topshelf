@@ -31,7 +31,7 @@ namespace Topshelf
         }
 
         public static HostConfigurator AfterInstall(this HostConfigurator configurator,
-            Action<InstallHostSettings> callback)
+            Action<IInstallHostSettings> callback)
         {
             if (configurator == null)
             {
@@ -56,7 +56,7 @@ namespace Topshelf
         }
 
         public static HostConfigurator AfterRollback(this HostConfigurator configurator,
-            Action<InstallHostSettings> callback)
+            Action<IInstallHostSettings> callback)
         {
             if (configurator == null)
             {
@@ -81,7 +81,7 @@ namespace Topshelf
         }
 
         public static HostConfigurator BeforeInstall(this HostConfigurator configurator,
-            Action<InstallHostSettings> callback)
+            Action<IInstallHostSettings> callback)
         {
             if (configurator == null)
             {
@@ -106,7 +106,7 @@ namespace Topshelf
         }
 
         public static HostConfigurator BeforeRollback(this HostConfigurator configurator,
-            Action<InstallHostSettings> callback)
+            Action<IInstallHostSettings> callback)
         {
             if (configurator == null)
             {

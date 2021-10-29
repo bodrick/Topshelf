@@ -16,6 +16,6 @@ namespace Topshelf.Builders
 {
     public interface ServiceBuilder
     {
-        ServiceHandle Build(HostSettings settings);
+        IServiceHandle Build(HostSettings settings);
     }
 }

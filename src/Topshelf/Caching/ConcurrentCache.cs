@@ -7,8 +7,7 @@ using System.Linq;
 namespace Topshelf.Caching
 {
     [Serializable]
-    internal class ConcurrentCache<TKey, TValue> :
-        Cache<TKey, TValue>
+    internal class ConcurrentCache<TKey, TValue> : ICache<TKey, TValue>
     {
         private readonly ConcurrentDictionary<TKey, TValue> _values;
         private CacheItemCallback<TKey, TValue> _duplicateValueAdded = ThrowOnDuplicateValue;

@@ -67,7 +67,7 @@ namespace Topshelf.Tests
             Assert.AreEqual(null, helpHost.PrefixText);
         }
 
-        private class MyService : ServiceControl
+        private class MyService : IServiceControl
         {
             public bool Continue(HostControl hostControl) => throw new NotImplementedException();
 

@@ -18,9 +18,9 @@ using Topshelf.Logging;
 namespace SampleTopshelfService
 {
     internal class SampleService :
-        ServiceControl
+        IServiceControl
     {
-        private static readonly LogWriter _log = HostLogger.Get<SampleService>();
+        private static readonly ILogWriter _log = HostLogger.Get<SampleService>();
         private readonly bool _throwOnStart;
         private readonly bool _throwOnStop;
         private readonly bool _throwUnhandled;

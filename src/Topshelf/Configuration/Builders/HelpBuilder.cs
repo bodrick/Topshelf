@@ -19,22 +19,22 @@ namespace Topshelf.Builders
     public class HelpBuilder :
         HostBuilder
     {
-        private readonly HostEnvironment _environment;
+        private readonly IHostEnvironment _environment;
         private readonly HostSettings _settings;
         private string _prefixText;
         private bool _systemHelpTextOnly;
 
-        public HelpBuilder(HostEnvironment environment, HostSettings settings)
+        public HelpBuilder(IHostEnvironment environment, HostSettings settings)
         {
             _settings = settings;
             _environment = environment;
         }
 
-        public HostEnvironment Environment => _environment;
+        public IHostEnvironment Environment => _environment;
 
         public HostSettings Settings => _settings;
 
-        public Host Build(ServiceBuilder serviceBuilder)
+        public IHost Build(ServiceBuilder serviceBuilder)
         {
             var prefixText = _systemHelpTextOnly
                                     ? null

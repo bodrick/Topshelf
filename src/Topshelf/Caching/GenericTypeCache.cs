@@ -4,18 +4,16 @@ using System.Collections.Generic;
 
 namespace Topshelf.Caching
 {
-    internal class GenericTypeCache<TInterface> :
-        Cache<Type, TInterface>
+    internal class GenericTypeCache<TInterface> : ICache<Type, TInterface>
     {
-        private readonly Cache<Type, TInterface> _cache;
-        private readonly Type _genericType;
+        private readonly ICache<Type, TInterface> _cache;
 
         /// <summary>
         /// Constructs a cache for the specified generic type
         /// </summary>
         /// <param name="genericType">The generic type to close</param>
-        public GenericTypeCache(Type genericType)
-            : this(genericType, new ConcurrentCache<Type, TInterface>(DefaultMissingValueProvider(genericType)))
+        public GenericTypeCache(Type genericType) : this(genericType,
+            new ConcurrentCache<Type, TInterface>(DefaultMissingValueProvider(genericType)))
         {
         }
 
@@ -29,11 +27,11 @@ namespace Topshelf.Caching
         {
         }
 
-        private GenericTypeCache(Type genericType, Cache<Type, TInterface> cache)
+        private GenericTypeCache(Type genericType, ICache<Type, TInterface> cache)
         {
             if (!genericType.IsGenericType)
             {
-                throw new ArgumentException("The type specified must be a generic type", "genericType");
+                throw new ArgumentException("The type specified must be a generic type", nameof(genericType));
             }
 
             if (genericType.GetGenericArguments().Length != 1)
@@ -41,7 +39,7 @@ namespace Topshelf.Caching
                 throw new ArgumentException("The generic type must have a single generic argument");
             }
 
-            _genericType = genericType;
+            GenericType = genericType;
             _cache = cache;
         }
 
@@ -52,7 +50,7 @@ namespace Topshelf.Caching
             set => _cache.DuplicateValueAdded = value;
         }
 
-        public Type GenericType => _genericType;
+        public Type GenericType { get; }
 
         public KeySelector<Type, TInterface> KeySelector
         {
@@ -98,7 +96,8 @@ namespace Topshelf.Caching
 
         public TInterface Get(Type key) => _cache.Get(key);
 
-        public TInterface Get(Type key, MissingValueProvider<Type, TInterface> missingValueProvider) => _cache.Get(key, missingValueProvider);
+        public TInterface Get(Type key, MissingValueProvider<Type, TInterface> missingValueProvider) =>
+            _cache.Get(key, missingValueProvider);
 
         public TInterface[] GetAll() => _cache.GetAll();
 
@@ -128,13 +127,13 @@ namespace Topshelf.Caching
             Func<TInterface, TResult> callback,
             TResult defaultValue) => _cache.WithValue(key, callback, defaultValue);
 
-        public TResult WithValue<TResult>(Type key, Func<TInterface, TResult> callback, Func<Type, TResult> defaultValue) => _cache.WithValue(key, callback, defaultValue);
+        public TResult WithValue<TResult>(Type key, Func<TInterface, TResult> callback, Func<Type, TResult> defaultValue) =>
+            _cache.WithValue(key, callback, defaultValue);
 
         private static MissingValueProvider<Type, TInterface> DefaultMissingValueProvider(Type genericType) => type =>
-                                                                                                                             {
-                                                                                                                                 var buildType = genericType.MakeGenericType(type);
-
-                                                                                                                                 return (TInterface)Activator.CreateInstance(buildType);
-                                                                                                                             };
+        {
+            var buildType = genericType.MakeGenericType(type);
+            return (TInterface)Activator.CreateInstance(buildType);
+        };
     }
 }

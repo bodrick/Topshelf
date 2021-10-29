@@ -16,8 +16,7 @@ using System.Globalization;
 
 namespace Topshelf.Logging
 {
-    public class TraceLogWriter :
-        LogWriter
+    public class TraceLogWriter : ILogWriter
     {
         private readonly LoggingLevel _level;
         private readonly TraceSource _source;

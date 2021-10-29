@@ -17,27 +17,21 @@ namespace Topshelf.Logging
 {
     public class LoggingLevel
     {
-        public static readonly LoggingLevel All = new LoggingLevel("All", 6, SourceLevels.All, TraceEventType.Verbose);
-        public static readonly LoggingLevel Debug = new LoggingLevel("Debug", 5, SourceLevels.Verbose, TraceEventType.Verbose);
-        public static readonly LoggingLevel Error = new LoggingLevel("Error", 2, SourceLevels.Error, TraceEventType.Error);
-        public static readonly LoggingLevel Fatal = new LoggingLevel("Fatal", 1, SourceLevels.Critical, TraceEventType.Critical);
-
-        public static readonly LoggingLevel Info = new LoggingLevel("Info", 4, SourceLevels.Information,
-            TraceEventType.Information);
-
-        public static readonly LoggingLevel None = new LoggingLevel("None", 0, SourceLevels.Off, TraceEventType.Critical);
-        public static readonly LoggingLevel Warn = new LoggingLevel("Warn", 3, SourceLevels.Warning, TraceEventType.Warning);
+        public static readonly LoggingLevel All = new("All", 6, SourceLevels.All, TraceEventType.Verbose);
+        public static readonly LoggingLevel Debug = new("Debug", 5, SourceLevels.Verbose, TraceEventType.Verbose);
+        public static readonly LoggingLevel Error = new("Error", 2, SourceLevels.Error, TraceEventType.Error);
+        public static readonly LoggingLevel Fatal = new("Fatal", 1, SourceLevels.Critical, TraceEventType.Critical);
+        public static readonly LoggingLevel Info = new("Info", 4, SourceLevels.Information, TraceEventType.Information);
+        public static readonly LoggingLevel None = new("None", 0, SourceLevels.Off, TraceEventType.Critical);
+        public static readonly LoggingLevel Warn = new("Warn", 3, SourceLevels.Warning, TraceEventType.Warning);
         private readonly int _index;
-        private readonly string _name;
-        private readonly SourceLevels _sourceLevel;
-        private readonly TraceEventType _traceEventType;
 
         private LoggingLevel(string name, int index, SourceLevels sourceLevel, TraceEventType traceEventType)
         {
-            _name = name;
+            Name = name;
             _index = index;
-            _sourceLevel = sourceLevel;
-            _traceEventType = traceEventType;
+            SourceLevel = sourceLevel;
+            TraceEventType = traceEventType;
         }
 
         public static IEnumerable<LoggingLevel> Values
@@ -54,36 +48,20 @@ namespace Topshelf.Logging
             }
         }
 
-        public string Name => _name;
-        public SourceLevels SourceLevel => _sourceLevel;
-        public TraceEventType TraceEventType => _traceEventType;
+        public string Name { get; }
+        public SourceLevels SourceLevel { get; }
+        public TraceEventType TraceEventType { get; }
 
-        public static LoggingLevel FromSourceLevels(SourceLevels level)
+        public static LoggingLevel FromSourceLevels(SourceLevels level) => level switch
         {
-            switch (level)
-            {
-                case SourceLevels.Information:
-                    return Info;
-
-                case SourceLevels.Verbose:
-                    return Debug;
-
-                case ~SourceLevels.Off:
-                    return Debug;
-
-                case SourceLevels.Critical:
-                    return Fatal;
-
-                case SourceLevels.Error:
-                    return Error;
-
-                case SourceLevels.Warning:
-                    return Warn;
-
-                default:
-                    return None;
-            }
-        }
+            SourceLevels.Information => Info,
+            SourceLevels.Verbose => Debug,
+            ~SourceLevels.Off => Debug,
+            SourceLevels.Critical => Fatal,
+            SourceLevels.Error => Error,
+            SourceLevels.Warning => Warn,
+            _ => None,
+        };
 
         public static bool operator <(LoggingLevel left, LoggingLevel right) => right != null && (left != null && left._index < right._index);
 
@@ -93,6 +71,6 @@ namespace Topshelf.Logging
 
         public static bool operator >=(LoggingLevel left, LoggingLevel right) => right != null && (left != null && left._index >= right._index);
 
-        public override string ToString() => _name;
+        public override string ToString() => Name;
     }
 }

@@ -6,8 +6,7 @@ using System.Linq;
 namespace Topshelf.Caching
 {
     [Serializable]
-    internal class DictionaryCache<TKey, TValue> :
-        Cache<TKey, TValue>
+    internal class DictionaryCache<TKey, TValue> : ICache<TKey, TValue>
     {
         private readonly IDictionary<TKey, TValue> _values;
         private CacheItemCallback<TKey, TValue> _duplicateValueAdded;
@@ -29,8 +28,7 @@ namespace Topshelf.Caching
             _keySelector = keySelector;
         }
 
-        public DictionaryCache(KeySelector<TKey, TValue> keySelector, IEnumerable<TValue> values)
-            : this(keySelector) => Fill(values);
+        public DictionaryCache(KeySelector<TKey, TValue> keySelector, IEnumerable<TValue> values) : this(keySelector) => Fill(values);
 
         public DictionaryCache(IEqualityComparer<TKey> equalityComparer,
             MissingValueProvider<TKey, TValue> missingValueProvider)
@@ -38,8 +36,7 @@ namespace Topshelf.Caching
 
         public DictionaryCache(IEnumerable<KeyValuePair<TKey, TValue>> values) => _values = values.ToDictionary(x => x.Key, x => x.Value);
 
-        public DictionaryCache(IDictionary<TKey, TValue> values) :
-            this(values, true)
+        public DictionaryCache(IDictionary<TKey, TValue> values) : this(values, true)
         {
         }
 

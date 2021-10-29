@@ -21,11 +21,11 @@ namespace Topshelf.Logging
     public partial class LoggingExtensionsLogWriterFactory
     {
         /// <summary>
-        /// Implements a Topshelf <see cref="HostLoggerConfigurator"/> for Microsoft extensions for logging.
+        /// Implements a Topshelf <see cref="IHostLoggerConfigurator"/> for Microsoft extensions for logging.
         /// </summary>
-        /// <seealso cref="Topshelf.Logging.HostLoggerConfigurator" />
+        /// <seealso cref="Topshelf.Logging.IHostLoggerConfigurator" />
         [Serializable]
-        public class LoggingExtensionsHostLoggerConfigurator : HostLoggerConfigurator
+        public class LoggingExtensionsHostLoggerConfigurator : IHostLoggerConfigurator
         {
             /// <summary>
             /// The logger factory
@@ -42,7 +42,7 @@ namespace Topshelf.Logging
             /// Creates the log writer factory.
             /// </summary>
             /// <returns>LogWriterFactory.</returns>
-            public LogWriterFactory CreateLogWriterFactory() => new LoggingExtensionsLogWriterFactory(loggerFactory);
+            public ILogWriterFactory CreateLogWriterFactory() => new LoggingExtensionsLogWriterFactory(loggerFactory);
         }
     }
 }
