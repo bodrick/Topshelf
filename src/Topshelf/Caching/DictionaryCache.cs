@@ -273,13 +273,14 @@ namespace Topshelf.Caching
 
         private static void DefaultCacheItemCallback(TKey key, TValue value)
         {
+            // Method intentionally left empty.
         }
 
         private static TKey DefaultKeyAccessor(TValue value) => throw new InvalidOperationException("No default key accessor has been specified");
 
         private static void ThrowOnDuplicateValue(TKey key, TValue value) => throw new ArgumentException(
-                string.Format("An item with the same key already exists in the cache: {0}", key), "key");
+            $"An item with the same key already exists in the cache: {key}", nameof(key));
 
-        private static TValue ThrowOnMissingValue(TKey key) => throw new KeyNotFoundException("The specified element was not found: " + key);
+        private static TValue ThrowOnMissingValue(TKey key) => throw new KeyNotFoundException($"The specified element was not found: {key}");
     }
 }

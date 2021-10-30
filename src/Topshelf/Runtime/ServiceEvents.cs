@@ -79,7 +79,7 @@ namespace Topshelf.Runtime
             public void Stop(TopshelfExitCode exitCode) => _hostControl.Stop(exitCode);
         }
 
-        private class HostStartContext : Context, IHostStartContext
+        private sealed class HostStartContext : Context, IHostStartContext
         {
             public HostStartContext(IHostControl hostControl) : base(hostControl)
             {
@@ -88,21 +88,21 @@ namespace Topshelf.Runtime
             public void CancelStart() => throw new ServiceControlException("The start service operation was canceled.");
         }
 
-        private class HostStartedContext : Context, IHostStartedContext
+        private sealed class HostStartedContext : Context, IHostStartedContext
         {
             public HostStartedContext(IHostControl hostControl) : base(hostControl)
             {
             }
         }
 
-        private class HostStopContext : Context, IHostStopContext
+        private sealed class HostStopContext : Context, IHostStopContext
         {
             public HostStopContext(IHostControl hostControl) : base(hostControl)
             {
             }
         }
 
-        private class HostStoppedContext : Context, IHostStoppedContext
+        private sealed class HostStoppedContext : Context, IHostStoppedContext
         {
             public HostStoppedContext(IHostControl hostControl) : base(hostControl)
             {

@@ -10,20 +10,25 @@ namespace System.Configuration.Install
 
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            var standardValues = base.GetStandardValues(context);
-            var instance = context.Instance;
-            var num = 0;
-            var array = new object[standardValues.Count - 1];
-            foreach (var standardValue in standardValues)
+            var baseValues = base.GetStandardValues(context);
+
+            var component = context.Instance;
+            int sourceIndex = 0, targetIndex = 0;
+            // we want to return the same list, but with the current component removed.
+            // (You can't set an installer's parent to itself.)
+            // optimization: assume the current component will always be in the list.
+            var newValues = new object[baseValues.Count - 1];
+            while (sourceIndex < baseValues.Count)
             {
-                if (standardValue != instance)
+                if (baseValues[sourceIndex] != component)
                 {
-                    array[num] = standardValue;
-                    num++;
+                    newValues[targetIndex] = baseValues[sourceIndex];
+                    targetIndex++;
                 }
+                sourceIndex++;
             }
 
-            return new StandardValuesCollection(array);
+            return new StandardValuesCollection(newValues);
         }
     }
 }

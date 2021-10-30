@@ -40,18 +40,6 @@ namespace Topshelf.Extensions.Logging
         public bool IsDebugEnabled => _logger.IsEnabled(LogLevel.Debug);
 
         /// <summary>
-        /// Gets a value indicating whether this instance is information enabled.
-        /// </summary>
-        /// <value><see langword="true" /> if this instance is information enabled; otherwise, <see langword="false" />.</value>
-        public bool IsInfoEnabled => _logger.IsEnabled(LogLevel.Information);
-
-        /// <summary>
-        /// Gets a value indicating whether this instance is warn enabled.
-        /// </summary>
-        /// <value><see langword="true" /> if this instance is warn enabled; otherwise, <see langword="false" />.</value>
-        public bool IsWarnEnabled => _logger.IsEnabled(LogLevel.Warning);
-
-        /// <summary>
         /// Gets a value indicating whether this instance is error enabled.
         /// </summary>
         /// <value><see langword="true" /> if this instance is error enabled; otherwise, <see langword="false" />.</value>
@@ -64,11 +52,247 @@ namespace Topshelf.Extensions.Logging
         public bool IsFatalEnabled => _logger.IsEnabled(LogLevel.Critical);
 
         /// <summary>
+        /// Gets a value indicating whether this instance is information enabled.
+        /// </summary>
+        /// <value><see langword="true" /> if this instance is information enabled; otherwise, <see langword="false" />.</value>
+        public bool IsInfoEnabled => _logger.IsEnabled(LogLevel.Information);
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is warn enabled.
+        /// </summary>
+        /// <value><see langword="true" /> if this instance is warn enabled; otherwise, <see langword="false" />.</value>
+        public bool IsWarnEnabled => _logger.IsEnabled(LogLevel.Warning);
+
+        /// <summary>
+        /// Debugs the specified object.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        public void Debug(object obj) => Debug(obj, null);
+
+        /// <summary>
+        /// Debugs the specified object.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="exception">The exception.</param>
+        public void Debug(object obj, Exception? exception)
+        {
+            if (obj is string text)
+            {
+                _logger.LogDebug(0, exception, text);
+            }
+            else
+            {
+                _logger.LogDebug(0, exception, "{Obj}", obj);
+            }
+        }
+
+        /// <summary>
+        /// Debugs the specified message provider.
+        /// </summary>
+        /// <param name="messageProvider">The message provider.</param>
+        public void Debug(LogWriterOutputProvider messageProvider)
+        {
+            if (IsDebugEnabled)
+            {
+                var provider = messageProvider();
+                Debug(provider);
+            }
+        }
+
+        /// <summary>
+        /// Debugs the format.
+        /// </summary>
+        /// <param name="formatProvider">The format provider.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="args">The arguments.</param>
+        public void DebugFormat(IFormatProvider formatProvider, string format, params object[] args) => DebugFormat(format, args);
+
+        /// <summary>
+        /// Debugs the format.
+        /// </summary>
+        /// <param name="format">The format.</param>
+        /// <param name="args">The arguments.</param>
+        public void DebugFormat(string format, params object[] args) => _logger.LogDebug(format, args);
+
+        /// <summary>
+        /// Errors the specified object.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        public void Error(object obj)
+        {
+            if (obj is string text)
+            {
+                _logger.LogError(text);
+            }
+            else
+            {
+                _logger.LogError("{Obj}", obj);
+            }
+        }
+
+        /// <summary>
+        /// Errors the specified object.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="exception">The exception.</param>
+        public void Error(object obj, Exception exception)
+        {
+            if (obj is string text)
+            {
+                _logger.LogError(0, exception, text);
+            }
+            else
+            {
+                _logger.LogError(0, exception, "{Obj}", obj);
+            }
+        }
+
+        /// <summary>
+        /// Errors the specified message provider.
+        /// </summary>
+        /// <param name="messageProvider">The message provider.</param>
+        public void Error(LogWriterOutputProvider messageProvider)
+        {
+            if (IsErrorEnabled)
+            {
+                var provider = messageProvider();
+                Error(provider);
+            }
+        }
+
+        /// <summary>
+        /// Errors the format.
+        /// </summary>
+        /// <param name="formatProvider">The format provider.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="args">The arguments.</param>
+        public void ErrorFormat(IFormatProvider formatProvider, string format, params object[] args) => ErrorFormat(format, args);
+
+        /// <summary>
+        /// Errors the format.
+        /// </summary>
+        /// <param name="format">The format.</param>
+        /// <param name="args">The arguments.</param>
+        public void ErrorFormat(string format, params object[] args) => _logger.LogError(format, args);
+
+        /// <summary>
+        /// Fatal the specified object.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        public void Fatal(object obj)
+        {
+            if (obj is string text)
+            {
+                _logger.LogCritical(text);
+            }
+            else
+            {
+                _logger.LogCritical("{Obj}", obj);
+            }
+        }
+
+        /// <summary>
+        /// Fatal the specified object.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="exception">The exception.</param>
+        public void Fatal(object obj, Exception exception)
+        {
+            if (obj is string text)
+            {
+                _logger.LogCritical(0, exception, text);
+            }
+            else
+            {
+                _logger.LogCritical(0, exception, "{Obj}", obj);
+            }
+        }
+
+        /// <summary>
+        /// Fatal the specified message provider.
+        /// </summary>
+        /// <param name="messageProvider">The message provider.</param>
+        public void Fatal(LogWriterOutputProvider messageProvider)
+        {
+            if (IsFatalEnabled)
+            {
+                var provider = messageProvider();
+                Fatal(provider);
+            }
+        }
+
+        /// <summary>
+        /// Fatal the format.
+        /// </summary>
+        /// <param name="formatProvider">The format provider.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="args">The arguments.</param>
+        public void FatalFormat(IFormatProvider formatProvider, string format, params object[] args) => FatalFormat(format, args);
+
+        /// <summary>
+        /// Fatal the format.
+        /// </summary>
+        /// <param name="format">The format.</param>
+        /// <param name="args">The arguments.</param>
+        public void FatalFormat(string format, params object[] args) => _logger.LogCritical(format, args);
+
+        /// <summary>
+        /// Information the specified object.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        public void Info(object obj) => Info(obj, null);
+
+        /// <summary>
+        /// Information the specified object.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="exception">The exception.</param>
+        public void Info(object obj, Exception? exception)
+        {
+            if (obj is string text)
+            {
+                _logger.LogInformation(0, exception, text);
+            }
+            else
+            {
+                _logger.LogInformation(0, exception, "{Obj}", obj);
+            }
+        }
+
+        /// <summary>
+        /// Information the specified message provider.
+        /// </summary>
+        /// <param name="messageProvider">The message provider.</param>
+        public void Info(LogWriterOutputProvider messageProvider)
+        {
+            if (IsInfoEnabled)
+            {
+                var provider = messageProvider();
+                Info(provider);
+            }
+        }
+
+        /// <summary>
+        /// Information the format.
+        /// </summary>
+        /// <param name="formatProvider">The format provider.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="args">The arguments.</param>
+        public void InfoFormat(IFormatProvider formatProvider, string format, params object[] args) => InfoFormat(format, args);
+
+        /// <summary>
+        /// Information the format.
+        /// </summary>
+        /// <param name="format">The format.</param>
+        /// <param name="args">The arguments.</param>
+        public void InfoFormat(string format, params object[] args) => _logger.LogInformation(format, args);
+
+        /// <summary>
         /// Logs the specified level.
         /// </summary>
         /// <param name="level">The level.</param>
         /// <param name="obj">The object.</param>
-        public void Log(LoggingLevel level, object obj) => _logger.Log(ToLogLevel(level), 0, obj, null, (s, e) => s.ToString());
+        public void Log(LoggingLevel level, object obj) => _logger.Log(ToLogLevel(level), 0, obj, null, (s, _) => s.ToString());
 
         /// <summary>
         /// Logs the specified level.
@@ -76,7 +300,7 @@ namespace Topshelf.Extensions.Logging
         /// <param name="level">The level.</param>
         /// <param name="obj">The object.</param>
         /// <param name="exception">The exception.</param>
-        public void Log(LoggingLevel level, object obj, Exception exception) => _logger.Log(ToLogLevel(level), 0, obj, exception, (s, e) => s.ToString());
+        public void Log(LoggingLevel level, object obj, Exception exception) => _logger.Log(ToLogLevel(level), 0, obj, exception, (s, _) => s.ToString());
 
         /// <summary>
         /// Logs the specified level.
@@ -87,12 +311,8 @@ namespace Topshelf.Extensions.Logging
         {
             if (_logger.IsEnabled(ToLogLevel(level)))
             {
-                System.Diagnostics.Debug.Assert(messageProvider != null, nameof(messageProvider) + " is null.");
-#pragma warning disable CC0031 // Check for null before calling a delegate
-                var @object = messageProvider();
-#pragma warning restore CC0031 // Check for null before calling a delegate
-
-                Log(level, @object);
+                var provider = messageProvider();
+                Log(level, provider);
             }
         }
 
@@ -114,114 +334,6 @@ namespace Topshelf.Extensions.Logging
         public void LogFormat(LoggingLevel level, string format, params object[] args) => Log(level, new FormattedLogValues(format, args));
 
         /// <summary>
-        /// Debugs the specified object.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        public void Debug(object obj) => Debug(obj, null);
-
-        /// <summary>
-        /// Debugs the specified object.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <param name="exception">The exception.</param>
-        public void Debug(object obj, Exception exception)
-        {
-            if (obj is string text)
-            {
-                _logger.LogDebug(0, exception, text);
-            }
-            else
-            {
-                _logger.LogDebug(0, exception, "{obj}", obj);
-            }
-        }
-
-        /// <summary>
-        /// Debugs the specified message provider.
-        /// </summary>
-        /// <param name="messageProvider">The message provider.</param>
-        public void Debug(LogWriterOutputProvider messageProvider)
-        {
-            if (IsDebugEnabled)
-            {
-                System.Diagnostics.Debug.Assert(messageProvider != null, nameof(messageProvider) + " is null.");
-#pragma warning disable CC0031 // Check for null before calling a delegate
-                var @object = messageProvider();
-#pragma warning restore CC0031 // Check for null before calling a delegate
-                Debug(@object);
-            }
-        }
-
-        /// <summary>
-        /// Debugs the format.
-        /// </summary>
-        /// <param name="formatProvider">The format provider.</param>
-        /// <param name="format">The format.</param>
-        /// <param name="args">The arguments.</param>
-        public void DebugFormat(IFormatProvider formatProvider, string format, params object[] args) => DebugFormat(format, args);
-
-        /// <summary>
-        /// Debugs the format.
-        /// </summary>
-        /// <param name="format">The format.</param>
-        /// <param name="args">The arguments.</param>
-        public void DebugFormat(string format, params object[] args) => _logger.LogDebug(format, args);
-
-        /// <summary>
-        /// Informations the specified object.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        public void Info(object obj) => Info(obj, null);
-
-        /// <summary>
-        /// Informations the specified object.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <param name="exception">The exception.</param>
-        public void Info(object obj, Exception exception)
-        {
-            if (obj is string text)
-            {
-                _logger.LogInformation(0, exception, text);
-            }
-            else
-            {
-                _logger.LogInformation(0, exception, "{obj}", obj);
-            }
-        }
-
-        /// <summary>
-        /// Informations the specified message provider.
-        /// </summary>
-        /// <param name="messageProvider">The message provider.</param>
-        public void Info(LogWriterOutputProvider messageProvider)
-        {
-            if (IsInfoEnabled)
-            {
-                System.Diagnostics.Debug.Assert(messageProvider != null, nameof(messageProvider) + " is null.");
-#pragma warning disable CC0031 // Check for null before calling a delegate
-                var @object = messageProvider();
-#pragma warning restore CC0031 // Check for null before calling a delegate
-                Info(@object);
-            }
-        }
-
-        /// <summary>
-        /// Informations the format.
-        /// </summary>
-        /// <param name="formatProvider">The format provider.</param>
-        /// <param name="format">The format.</param>
-        /// <param name="args">The arguments.</param>
-        public void InfoFormat(IFormatProvider formatProvider, string format, params object[] args) => InfoFormat(format, args);
-
-        /// <summary>
-        /// Informations the format.
-        /// </summary>
-        /// <param name="format">The format.</param>
-        /// <param name="args">The arguments.</param>
-        public void InfoFormat(string format, params object[] args) => _logger.LogInformation(format, args);
-
-        /// <summary>
         /// Warns the specified object.
         /// </summary>
         /// <param name="obj">The object.</param>
@@ -233,7 +345,7 @@ namespace Topshelf.Extensions.Logging
             }
             else
             {
-                _logger.LogWarning("{obj}", obj);
+                _logger.LogWarning("{Obj}", obj);
             }
         }
 
@@ -250,7 +362,7 @@ namespace Topshelf.Extensions.Logging
             }
             else
             {
-                _logger.LogWarning(0, exception, "{obj}", obj);
+                _logger.LogWarning(0, exception, "{Obj}", obj);
             }
         }
 
@@ -262,11 +374,8 @@ namespace Topshelf.Extensions.Logging
         {
             if (IsWarnEnabled)
             {
-                System.Diagnostics.Debug.Assert(messageProvider != null, nameof(messageProvider) + " is null.");
-#pragma warning disable CC0031 // Check for null before calling a delegate
-                var @object = messageProvider();
-#pragma warning restore CC0031 // Check for null before calling a delegate
-                Warn(@object);
+                var provider = messageProvider();
+                Warn(provider);
             }
         }
 
@@ -286,134 +395,6 @@ namespace Topshelf.Extensions.Logging
         public void WarnFormat(string format, params object[] args) => _logger.LogWarning(format, args);
 
         /// <summary>
-        /// Errors the specified object.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        public void Error(object obj)
-        {
-            if (obj is string text)
-            {
-                _logger.LogError(text);
-            }
-            else
-            {
-                _logger.LogError("{obj}", obj);
-            }
-        }
-
-        /// <summary>
-        /// Errors the specified object.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <param name="exception">The exception.</param>
-        public void Error(object obj, Exception exception)
-        {
-            if (obj is string text)
-            {
-                _logger.LogError(0, exception, text);
-            }
-            else
-            {
-                _logger.LogError(0, exception, "{obj}", obj);
-            }
-        }
-
-        /// <summary>
-        /// Errors the specified message provider.
-        /// </summary>
-        /// <param name="messageProvider">The message provider.</param>
-        public void Error(LogWriterOutputProvider messageProvider)
-        {
-            if (IsErrorEnabled)
-            {
-                System.Diagnostics.Debug.Assert(messageProvider != null, nameof(messageProvider) + " is null.");
-#pragma warning disable CC0031 // Check for null before calling a delegate
-                var @object = messageProvider();
-#pragma warning restore CC0031 // Check for null before calling a delegate
-                Error(@object);
-            }
-        }
-
-        /// <summary>
-        /// Errors the format.
-        /// </summary>
-        /// <param name="formatProvider">The format provider.</param>
-        /// <param name="format">The format.</param>
-        /// <param name="args">The arguments.</param>
-        public void ErrorFormat(IFormatProvider formatProvider, string format, params object[] args) => ErrorFormat(format, args);
-
-        /// <summary>
-        /// Errors the format.
-        /// </summary>
-        /// <param name="format">The format.</param>
-        /// <param name="args">The arguments.</param>
-        public void ErrorFormat(string format, params object[] args) => _logger.LogError(format, args);
-
-        /// <summary>
-        /// Fatals the specified object.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        public void Fatal(object obj)
-        {
-            if (obj is string text)
-            {
-                _logger.LogCritical(text);
-            }
-            else
-            {
-                _logger.LogCritical("{obj}", obj);
-            }
-        }
-
-        /// <summary>
-        /// Fatals the specified object.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <param name="exception">The exception.</param>
-        public void Fatal(object obj, Exception exception)
-        {
-            if (obj is string text)
-            {
-                _logger.LogCritical(0, exception, text);
-            }
-            else
-            {
-                _logger.LogCritical(0, exception, "{obj}", obj);
-            }
-        }
-
-        /// <summary>
-        /// Fatals the specified message provider.
-        /// </summary>
-        /// <param name="messageProvider">The message provider.</param>
-        public void Fatal(LogWriterOutputProvider messageProvider)
-        {
-            if (IsFatalEnabled)
-            {
-                System.Diagnostics.Debug.Assert(messageProvider != null, nameof(messageProvider) + " is null.");
-#pragma warning disable CC0031 // Check for null before calling a delegate
-                var @object = messageProvider();
-#pragma warning restore CC0031 // Check for null before calling a delegate
-                Fatal(@object);
-            }
-        }
-
-        /// <summary>
-        /// Fatals the format.
-        /// </summary>
-        /// <param name="formatProvider">The format provider.</param>
-        /// <param name="format">The format.</param>
-        /// <param name="args">The arguments.</param>
-        public void FatalFormat(IFormatProvider formatProvider, string format, params object[] args) => FatalFormat(format, args);
-
-        /// <summary>
-        /// Fatals the format.
-        /// </summary>
-        /// <param name="format">The format.</param>
-        /// <param name="args">The arguments.</param>
-        public void FatalFormat(string format, params object[] args) => _logger.LogCritical(format, args);
-
-        /// <summary>
         /// To the log level.
         /// </summary>
         /// <param name="level">The level.</param>
@@ -424,26 +405,28 @@ namespace Topshelf.Extensions.Logging
             {
                 return LogLevel.Critical;
             }
-            else if (level == LoggingLevel.Error)
+
+            if (level == LoggingLevel.Error)
             {
                 return LogLevel.Error;
             }
-            else if (level == LoggingLevel.Warn)
+
+            if (level == LoggingLevel.Warn)
             {
                 return LogLevel.Warning;
             }
-            else if (level == LoggingLevel.Info)
+
+            if (level == LoggingLevel.Info)
             {
                 return LogLevel.Information;
             }
-            else if (level >= LoggingLevel.Debug)
+
+            if (level >= LoggingLevel.Debug)
             {
                 return LogLevel.Debug;
             }
-            else
-            {
-                return LogLevel.None;
-            }
+
+            return LogLevel.None;
         }
     }
 }

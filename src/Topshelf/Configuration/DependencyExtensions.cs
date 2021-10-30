@@ -10,7 +10,6 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-using System;
 using Topshelf.Configuration.Constants;
 using Topshelf.Configuration.HostConfigurators;
 
@@ -20,20 +19,8 @@ namespace Topshelf.Configuration
     {
         public static IHostConfigurator AddDependency(this IHostConfigurator configurator, string name)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
             var dependencyConfigurator = new DependencyHostConfigurator(name);
-
             configurator.AddConfigurator(dependencyConfigurator);
-
             return configurator;
         }
 

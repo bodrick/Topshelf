@@ -100,27 +100,27 @@ namespace Topshelf.Configuration.CommandLineParser
                 .Or(from element in Argument select element);
         }
 
-        public Parser<string, ICommandLineElement> All { get; private set; }
+        public Parser<string, ICommandLineElement> All { get; }
 
         private static Parser<string, char> AnyChar => input => input.Length > 0
-            ? new Result<string, char>(input[0], input.Substring(1))
+            ? new Result<string, char>(input[0], input[1..])
             : null;
 
-        private Parser<string, ICommandLineElement> Argument { get; set; }
-        private Parser<string, ICommandLineElement> Definition { get; set; }
-        private Parser<string, ICommandLineElement> EmptyDefinition { get; set; }
-        private Parser<string, char> EscChar { get; set; }
-        private Parser<string, string> Id { get; set; }
-        private Parser<string, string> Key { get; set; }
-        private Parser<string, char[]> NewLine { get; set; }
-        private Parser<string, ICommandLineElement> Switch { get; set; }
-        private Parser<string, ICommandLineElement> Token { get; set; }
-        private Parser<string, string> Value { get; set; }
-        private Parser<string, string> ValueInQuotes { get; set; }
-        private Parser<string, char[]> Whitespace { get; set; }
+        private Parser<string, ICommandLineElement> Argument { get; }
+        private Parser<string, ICommandLineElement> Definition { get; }
+        private Parser<string, ICommandLineElement> EmptyDefinition { get; }
+        private Parser<string, char> EscChar { get; }
+        private Parser<string, string> Id { get; }
+        private Parser<string, string> Key { get; }
+        private Parser<string, char[]> NewLine { get; }
+        private Parser<string, ICommandLineElement> Switch { get; }
+        private Parser<string, ICommandLineElement> Token { get; }
+        private Parser<string, string> Value { get; }
+        private Parser<string, string> ValueInQuotes { get; }
+        private Parser<string, char[]> Whitespace { get; }
 
-        private Parser<string, char> Char(char ch) => from c in AnyChar where c == ch select c;
+        private static Parser<string, char> Char(char ch) => from c in AnyChar where c == ch select c;
 
-        private Parser<string, char> Char(Predicate<char> pred) => from c in AnyChar where pred(c) select c;
+        private static Parser<string, char> Char(Predicate<char> predicate) => from c in AnyChar where predicate(c) select c;
     }
 }

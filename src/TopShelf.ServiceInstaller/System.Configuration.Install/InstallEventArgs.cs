@@ -6,8 +6,8 @@ namespace System.Configuration.Install
 
     public class InstallEventArgs
     {
-        public InstallEventArgs(IDictionary savedSate) => SavedSate = savedSate;
+        public InstallEventArgs(IDictionary? savedSate) => SavedSate = savedSate;
 
-        public IDictionary SavedSate { get; }
+        public IDictionary? SavedSate { get; }
     }
 }

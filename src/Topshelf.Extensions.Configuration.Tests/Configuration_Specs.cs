@@ -10,6 +10,7 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,9 @@ using Topshelf.Exceptions;
 using Topshelf.Hosts;
 using Topshelf.Runtime;
 using Topshelf.Runtime.Windows;
+
+// ReSharper disable InconsistentNaming
+// ReSharper disable ThrowExceptionInUnexpectedLocation
 
 namespace Topshelf.Extensions.Configuration.Tests
 {
@@ -49,7 +53,7 @@ namespace Topshelf.Extensions.Configuration.Tests
         }
 
         [Test]
-        public void Should_create_a_service_that_has_stopt_timeout()
+        public void Should_create_a_service_that_has_stop_timeout()
         {
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string> { { "topshelf:StopTimeout", "123" }, })
@@ -155,26 +159,26 @@ namespace Topshelf.Extensions.Configuration.Tests
 
             Assert.IsInstanceOf<ServiceRecoveryOption>(parsedConfiguration);
             var serviceRecoveryOptions = typeof(ServiceRecoveryOption)
-                .GetField("_serviceRecoveryOptions", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .GetField("_serviceRecoveryOptions", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                 .GetValue(parsedConfiguration) as ServiceRecoveryOptions;
 
-            Assert.AreEqual(true, serviceRecoveryOptions.RecoverOnCrashOnly);
+            Assert.AreEqual(true, serviceRecoveryOptions!.RecoverOnCrashOnly);
             Assert.AreEqual(123, serviceRecoveryOptions.ResetPeriod);
 
             var actions = serviceRecoveryOptions.Actions.ToArray();
 
             Assert.IsInstanceOf<RestartServiceRecoveryAction>(actions[0]);
             var restartServiceRecoveryAction = actions[0] as RestartServiceRecoveryAction;
-            Assert.AreEqual(TimeSpan.FromMinutes(1234).TotalMilliseconds, restartServiceRecoveryAction.Delay);
+            Assert.AreEqual(TimeSpan.FromMinutes(1234).TotalMilliseconds, restartServiceRecoveryAction!.Delay);
 
             Assert.IsInstanceOf<RestartSystemRecoveryAction>(actions[1]);
             var restartSystemRecoveryAction = actions[1] as RestartSystemRecoveryAction;
-            Assert.AreEqual(TimeSpan.FromMinutes(4567).TotalMilliseconds, restartSystemRecoveryAction.Delay);
+            Assert.AreEqual(TimeSpan.FromMinutes(4567).TotalMilliseconds, restartSystemRecoveryAction!.Delay);
             Assert.AreEqual("message", restartSystemRecoveryAction.RestartMessage);
 
             Assert.IsInstanceOf<RunProgramRecoveryAction>(actions[2]);
             var runProgramRecoveryAction = actions[2] as RunProgramRecoveryAction;
-            Assert.AreEqual(TimeSpan.FromMinutes(8901).TotalMilliseconds, runProgramRecoveryAction.Delay);
+            Assert.AreEqual(TimeSpan.FromMinutes(8901).TotalMilliseconds, runProgramRecoveryAction!.Delay);
         }
 
         [Test]
@@ -417,14 +421,12 @@ namespace Topshelf.Extensions.Configuration.Tests
                 .GetSection("topshelf");
 
             Assert.Throws<HostConfigurationException>(() =>
-            {
-                var host = HostFactory.New(x =>
+                HostFactory.New(x =>
                 {
                     x.Service<MyService>();
                     x.ApplyConfiguration(configuration);
                     x.ApplyCommandLine("install");
-                });
-            });
+                }));
         }
 
         [Test]
@@ -503,6 +505,7 @@ namespace Topshelf.Extensions.Configuration.Tests
 
             public void UseServiceBuilder(ServiceBuilderFactory serviceBuilderFactory) => throw new NotImplementedException();
         }
+
         private class MyService : IServiceControl
         {
             public bool Continue(IHostControl hostControl) => throw new NotImplementedException();

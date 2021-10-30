@@ -12,6 +12,7 @@
 // specific language governing permissions and limitations under the License.
 using System.Collections;
 using System.Configuration.Install;
+using System.Globalization;
 using Microsoft.Win32;
 using Topshelf.Logging;
 
@@ -19,7 +20,7 @@ namespace Topshelf.Runtime.Windows
 {
     public class HostInstaller : Installer
     {
-        private static readonly ILogWriter _log = HostLogger.Get<HostInstaller>();
+        private static readonly ILogWriter Log = HostLogger.Get<HostInstaller>();
         private readonly string _arguments;
         private readonly Installer[] _installers;
         private readonly IHostSettings _settings;
@@ -35,48 +36,48 @@ namespace Topshelf.Runtime.Windows
         {
             Installers.AddRange(_installers);
 
-            if (_log.IsInfoEnabled)
+            if (Log.IsInfoEnabled)
             {
-                _log.InfoFormat("Installing {0} service", _settings.DisplayName);
+                Log.InfoFormat(CultureInfo.CurrentCulture, "Installing {0} service", _settings.DisplayName);
             }
 
             base.Install(stateSaver);
 
-            if (_log.IsDebugEnabled)
+            if (Log.IsDebugEnabled)
             {
-                _log.Debug("Opening Registry");
+                Log.Debug("Opening Registry");
             }
 
             using (var system = Registry.LocalMachine.OpenSubKey("System"))
-            using (var currentControlSet = system.OpenSubKey("CurrentControlSet"))
-            using (var services = currentControlSet.OpenSubKey("Services"))
-            using (var service = services.OpenSubKey(_settings.ServiceName, true))
+            using (var currentControlSet = system?.OpenSubKey("CurrentControlSet"))
+            using (var services = currentControlSet?.OpenSubKey("Services"))
+            using (var service = services?.OpenSubKey(_settings.ServiceName, true))
             {
-                service.SetValue("Description", _settings.Description);
-
-                var imagePath = (string)service.GetValue("ImagePath");
-
-                _log.DebugFormat("Service path: {0}", imagePath);
-
-                imagePath += _arguments;
-
-                _log.DebugFormat("Image path: {0}", imagePath);
-
-                service.SetValue("ImagePath", imagePath);
+                if (service != null)
+                {
+                    service.SetValue("Description", _settings.Description);
+                    if (service.GetValue("ImagePath") is string imagePath)
+                    {
+                        Log.DebugFormat(CultureInfo.CurrentCulture, "Service path: {0}", imagePath);
+                        imagePath += _arguments;
+                        Log.DebugFormat(CultureInfo.CurrentCulture, "Image path: {0}", imagePath);
+                        service.SetValue("ImagePath", imagePath);
+                    }
+                }
             }
 
-            if (_log.IsDebugEnabled)
+            if (Log.IsDebugEnabled)
             {
-                _log.Debug("Closing Registry");
+                Log.Debug("Closing Registry");
             }
         }
 
-        public override void Uninstall(IDictionary savedState)
+        public override void Uninstall(IDictionary? savedState)
         {
             Installers.AddRange(_installers);
-            if (_log.IsInfoEnabled)
+            if (Log.IsInfoEnabled)
             {
-                _log.InfoFormat("Uninstalling {0} service", _settings.Name);
+                Log.InfoFormat(CultureInfo.CurrentCulture, "Uninstalling {0} service", _settings.Name);
             }
 
             base.Uninstall(savedState);

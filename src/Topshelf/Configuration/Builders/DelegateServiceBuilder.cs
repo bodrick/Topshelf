@@ -61,7 +61,7 @@ namespace Topshelf.Configuration.Builders
             }
         }
 
-        private class DelegateServiceHandle : IServiceHandle
+        private sealed class DelegateServiceHandle : IServiceHandle
         {
             private readonly Func<T, IHostControl, bool> _continue;
             private readonly Action<T, IHostControl, int> _customCommand;

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.ComponentModel;
 using System.Configuration.Install;
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -8,71 +9,76 @@ using System.Threading;
 
 namespace System.ServiceProcess
 {
+    /// <summary>Installs a class that extends <see cref="ServiceBase" /> to implement a service. This class is called by the install utility when installing a service application.</summary>
     public class ServiceInstaller : ComponentInstaller
     {
         private const string LocalServiceName = "NT AUTHORITY\\LocalService";
         private const string NetworkServiceName = "NT AUTHORITY\\NetworkService";
-        //private EventLogInstaller eventLogInstaller;
-
         private static bool _environmentChecked;
-        private static bool isWin9x;
-        private string _serviceName = "";
-
+        private static bool _isWin9X;
+        private readonly EventLogInstaller _eventLogInstaller;
+        private string _serviceName = string.Empty;
         private ServiceStartMode _startType = ServiceStartMode.Manual;
 
         /// <summary>Initializes a new instance of the <see cref="ServiceInstaller" /> class.</summary>
         public ServiceInstaller()
         {
-            //this.eventLogInstaller = new EventLogInstaller();
-            //this.eventLogInstaller.Log = "Application";
-            //this.eventLogInstaller.Source = "";
-            //this.eventLogInstaller.UninstallAction = UninstallAction.Remove;
-            //base.Installers.Add(this.eventLogInstaller);
+            // Create an EventLogInstaller and add it to our Installers collection to take
+            // care of the service's EventLog property.
+            _eventLogInstaller = new EventLogInstaller
+            {
+                Log = "Application",
+                // we change these two later when our own properties are set.
+                Source = "",
+                UninstallAction = UninstallAction.Remove
+            };
+
+            Installers.Add(_eventLogInstaller);
         }
 
         /// <summary>Gets or sets a value that indicates whether the service should be delayed from starting until other automatically started services are running.</summary>
         /// <returns>true to delay automatic start of the service; otherwise, false. The default is false.</returns>
         [DefaultValue(false)]
-        [ServiceProcessDescription("ServiceInstallerDelayedAutoStart")]
+        [ServiceProcessDescription(Res.ServiceProcessInstallerAccount)]
         public bool DelayedAutoStart { get; set; }
 
         /// <summary>Gets or sets the description for the service.</summary>
         /// <returns>The description of the service. The default is an empty string ("").</returns>
         [DefaultValue("")]
         [ComVisible(false)]
-        [ServiceProcessDescription("ServiceInstallerDescription")]
-        public string Description { get; set; } = "";
+        [ServiceProcessDescription(Res.ServiceInstallerDescription)]
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>Indicates the friendly name that identifies the service to the user.</summary>
         /// <returns>The name associated with the service, used frequently for interactive tools.</returns>
         [DefaultValue("")]
-        [ServiceProcessDescription("ServiceInstallerDisplayName")]
-        public string DisplayName { get; set; } = "";
+        [ServiceProcessDescription(Res.ServiceInstallerDisplayName)]
+        public string DisplayName { get; init; } = string.Empty;
 
         /// <summary>Indicates the name used by the system to identify this service. This property must be identical to the <see cref="ServiceBase.ServiceName" /> of the service you want to install.</summary>
         /// <returns>The name of the service to be installed. This value must be set before the install utility attempts to install the service.</returns>
         /// <exception cref="ArgumentException">The <see cref="ServiceName" /> property is invalid. </exception>
         [DefaultValue("")]
         [TypeConverter("System.Diagnostics.Design.StringValueConverter, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
-        [ServiceProcessDescription("ServiceInstallerServiceName")]
+        [ServiceProcessDescription(Res.ServiceInstallerServiceName)]
         public string ServiceName
         {
             get => _serviceName;
             set
             {
-                if (!ServiceControllerExtensions.ValidServiceName(value))
+                if (!ValidateServiceName(value))
                 {
-                    throw new ArgumentException(Res.GetString("ServiceName", value, 80.ToString(CultureInfo.CurrentCulture)));
+                    throw new ArgumentException(Res.GetString(Res.ServiceName, value, ServiceBase.MaxNameLength.ToString(CultureInfo.CurrentCulture)));
                 }
                 _serviceName = value;
-                //this.eventLogInstaller.Source = value;
+                _eventLogInstaller.Source = value;
             }
         }
 
         /// <summary>Indicates the services that must be running for this service to run.</summary>
         /// <returns>An array of services that must be running before the service associated with this installer can run.</returns>
-        [ServiceProcessDescription("ServiceInstallerServicesDependedOn")]
-        public string[] ServicesDependedOn { get; set; } = Array.Empty<string>();
+        [ServiceProcessDescription(Res.ServiceInstallerServicesDependedOn)]
+        public string[] ServicesDependedOn { get; init; } = Array.Empty<string>();
 
         /// <summary>Indicates how and when this service is started.</summary>
         /// <returns>A <see cref="ServiceStartMode" /> that represents the way the service is started. The default is Manual, which specifies that the service will not automatically start after reboot.</returns>
@@ -82,7 +88,7 @@ namespace System.ServiceProcess
         /// </PermissionSet>
         /// <exception cref="ArgumentException"></exception>
         [DefaultValue(ServiceStartMode.Manual)]
-        [ServiceProcessDescription("ServiceInstallerStartType")]
+        [ServiceProcessDescription(Res.ServiceInstallerStartType)]
         public ServiceStartMode StartType
         {
             get => _startType;
@@ -97,7 +103,7 @@ namespace System.ServiceProcess
                     _startType = value;
                     return;
                 }
-                throw new ArgumentException(Res.GetString("ServiceStartType", value));
+                throw new ArgumentException(Res.GetString(Res.ServiceStartType, value));
             }
         }
 
@@ -108,7 +114,7 @@ namespace System.ServiceProcess
         {
             if (component is not ServiceBase serviceBase)
             {
-                throw new ArgumentException(Res.GetString("NotAService"));
+                throw new ArgumentException(Res.GetString(Res.NotAService));
             }
 
             ServiceName = serviceBase.ServiceName;
@@ -126,125 +132,154 @@ namespace System.ServiceProcess
         /// </PermissionSet>
         public override void Install(IDictionary stateSaver)
         {
-            Context?.LogMessage(Res.GetString("InstallingService", ServiceName));
+            Context?.LogMessage(Res.GetString(Res.InstallingService, ServiceName));
             try
             {
                 CheckEnvironment();
-                string? servicesStartName = null;
+                string? username = null;
                 string? password = null;
-                ServiceProcessInstaller? serviceProcessInstaller = null;
-                if (Parent is ServiceProcessInstaller serviceProcessInstaller2)
+                // find the ServiceProcessInstaller for our process. It's either the
+                // parent or one of our peers in the parent's Installers collection.
+                ServiceProcessInstaller? processInstaller = null;
+                if (Parent is ServiceProcessInstaller serviceProcessInstaller)
                 {
-                    serviceProcessInstaller = serviceProcessInstaller2;
+                    processInstaller = serviceProcessInstaller;
                 }
-                else
+                else if (Parent?.Installers != null)
                 {
-                    var num = 0;
-                    while (num < Parent.Installers.Count)
+                    foreach (var installer in Parent.Installers)
                     {
-                        if (Parent.Installers[num] is not ServiceProcessInstaller)
+                        if (installer is ServiceProcessInstaller serviceProcessInstaller3)
                         {
-                            num++;
-                            continue;
+                            processInstaller = serviceProcessInstaller3;
+                            break;
                         }
-                        serviceProcessInstaller = (ServiceProcessInstaller)Parent.Installers[num];
-                        break;
                     }
                 }
-                if (serviceProcessInstaller == null)
+                if (processInstaller == null)
                 {
-                    throw new InvalidOperationException(Res.GetString("NoInstaller"));
+                    throw new InvalidOperationException(Res.GetString(Res.NoInstaller));
                 }
-                switch (serviceProcessInstaller.Account)
+                switch (processInstaller.Account)
                 {
                     case ServiceAccount.LocalService:
-                        servicesStartName = "NT AUTHORITY\\LocalService";
+                        username = LocalServiceName;
                         break;
 
                     case ServiceAccount.NetworkService:
-                        servicesStartName = "NT AUTHORITY\\NetworkService";
+                        username = NetworkServiceName;
                         break;
 
                     case ServiceAccount.User:
-                        servicesStartName = serviceProcessInstaller.Username;
-                        password = serviceProcessInstaller.Password;
+                        username = processInstaller.Username;
+                        password = processInstaller.Password;
                         break;
                 }
-                var text = Context?.Parameters["assemblypath"];
-                if (string.IsNullOrEmpty(text))
+
+                // check all our parameters
+                var moduleFileName = Context?.Parameters["assemblypath"];
+                if (string.IsNullOrEmpty(moduleFileName))
                 {
-                    throw new InvalidOperationException(Res.GetString("FileName"));
+                    throw new InvalidOperationException(Res.GetString(Res.FileName));
                 }
-                if (!text.Contains('"'))
+
+                // Put quotas around module file name. Otherwise a service might fail to start if there is space in the path.
+                // Note: Though CreateService accepts a binaryPath allowing
+                // arguments for automatic services, in /assemblypath=foo,
+                // foo is simply the path to the executable.
+                // Therefore, it is best to quote if there are no quotes,
+                // and best to not quote if there are quotes.
+                if (!moduleFileName.Contains('"'))
                 {
-                    text = "\"" + text + "\"";
+                    moduleFileName = "\"" + moduleFileName + "\"";
                 }
                 if (!ValidateServiceName(ServiceName))
                 {
-                    throw new InvalidOperationException(Res.GetString("ServiceName", ServiceName, 80.ToString(CultureInfo.CurrentCulture)));
+                    // Event Log cannot be used here, since the service doesn't exist yet.
+                    throw new InvalidOperationException(Res.GetString(Res.ServiceName, ServiceName, ServiceBase.MaxNameLength.ToString(CultureInfo.CurrentCulture)));
                 }
+
+                // Check DisplayName length.
                 if (DisplayName.Length > 255)
                 {
-                    throw new ArgumentException(Res.GetString("DisplayNameTooLong", DisplayName));
+                    // MSDN suggests that 256 is the max length, but in
+                    // fact anything over 255 causes problems.
+                    throw new ArgumentException(Res.GetString(Res.DisplayNameTooLong, DisplayName));
                 }
-                string? dependencies = null;
+
+                string? servicesDependedOn = null;
                 if (ServicesDependedOn.Length != 0)
                 {
                     var stringBuilder = new StringBuilder();
-                    foreach (var t in ServicesDependedOn)
+                    foreach (var serviceName in ServicesDependedOn)
                     {
-                        var text2 = t;
+                        // we have to build a list of the services' short names. But the user
+                        // might have used long names in the ServicesDependedOn property. Try
+                        // to use ServiceController's logic to get the short name.
+                        var tempServiceName = serviceName;
                         try
                         {
-                            text2 = new ServiceController(text2, ".").ServiceName;
+                            tempServiceName = new ServiceController(tempServiceName, ".").ServiceName;
                         }
                         catch
                         {
                             // Ignore
                         }
-                        stringBuilder.Append(text2)
-                            .Append('\0');
+                        //The servicesDependedOn need to be separated by a null
+                        stringBuilder.Append(tempServiceName).Append('\0');
                     }
                     stringBuilder.Append('\0');
-                    dependencies = stringBuilder.ToString();
+                    servicesDependedOn = stringBuilder.ToString();
                 }
-                var intPtr = SafeNativeMethods.OpenSCManager(null, null, 983103);
-                var intPtr2 = IntPtr.Zero;
-                if (intPtr == IntPtr.Zero)
+
+                // Open the service manager
+                var serviceManagerHandle = SafeNativeMethods.OpenSCManager(null, null, (uint)NativeMethods.SCM_ACCESS.SC_MANAGER_ALL_ACCESS);
+                var serviceHandle = IntPtr.Zero;
+                if (serviceManagerHandle == IntPtr.Zero)
                 {
-                    throw new InvalidOperationException(Res.GetString("OpenSC", "."), new Win32Exception());
+                    throw new InvalidOperationException(Res.GetString(Res.OpenSC, "."), new Win32Exception());
                 }
                 var serviceType = 16;
-                var num2 = 0;
-                foreach (var t in Parent.Installers)
+                // count the number of UserNTServiceInstallers. More than one means we set the SHARE_PROCESS flag.
+                var serviceInstallerCount = 0;
+                if (Parent?.Installers != null)
                 {
-                    if (t is ServiceInstaller)
+                    foreach (var installer in Parent.Installers)
                     {
-                        num2++;
-                        if (num2 > 1)
+                        if (installer is ServiceInstaller)
                         {
-                            break;
+                            serviceInstallerCount++;
+                            if (serviceInstallerCount > 1)
+                            {
+                                break;
+                            }
                         }
                     }
                 }
-                if (num2 > 1)
+
+                if (serviceInstallerCount > 1)
                 {
                     serviceType = 32;
                 }
                 try
                 {
-                    intPtr2 = NativeMethods.CreateService(intPtr, ServiceName, DisplayName, 983551, serviceType, (int)StartType, 1, text, null, IntPtr.Zero, dependencies, servicesStartName, password);
-                    if (intPtr2 == IntPtr.Zero)
+                    // Install the service
+                    serviceHandle = NativeMethods.CreateService(serviceManagerHandle, ServiceName, DisplayName, 983551, serviceType, (int)StartType, 1, moduleFileName, null, IntPtr.Zero, servicesDependedOn, username, password);
+                    if (serviceHandle == IntPtr.Zero)
                     {
                         throw new Win32Exception();
                     }
+
+                    // A local variable in an unsafe method is already fixed -- so we don't need a "fixed { }" blocks to protect
+                    // across the p/invoke calls below.
+
                     if (Description.Length != 0)
                     {
                         var serviceDescription = default(NativeMethods.SERVICE_DESCRIPTION);
                         serviceDescription.description = Marshal.StringToHGlobalUni(Description);
-                        var num3 = NativeMethods.ChangeServiceConfig2(intPtr2, 1u, ref serviceDescription);
+                        var success = NativeMethods.ChangeServiceConfig2(serviceHandle, 1u, ref serviceDescription);
                         Marshal.FreeHGlobal(serviceDescription.description);
-                        if (!num3)
+                        if (!success)
                         {
                             throw new Win32Exception();
                         }
@@ -253,7 +288,7 @@ namespace System.ServiceProcess
                     {
                         var serviceDelayedAutoStartInfo = default(NativeMethods.SERVICE_DELAYED_AUTOSTART_INFO);
                         serviceDelayedAutoStartInfo.fDelayedAutostart = DelayedAutoStart;
-                        if (!NativeMethods.ChangeServiceConfig2(intPtr2, 3u, ref serviceDelayedAutoStartInfo))
+                        if (!NativeMethods.ChangeServiceConfig2(serviceHandle, 3u, ref serviceDelayedAutoStartInfo))
                         {
                             throw new Win32Exception();
                         }
@@ -262,13 +297,13 @@ namespace System.ServiceProcess
                 }
                 finally
                 {
-                    if (intPtr2 != IntPtr.Zero)
+                    if (serviceHandle != IntPtr.Zero)
                     {
-                        SafeNativeMethods.CloseServiceHandle(intPtr2);
+                        SafeNativeMethods.CloseServiceHandle(serviceHandle);
                     }
-                    SafeNativeMethods.CloseServiceHandle(intPtr);
+                    SafeNativeMethods.CloseServiceHandle(serviceManagerHandle);
                 }
-                Context?.LogMessage(Res.GetString("InstallOK", ServiceName));
+                Context?.LogMessage(Res.GetString(Res.InstallOK, ServiceName));
             }
             finally
             {
@@ -295,7 +330,7 @@ namespace System.ServiceProcess
         ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode" />
         ///   <IPermission class="System.ServiceProcess.ServiceControllerPermission, System.ServiceProcess, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" version="1" Unrestricted="true" />
         /// </PermissionSet>
-        public override void Rollback(IDictionary savedState)
+        protected override void Rollback(IDictionary savedState)
         {
             base.Rollback(savedState);
             var obj = savedState["installed"];
@@ -313,7 +348,7 @@ namespace System.ServiceProcess
         ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode" />
         ///   <IPermission class="System.ServiceProcess.ServiceControllerPermission, System.ServiceProcess, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" version="1" Unrestricted="true" />
         /// </PermissionSet>
-        public override void Uninstall(IDictionary savedState)
+        public override void Uninstall(IDictionary? savedState)
         {
             base.Uninstall(savedState);
             RemoveService();
@@ -323,19 +358,19 @@ namespace System.ServiceProcess
         {
             if (_environmentChecked)
             {
-                if (!isWin9x)
+                if (!_isWin9X)
                 {
                     return;
                 }
-                throw new PlatformNotSupportedException(Res.GetString("CantControlOnWin9x"));
+                throw new PlatformNotSupportedException(Res.GetString(Res.CantControlOnWin9x));
             }
-            isWin9x = Environment.OSVersion.Platform != PlatformID.Win32NT;
+            _isWin9X = Environment.OSVersion.Platform != PlatformID.Win32NT;
             _environmentChecked = true;
-            if (!isWin9x)
+            if (!_isWin9X)
             {
                 return;
             }
-            throw new PlatformNotSupportedException(Res.GetString("CantInstallOnWin9x"));
+            throw new PlatformNotSupportedException(Res.GetString(Res.CantInstallOnWin9x));
         }
 
         private static bool ValidateServiceName(string name)
@@ -356,45 +391,55 @@ namespace System.ServiceProcess
 
         private void RemoveService()
         {
-            Context?.LogMessage(Res.GetString("ServiceRemoving", ServiceName));
-            var intPtr = SafeNativeMethods.OpenSCManager(null, null, 983103);
-            if (intPtr == IntPtr.Zero)
+            //
+            // SCUM deletes a service when the Service is stopped and there is no open handle to the Service.
+            // Service will be deleted asynchronously, so it takes a while for the deletion to be complete.
+            // The recommended way to delete a Service is:
+            // (a)  DeleteService/closehandle,
+            // (b) Stop service & wait until it is stopped & close handle
+            // (c)  Wait for 5-10 secs for the async deletion to go through.
+            //
+            Context?.LogMessage(Res.GetString(Res.ServiceRemoving, ServiceName));
+            var serviceManagerHandle = SafeNativeMethods.OpenSCManager(null, null, (uint)NativeMethods.SCM_ACCESS.SC_MANAGER_ALL_ACCESS);
+            if (serviceManagerHandle == IntPtr.Zero)
             {
                 throw new Win32Exception();
             }
-            var intPtr2 = IntPtr.Zero;
+            var serviceHandle = IntPtr.Zero;
             try
             {
-                intPtr2 = NativeMethods.OpenService(intPtr, ServiceName, 65536);
-                if (intPtr2 == IntPtr.Zero)
+                serviceHandle = NativeMethods.OpenService(serviceManagerHandle, ServiceName, 65536);
+                if (serviceHandle == IntPtr.Zero)
                 {
                     throw new Win32Exception();
                 }
-                NativeMethods.DeleteService(intPtr2);
+                NativeMethods.DeleteService(serviceHandle);
             }
             finally
             {
-                if (intPtr2 != IntPtr.Zero)
+                if (serviceHandle != IntPtr.Zero)
                 {
-                    SafeNativeMethods.CloseServiceHandle(intPtr2);
+                    SafeNativeMethods.CloseServiceHandle(serviceHandle);
                 }
-                SafeNativeMethods.CloseServiceHandle(intPtr);
+                SafeNativeMethods.CloseServiceHandle(serviceManagerHandle);
             }
-            Context?.LogMessage(Res.GetString("ServiceRemoved", ServiceName));
+            Context?.LogMessage(Res.GetString(Res.ServiceRemoved, ServiceName));
+
+            // Stop the service
             try
             {
                 using var serviceController = new ServiceController(ServiceName);
                 if (serviceController.Status != ServiceControllerStatus.Stopped)
                 {
-                    Context?.LogMessage(Res.GetString("TryToStop", ServiceName));
+                    Context?.LogMessage(Res.GetString(Res.TryToStop, ServiceName));
                     serviceController.Stop();
-                    var num = 10;
+                    var timeout = 10;
                     serviceController.Refresh();
-                    while (serviceController.Status != ServiceControllerStatus.Stopped && num > 0)
+                    while (serviceController.Status != ServiceControllerStatus.Stopped && timeout > 0)
                     {
                         Thread.Sleep(1000);
                         serviceController.Refresh();
-                        num--;
+                        timeout--;
                     }
                 }
             }
@@ -403,15 +448,6 @@ namespace System.ServiceProcess
                 // Ignore
             }
             Thread.Sleep(5000);
-        }
-
-        private bool ShouldSerializeServicesDependedOn()
-        {
-            if (ServicesDependedOn != null && ServicesDependedOn.Length != 0)
-            {
-                return true;
-            }
-            return false;
         }
     }
 }

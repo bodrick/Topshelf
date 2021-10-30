@@ -19,15 +19,10 @@ namespace Topshelf.Configuration.Builders
 {
     public class TestBuilder : IHostBuilder
     {
-        private static readonly ILogWriter _log = HostLogger.Get<TestBuilder>();
+        private static readonly ILogWriter Log = HostLogger.Get<TestBuilder>();
 
         public TestBuilder(IHostEnvironment environment, IHostSettings settings)
         {
-            if (settings == null)
-            {
-                throw new ArgumentNullException(nameof(settings));
-            }
-
             Environment = environment;
             Settings = settings;
         }
@@ -36,10 +31,9 @@ namespace Topshelf.Configuration.Builders
 
         public IHostSettings Settings { get; }
 
-        public virtual IHost Build(IServiceBuilder serviceBuilder)
+        public IHost Build(IServiceBuilder serviceBuilder)
         {
             var serviceHandle = serviceBuilder.Build(Settings);
-
             return CreateHost(serviceHandle);
         }
 
@@ -50,8 +44,7 @@ namespace Topshelf.Configuration.Builders
                 throw new ArgumentNullException(nameof(callback));
             }
 
-            var self = this as T;
-            if (self != null)
+            if (this is T self)
             {
                 callback(self);
             }
@@ -59,7 +52,7 @@ namespace Topshelf.Configuration.Builders
 
         private IHost CreateHost(IServiceHandle serviceHandle)
         {
-            _log.Debug("Running as a test host.");
+            Log.Debug("Running as a test host.");
             return new TestHost(Settings, Environment, serviceHandle);
         }
     }

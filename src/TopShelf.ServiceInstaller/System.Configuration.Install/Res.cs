@@ -1,8 +1,11 @@
-// System.Configuration.Install.Res
 using System.Globalization;
 using System.Resources;
 using System.Threading;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable IdentifierTypo
+
+#pragma warning disable S101, IDE1006, CA1069, RCS1234, RCS1157
 namespace System.Configuration.Install
 {
     internal sealed class Res
@@ -110,26 +113,22 @@ namespace System.Configuration.Install
 
         private readonly ResourceManager? _resources;
 
-        internal Res() => _resources = new ResourceManager("System.Configuration.Install", GetType().Assembly);
+        private Res() => _resources = new ResourceManager("System.Configuration.Install", GetType().Assembly);
 
-        public static ResourceManager? Resources => GetLoader()?._resources;
+        public static ResourceManager? Resources => GetLoader()._resources;
         private static CultureInfo? Culture => null;
 
         public static object? GetObject(string name)
         {
             var res = GetLoader();
-            return res?._resources?.GetObject(name, Culture);
+            return res._resources?.GetObject(name, Culture);
         }
 
         public static string? GetString(string name, params object[] args)
         {
             var res = GetLoader();
-            if (res == null)
-            {
-                return null;
-            }
-            var @string = res._resources?.GetString(name, Culture);
-            if (args.Length != 0)
+            var getString = res._resources?.GetString(name, Culture);
+            if (args.Length != 0 && !string.IsNullOrEmpty(getString))
             {
                 for (var i = 0; i < args.Length; i++)
                 {
@@ -138,31 +137,32 @@ namespace System.Configuration.Install
                         args[i] = text[..1021] + "...";
                     }
                 }
-                return string.Format(CultureInfo.CurrentCulture, @string, args);
+                return string.Format(CultureInfo.CurrentCulture, getString, args);
             }
-            return @string;
+            return getString;
         }
 
-        public static string? GetString(string name)
+        public static string GetString(string name)
         {
             var res = GetLoader();
-            return res?._resources?.GetString(name, Culture);
+            return res._resources?.GetString(name, Culture) ?? string.Empty;
         }
 
-        public static string? GetString(string name, out bool usedFallback)
+        public static string GetString(string name, out bool usedFallback)
         {
             usedFallback = false;
             return GetString(name);
         }
 
-        private static Res? GetLoader()
+        private static Res GetLoader()
         {
             if (_loader == null)
             {
                 var value = new Res();
-                Interlocked.CompareExchange<Res>(ref _loader, value, null);
+                Interlocked.CompareExchange(ref _loader, value, null);
             }
             return _loader;
         }
     }
 }
+#pragma warning restore S101, IDE1006, CA1069, RCS1234, RCS1157

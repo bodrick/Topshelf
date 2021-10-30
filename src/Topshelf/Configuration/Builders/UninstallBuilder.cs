@@ -42,16 +42,14 @@ namespace Topshelf.Configuration.Builders
 
         public IHost Build(IServiceBuilder serviceBuilder) => new UninstallHost(Environment, Settings, _preActions, _postActions, _sudo);
 
-        public void Match<T>(Action<T> callback)
-            where T : class, IHostBuilder
+        public void Match<T>(Action<T> callback) where T : class, IHostBuilder
         {
             if (callback == null)
             {
                 throw new ArgumentNullException(nameof(callback));
             }
 
-            var self = this as T;
-            if (self != null)
+            if (this is T self)
             {
                 callback(self);
             }

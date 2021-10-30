@@ -17,150 +17,80 @@ namespace Topshelf.Configuration
 {
     public static class ServiceConfiguratorExtensions
     {
-        public static IServiceConfigurator<T> ConstructUsing<T>(this IServiceConfigurator<T> configurator, Func<T> factory)
+        public static IServiceConfigurator<T> ConstructUsing<T>(this IServiceConfigurator<T> configurator, Func<T> factory) where T : class
+        {
+            configurator.ConstructUsing(_ => factory());
+            return configurator;
+        }
+
+        public static IServiceConfigurator<T> ConstructUsing<T>(this IServiceConfigurator<T> configurator, Func<string, T> factory)
             where T : class
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
+            configurator.ConstructUsing(_ => factory(typeof(T).Name));
+            return configurator;
+        }
 
-            configurator.ConstructUsing(settings => factory());
+        public static IServiceConfigurator<T> WhenContinued<T>(this IServiceConfigurator<T> configurator, Action<T> callback)
+            where T : class
+        {
+            configurator.WhenContinued((service, _) =>
+            {
+                callback(service);
+                return true;
+            });
 
             return configurator;
         }
 
-        public static IServiceConfigurator<T> ConstructUsing<T>(this IServiceConfigurator<T> configurator,
-            Func<string, T> factory)
-            where T : class
+        public static IServiceConfigurator<T> WhenPaused<T>(this IServiceConfigurator<T> configurator, Action<T> callback) where T : class
         {
-            if (configurator == null)
+            configurator.WhenPaused((service, _) =>
             {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.ConstructUsing(settings => factory(typeof(T).Name));
-
-            return configurator;
-        }
-
-        public static IServiceConfigurator<T> WhenContinued<T>(this IServiceConfigurator<T> configurator,
-            Action<T> callback)
-            where T : class
-        {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.WhenContinued((service, control) =>
-                {
-                    callback(service);
-
-                    return true;
-                });
-
-            return configurator;
-        }
-
-        public static IServiceConfigurator<T> WhenPaused<T>(this IServiceConfigurator<T> configurator, Action<T> callback)
-            where T : class
-        {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.WhenPaused((service, control) =>
-                {
-                    callback(service);
-
-                    return true;
-                });
+                callback(service);
+                return true;
+            });
 
             return configurator;
         }
 
         public static IServiceConfigurator<T> WhenPowerEvent<T>(this IServiceConfigurator<T> configurator,
-            Func<T, IPowerEventArguments, bool> callback)
-            where T : class
+            Func<T, IPowerEventArguments, bool> callback) where T : class
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.WhenPowerEvent((service, control, arguments) => callback(service, arguments));
-
+            configurator.WhenPowerEvent((service, _, arguments) => callback(service, arguments));
             return configurator;
         }
 
         public static IServiceConfigurator<T> WhenSessionChanged<T>(this IServiceConfigurator<T> configurator,
-           Action<T, ISessionChangedArguments> callback)
-           where T : class
+            Action<T, ISessionChangedArguments> callback) where T : class
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
+            configurator.WhenSessionChanged((service, _, arguments) => callback(service, arguments));
+            return configurator;
+        }
 
-            configurator.WhenSessionChanged((service, control, arguments) =>
-           {
-               callback(service, arguments);
-           });
+        public static IServiceConfigurator<T> WhenShutdown<T>(this IServiceConfigurator<T> configurator, Action<T> callback) where T : class
+        {
+            configurator.WhenShutdown((service, _) => callback(service));
+            return configurator;
+        }
+
+        public static IServiceConfigurator<T> WhenStarted<T>(this IServiceConfigurator<T> configurator, Action<T> callback) where T : class
+        {
+            configurator.WhenStarted((service, _) =>
+            {
+                callback(service);
+                return true;
+            });
 
             return configurator;
         }
 
-        public static IServiceConfigurator<T> WhenShutdown<T>(this IServiceConfigurator<T> configurator,
-            Action<T> callback)
-            where T : class
+        public static IServiceConfigurator<T> WhenStopped<T>(this IServiceConfigurator<T> configurator, Action<T> callback) where T : class
         {
-            if (configurator == null)
+            configurator.WhenStopped((service, _) =>
             {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.WhenShutdown((service, control) =>
-                {
-                    callback(service);
-                });
-
-            return configurator;
-        }
-
-        public static IServiceConfigurator<T> WhenStarted<T>(this IServiceConfigurator<T> configurator, Action<T> callback)
-                                                    where T : class
-        {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.WhenStarted((service, control) =>
-                {
-                    callback(service);
-
-                    return true;
-                });
-
-            return configurator;
-        }
-
-        public static IServiceConfigurator<T> WhenStopped<T>(this IServiceConfigurator<T> configurator, Action<T> callback)
-            where T : class
-        {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.WhenStopped((service, control) =>
-                {
-                    callback(service);
-
-                    return true;
-                });
+                callback(service);
+                return true;
+            });
 
             return configurator;
         }

@@ -23,32 +23,40 @@ namespace Topshelf.Configuration
     {
         public static class AssemblyExtensions
         {
-            public static T GetAttribute<T>(this Assembly assembly)
-                where T : Attribute => assembly.GetCustomAttributes(typeof(T), false)
-                               .Cast<T>()
-                               .FirstOrDefault();
+            public static T? GetAttribute<T>(this Assembly assembly) where T : Attribute =>
+                assembly.GetCustomAttributes(typeof(T), false)
+                    .Cast<T>()
+                    .FirstOrDefault();
 
-            public static string ToServiceNameSafeString(this string input) => input == null ? null : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input).Replace(" ", string.Empty);
+            public static string ToServiceNameSafeString(this string input) =>
+                CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input).Replace(" ", string.Empty);
 
-            public static Return TryGetProperty<Input, Return>(this Input attribute, Func<Input, Return> accessor)
-                            where Input : Attribute
-            {
-                if (attribute == null)
-                {
-                    return default(Return);
-                }
-
-                return accessor(attribute);
-            }
+            public static TReturn TryGetProperty<TInput, TReturn>(this TInput attribute, Func<TInput, TReturn> accessor)
+                where TInput : Attribute => accessor(attribute);
         }
     }
+
     public static class HostConfiguratorExtensions
     {
-        public static void UseAssemblyInfoForServiceInfo(this IHostConfigurator hostConfigurator, Assembly assembly)
+        public static void UseAssemblyInfoForServiceInfo(this IHostConfigurator hostConfigurator, Assembly? assembly)
         {
-            hostConfigurator.SetDisplayName(assembly.GetAttribute<AssemblyTitleAttribute>().TryGetProperty(x => x.Title));
-            hostConfigurator.SetServiceName(assembly.GetAttribute<AssemblyTitleAttribute>().TryGetProperty(x => x.Title).ToServiceNameSafeString());
-            hostConfigurator.SetDescription(assembly.GetAttribute<AssemblyDescriptionAttribute>().TryGetProperty(x => x.Description));
+            if (assembly is null)
+            {
+                return;
+            }
+
+            var assemblyTitleAttribute = assembly.GetAttribute<AssemblyTitleAttribute>();
+            if (assemblyTitleAttribute != null)
+            {
+                hostConfigurator.SetDisplayName(assemblyTitleAttribute.TryGetProperty(x => x.Title));
+                hostConfigurator.SetServiceName(assemblyTitleAttribute.TryGetProperty(x => x.Title).ToServiceNameSafeString());
+            }
+
+            var assemblyDescriptionAttribute = assembly.GetAttribute<AssemblyDescriptionAttribute>();
+            if (assemblyDescriptionAttribute != null)
+            {
+                hostConfigurator.SetDescription(assemblyDescriptionAttribute.TryGetProperty(x => x.Description));
+            }
         }
 
         public static void UseAssemblyInfoForServiceInfo(this IHostConfigurator hostConfigurator) => hostConfigurator.UseAssemblyInfoForServiceInfo(Assembly.GetEntryAssembly());

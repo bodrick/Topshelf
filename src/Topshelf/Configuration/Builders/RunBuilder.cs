@@ -19,15 +19,10 @@ namespace Topshelf.Configuration.Builders
 {
     public class RunBuilder : IHostBuilder
     {
-        private static readonly ILogWriter _log = HostLogger.Get<RunBuilder>();
+        private static readonly ILogWriter Log = HostLogger.Get<RunBuilder>();
 
         public RunBuilder(IHostEnvironment environment, IHostSettings settings)
         {
-            if (settings == null)
-            {
-                throw new ArgumentNullException(nameof(settings));
-            }
-
             Environment = environment;
             Settings = settings;
         }
@@ -36,10 +31,9 @@ namespace Topshelf.Configuration.Builders
 
         public IHostSettings Settings { get; }
 
-        public virtual IHost Build(IServiceBuilder serviceBuilder)
+        public IHost Build(IServiceBuilder serviceBuilder)
         {
             var serviceHandle = serviceBuilder.Build(Settings);
-
             return CreateHost(serviceHandle);
         }
 
@@ -60,11 +54,11 @@ namespace Topshelf.Configuration.Builders
         {
             if (Environment.IsRunningAsAService)
             {
-                _log.Debug("Running as a service, creating service host.");
+                Log.Debug("Running as a service, creating service host.");
                 return Environment.CreateServiceHost(Settings, serviceHandle);
             }
 
-            _log.Debug("Running as a console application, creating the console host.");
+            Log.Debug("Running as a console application, creating the console host.");
             return new ConsoleRunHost(Settings, Environment, serviceHandle);
         }
     }

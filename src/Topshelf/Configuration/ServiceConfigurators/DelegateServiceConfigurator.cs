@@ -36,7 +36,7 @@ namespace Topshelf.Configuration.ServiceConfigurators
         private Func<T, IHostControl, bool> _stop;
 
         public IServiceBuilder Build() => new DelegateServiceBuilder<T>(_factory, _start, _stop, _pause, _continue, _shutdown,
-                _sessionChanged, _powerEvent, _customCommandReceived, ServiceEvents);
+                _sessionChanged, _powerEvent, _customCommandReceived, Events);
 
         public void ConstructUsing(ServiceFactory<T> serviceFactory) => _factory = serviceFactory;
 

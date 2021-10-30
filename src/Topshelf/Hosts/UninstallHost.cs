@@ -19,7 +19,7 @@ namespace Topshelf.Hosts
 {
     public class UninstallHost : IHost
     {
-        private static readonly ILogWriter _log = HostLogger.Get<UninstallHost>();
+        private static readonly ILogWriter Log = HostLogger.Get<UninstallHost>();
         private readonly IHostEnvironment _environment;
         private readonly IEnumerable<Action> _postActions;
         private readonly IEnumerable<Action> _preActions;
@@ -41,7 +41,7 @@ namespace Topshelf.Hosts
         {
             if (!_environment.IsServiceInstalled(_settings.ServiceName))
             {
-                _log.ErrorFormat("The {0} service is not installed.", _settings.ServiceName);
+                Log.ErrorFormat("The {0} service is not installed.", _settings.ServiceName);
                 return TopshelfExitCode.ServiceNotInstalled;
             }
 
@@ -52,11 +52,11 @@ namespace Topshelf.Hosts
                     return TopshelfExitCode.Ok;
                 }
 
-                _log.ErrorFormat("The {0} service can only be uninstalled as an administrator", _settings.ServiceName);
+                Log.ErrorFormat("The {0} service can only be uninstalled as an administrator", _settings.ServiceName);
                 return TopshelfExitCode.SudoRequired;
             }
 
-            _log.DebugFormat("Uninstalling {0}", _settings.ServiceName);
+            Log.DebugFormat("Uninstalling {0}", _settings.ServiceName);
 
             _environment.UninstallService(_settings, ExecutePreActions, ExecutePostActions);
 

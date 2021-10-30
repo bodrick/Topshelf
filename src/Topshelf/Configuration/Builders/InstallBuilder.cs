@@ -68,8 +68,7 @@ namespace Topshelf.Configuration.Builders
                 throw new ArgumentNullException(nameof(callback));
             }
 
-            var self = this as T;
-            if (self != null)
+            if (this is T self)
             {
                 callback(self);
             }

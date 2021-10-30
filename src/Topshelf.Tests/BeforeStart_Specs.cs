@@ -12,6 +12,7 @@
 // specific language governing permissions and limitations under the License.
 using NUnit.Framework;
 using Topshelf.Configuration;
+// ReSharper disable InconsistentNaming
 
 namespace Topshelf.Tests
 {
@@ -27,10 +28,10 @@ namespace Topshelf.Tests
             {
                 x.UseTestHost();
 
-                x.Service(settings => new MyService(), s =>
+                x.Service(_ => new MyService(), s =>
                 {
                     s.BeforeStartingService(hsc => hsc.CancelStart());
-                    s.AfterStartingService(hsc => started = true);
+                    s.AfterStartingService(_ => started = true);
                 });
             });
 

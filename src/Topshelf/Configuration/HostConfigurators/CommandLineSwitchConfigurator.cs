@@ -31,7 +31,7 @@ namespace Topshelf.Configuration.HostConfigurators
             parser.Add(from s in parser.Switch(_name)
                        select (IOption)new ServiceSwitchOption(s, _callback));
 
-        private class ServiceSwitchOption : IOption
+        private sealed class ServiceSwitchOption : IOption
         {
             private readonly Action<bool> _callback;
             private readonly bool _value;

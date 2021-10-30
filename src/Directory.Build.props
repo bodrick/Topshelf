@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
   <!-- These properties will be shared for all projects -->
 
   <PropertyGroup>
@@ -6,14 +6,25 @@
     <CurrentYear>$([System.DateTime]::Now.ToString(yyyy))</CurrentYear>
     <Copyright>Copyright 2007-$(CurrentYear) Chris Patterson, Dru Sellers, Travis Smith, et. al.</Copyright>
     <Authors>Chris Patterson;Dru Sellers;Travis Smith</Authors>
-    <LangVersion>latest</LangVersion>
-    <Features>strict</Features>
-    <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <!-- <NoWarn>CS1587,CS1591,CS1998,CS0675,CS1998,CS3008,CS3001,NU5105</NoWarn> -->
     <DebugSymbols>True</DebugSymbols>
     <DebugType>portable</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <!--<AnalysisMode>AllEnabledByDefault</AnalysisMode>-->
+    <AnalysisLevel>latest</AnalysisLevel>
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+    <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <Features>strict</Features>
+    <!-- Warning CS1591 Missing XML comment for publicly visible type or member '<name>' -->
+    <!-- TODO: Well.. Write XML comments... -->
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(MSBuildProjectName.Contains(Tests))' == false">
@@ -21,11 +32,9 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Description>Topshelf is an open source project for hosting services without friction. By referencing Topshelf, your console application *becomes* a service installer with a comprehensive set of command-line options for installing, configuring, and running your application as a service.</Description>
     <IsPackable>True</IsPackable>
-
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-
     <!-- SourceLink Config, needs nuget package in each csproj Microsoft.SourceLink.GitHub in order to work -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>

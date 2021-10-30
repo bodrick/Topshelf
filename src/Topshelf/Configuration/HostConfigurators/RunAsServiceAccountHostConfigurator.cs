@@ -21,7 +21,7 @@ namespace Topshelf.Configuration.HostConfigurators
     {
         public RunAsServiceAccountHostConfigurator(ServiceAccount accountType) => AccountType = accountType;
 
-        public ServiceAccount AccountType { get; private set; }
+        public ServiceAccount AccountType { get; }
 
         public IHostBuilder Configure(IHostBuilder builder)
         {

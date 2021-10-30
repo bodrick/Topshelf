@@ -16,10 +16,12 @@ namespace SampleTopshelfService
     {
         public void Start()
         {
+            // Method intentionally left empty.
         }
 
         public void Stop()
         {
+            // Method intentionally left empty.
         }
     }
 }

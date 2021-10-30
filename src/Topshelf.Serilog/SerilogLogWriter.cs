@@ -39,7 +39,7 @@ namespace Topshelf.Serilog
                 _logger.Debug(x);
                 return;
             }
-            _logger.Debug("{@obj}", obj);
+            _logger.Debug("{@Obj}", obj);
         }
 
         public void Debug(object obj, Exception exception)
@@ -49,7 +49,7 @@ namespace Topshelf.Serilog
                 _logger.Debug(exception, x);
                 return;
             }
-            _logger.Debug(exception, "{@obj}", obj);
+            _logger.Debug(exception, "{@Obj}", obj);
         }
 
         public void Debug(LogWriterOutputProvider messageProvider)
@@ -73,7 +73,7 @@ namespace Topshelf.Serilog
                 _logger.Error(x);
                 return;
             }
-            _logger.Error("{@obj}", obj);
+            _logger.Error("{@Obj}", obj);
         }
 
         public void Error(object obj, Exception exception)
@@ -83,7 +83,7 @@ namespace Topshelf.Serilog
                 _logger.Error(exception, x);
                 return;
             }
-            _logger.Error(exception, "{@obj}", obj);
+            _logger.Error(exception, "{@Obj}", obj);
         }
 
         public void Error(LogWriterOutputProvider messageProvider)
@@ -107,7 +107,7 @@ namespace Topshelf.Serilog
                 _logger.Fatal(x);
                 return;
             }
-            _logger.Fatal("{@obj}", obj);
+            _logger.Fatal("{@Obj}", obj);
         }
 
         public void Fatal(object obj, Exception exception)
@@ -117,7 +117,7 @@ namespace Topshelf.Serilog
                 _logger.Fatal(exception, x);
                 return;
             }
-            _logger.Fatal(exception, "{@obj}", obj);
+            _logger.Fatal(exception, "{@Obj}", obj);
         }
 
         public void Fatal(LogWriterOutputProvider messageProvider)
@@ -141,7 +141,7 @@ namespace Topshelf.Serilog
                 _logger.Information(x);
                 return;
             }
-            _logger.Information("{@obj}", obj);
+            _logger.Information("{@Obj}", obj);
         }
 
         public void Info(object obj, Exception exception)
@@ -151,7 +151,7 @@ namespace Topshelf.Serilog
                 _logger.Information(exception, x);
                 return;
             }
-            _logger.Information(exception, "{@obj}", obj);
+            _logger.Information(exception, "{@Obj}", obj);
         }
 
         public void Info(LogWriterOutputProvider messageProvider)
@@ -295,7 +295,7 @@ namespace Topshelf.Serilog
                 _logger.Warning(x);
                 return;
             }
-            _logger.Warning("{@obj}", obj);
+            _logger.Warning("{@Obj}", obj);
         }
 
         public void Warn(object obj, Exception exception)
@@ -305,7 +305,7 @@ namespace Topshelf.Serilog
                 _logger.Warning(exception, x);
                 return;
             }
-            _logger.Warning(exception, "{@obj}", obj);
+            _logger.Warning(exception, "{@Obj}", obj);
         }
 
         public void Warn(LogWriterOutputProvider messageProvider)

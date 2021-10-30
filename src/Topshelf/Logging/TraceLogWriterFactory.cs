@@ -21,17 +21,14 @@ namespace Topshelf.Logging
         private readonly TraceSource _defaultSource;
         private readonly ICache<string, TraceLogWriter> _logs;
         private readonly ICache<string, TraceSource> _sources;
-        private TraceListener _listener;
+        private TraceListener? _listener;
 
         public TraceLogWriterFactory()
         {
             _logs = new DictionaryCache<string, TraceLogWriter>(CreateTraceLog);
             _sources = new DictionaryCache<string, TraceSource>(CreateTraceSource);
-
             _defaultSource = new TraceSource("Default", SourceLevels.Information);
-
             _listener = AddDefaultConsoleTraceListener(_defaultSource);
-
             _sources.Get("Topshelf");
         }
 
@@ -44,9 +41,8 @@ namespace Topshelf.Logging
             if (_listener != null)
             {
                 Trace.Listeners.Remove(_listener);
-
                 _listener.Close();
-                (_listener as IDisposable).Dispose();
+                (_listener as IDisposable)?.Dispose();
                 _listener = null;
             }
         }
@@ -59,7 +55,6 @@ namespace Topshelf.Logging
             };
 
             source.Listeners.Add(listener);
-
             return listener;
         }
 
@@ -67,22 +62,17 @@ namespace Topshelf.Logging
                    || source.Listeners[0] is not DefaultTraceListener
                    || source.Listeners[0].Name != "Default";
 
-        private static string ShortenName(string name)
+        private static string? ShortenName(string name)
         {
             var length = name.LastIndexOf('.');
-
-            return length != -1
-                       ? name.Substring(0, length)
-                       : null;
+            return length != -1 ? name[..length] : null;
         }
 
         private void ConfigureTraceSource(TraceSource source, string name, SourceLevels sourceLevel)
         {
             var defaultSource = _defaultSource;
 
-            for (var parentName = ShortenName(name);
-                 !string.IsNullOrEmpty(parentName);
-                 parentName = ShortenName(parentName))
+            for (var parentName = ShortenName(name); !string.IsNullOrEmpty(parentName); parentName = ShortenName(parentName))
             {
                 var parentSource = _sources.Get(parentName, key => new TraceSource(key, sourceLevel));
                 if (IsSourceConfigured(parentSource))

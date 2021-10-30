@@ -18,11 +18,11 @@ namespace Topshelf.Extensions.Logging
         private static int _count;
         private readonly LogValuesFormatter? _formatter;
         private readonly string _originalMessage;
-        private readonly object?[]? _values;
+        private readonly object[]? _values;
 
-        public FormattedLogValues(string? format, params object?[]? values)
+        public FormattedLogValues(string? format, params object[] values)
         {
-            if (values != null && values.Length != 0 && format != null)
+            if (values.Length != 0 && format != null)
             {
                 if (_count >= MaxCachedFormatters)
                 {
@@ -71,7 +71,7 @@ namespace Topshelf.Extensions.Logging
             {
                 if (index < 0 || index >= Count)
                 {
-                    throw new IndexOutOfRangeException(nameof(index));
+                    throw new ArgumentOutOfRangeException(nameof(index));
                 }
 
                 if (index == Count - 1)

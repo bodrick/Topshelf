@@ -15,13 +15,13 @@ namespace Topshelf
     public enum TopshelfExitCode
     {
         Ok = 0,
-        ServiceAlreadyInstalled = 1242,
-        ServiceNotInstalled = 1243,
+        SudoRequired = 2,
+        NotRunningOnWindows = 11,
         ServiceAlreadyRunning = 1056,
         ServiceNotRunning = 1062,
         ServiceControlRequestFailed = 1064,
         AbnormalExit = 1067,
-        SudoRequired = 2,
-        NotRunningOnWindows = 11
+        ServiceAlreadyInstalled = 1242,
+        ServiceNotInstalled = 1243
     }
 }

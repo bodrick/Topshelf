@@ -16,6 +16,7 @@ using Topshelf.Configuration;
 using Topshelf.Exceptions;
 using Topshelf.Hosts;
 using Topshelf.Runtime;
+// ReSharper disable InconsistentNaming
 
 namespace Topshelf.Tests
 {
@@ -27,7 +28,7 @@ namespace Topshelf.Tests
         {
             var isSuperfly = false;
 
-            var host = HostFactory.New(x =>
+            HostFactory.New(x =>
             {
                 x.Service<MyService>();
 
@@ -36,15 +37,15 @@ namespace Topshelf.Tests
                 x.ApplyCommandLine("--superfly");
             });
 
-            Assert.IsTrue(isSuperfly);
+            Assert.That(isSuperfly, Is.True);
         }
 
         [Test]
         public void Extensible_the_command_line_should_be_yet_again()
         {
-            string volumeLevel = null;
+            string? volumeLevel = null;
 
-            var host = HostFactory.New(x =>
+            HostFactory.New(x =>
             {
                 x.Service<MyService>();
 
@@ -59,14 +60,12 @@ namespace Topshelf.Tests
         [Test]
         public void Need_to_handle_crazy_special_characters_in_argument()
         {
-            string password = null;
+            string? password = null;
 
-            var host = HostFactory.New(x =>
+            HostFactory.New(x =>
             {
                 x.Service<MyService>();
-
                 x.AddCommandLineDefinition("password", v => password = v);
-
                 x.ApplyCommandLine("-password \"abc123=:,.<>/?;!@#$%^&*()-+\"");
             });
 
@@ -76,14 +75,12 @@ namespace Topshelf.Tests
         [Test]
         public void Need_to_handle_crazy_special_characters_in_argument_no_quotes()
         {
-            string password = null;
+            string? password = null;
 
-            var host = HostFactory.New(x =>
+            HostFactory.New(x =>
             {
                 x.Service<MyService>();
-
                 x.AddCommandLineDefinition("password", v => password = v);
-
                 x.ApplyCommandLine("-password abc123=:,.<>/?;!@#$%^&*()-+");
             });
 
@@ -93,14 +90,12 @@ namespace Topshelf.Tests
         [Test]
         public void Need_to_handle_crazy_special_characters_in_arguments()
         {
-            string password = null;
+            string? password = null;
 
-            var host = HostFactory.New(x =>
+            HostFactory.New(x =>
             {
                 x.Service<MyService>();
-
                 x.AddCommandLineDefinition("password", v => password = v);
-
                 x.ApplyCommandLine("-password:abc123!@#=$%^&*()-+");
             });
 
@@ -400,26 +395,22 @@ namespace Topshelf.Tests
         }
 
         [Test]
-        public void Should_require_password_option_when_specifying_username() => Assert.Throws<HostConfigurationException>(() =>
-        {
-            var host = HostFactory.New(x =>
-            {
-                x.Service<MyService>();
-                x.ApplyCommandLine("install -username \"Joe\"");
-            });
-        });
+        public void Should_require_password_option_when_specifying_username() =>
+            Assert.Throws<HostConfigurationException>(() =>
+                HostFactory.New(x =>
+                {
+                    x.Service<MyService>();
+                    x.ApplyCommandLine("install -username \"Joe\"");
+                }));
 
         [Test]
         public void Should_throw_an_exception_on_an_invalid_command_line()
         {
-            var exception = Assert.Throws<HostConfigurationException>(() =>
+            var exception = Assert.Throws<HostConfigurationException>(() => HostFactory.New(x =>
             {
-                HostFactory.New(x =>
-                {
-                    x.Service<MyService>();
-                    x.ApplyCommandLine("explode");
-                });
-            });
+                x.Service<MyService>();
+                x.ApplyCommandLine("explode");
+            }));
 
             Assert.That(exception.Message.Contains("explode"), Is.True);
         }

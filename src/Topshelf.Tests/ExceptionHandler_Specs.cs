@@ -13,14 +13,15 @@
 using System;
 using NUnit.Framework;
 using Topshelf.Configuration;
+// ReSharper disable InconsistentNaming
 
 namespace Topshelf.Tests
 {
     [TestFixture]
     public class Exception_callback
     {
-        private static readonly string StartExceptionMessage = "Throw on Start Requested";
-        private static readonly string StopExceptionMessage = "Throw on Stop Requested";
+        private const string StartExceptionMessage = "Throw on Start Requested";
+        private const string StopExceptionMessage = "Throw on Stop Requested";
 
         [Test]
         public void Should_be_called_when_exception_thrown_in_construct_using()

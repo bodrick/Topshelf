@@ -16,7 +16,7 @@ namespace Topshelf.Logging
 {
     public static class HostLogger
     {
-        private static readonly object _locker = new();
+        private static readonly object Locker = new();
         private static IHostLoggerConfigurator? _configurator;
         private static ILogWriterFactory? _logWriterFactory;
 
@@ -24,7 +24,7 @@ namespace Topshelf.Logging
         {
             get
             {
-                lock (_locker)
+                lock (Locker)
                 {
                     return _logWriterFactory ?? CreateLogWriterFactory();
                 }
@@ -41,7 +41,7 @@ namespace Topshelf.Logging
 
         public static void Shutdown()
         {
-            lock (_locker)
+            lock (Locker)
             {
                 if (_logWriterFactory != null)
                 {
@@ -53,7 +53,7 @@ namespace Topshelf.Logging
 
         public static void UseLogger(IHostLoggerConfigurator configurator)
         {
-            lock (_locker)
+            lock (Locker)
             {
                 _configurator = configurator;
 

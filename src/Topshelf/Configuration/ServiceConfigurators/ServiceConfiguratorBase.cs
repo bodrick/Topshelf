@@ -17,16 +17,16 @@ namespace Topshelf.Configuration.ServiceConfigurators
 {
     public abstract class ServiceConfiguratorBase
     {
-        protected readonly ServiceEvents ServiceEvents;
+        protected ServiceEvents Events { get; }
 
-        protected ServiceConfiguratorBase() => ServiceEvents = new ServiceEvents();
+        protected ServiceConfiguratorBase() => Events = new ServiceEvents();
 
-        public void AfterStartingService(Action<IHostStartedContext> callback) => ServiceEvents.AddAfterStart(callback);
+        public void AfterStartingService(Action<IHostStartedContext> callback) => Events.AddAfterStart(callback);
 
-        public void AfterStoppingService(Action<IHostStoppedContext> callback) => ServiceEvents.AddAfterStop(callback);
+        public void AfterStoppingService(Action<IHostStoppedContext> callback) => Events.AddAfterStop(callback);
 
-        public void BeforeStartingService(Action<IHostStartContext> callback) => ServiceEvents.AddBeforeStart(callback);
+        public void BeforeStartingService(Action<IHostStartContext> callback) => Events.AddBeforeStart(callback);
 
-        public void BeforeStoppingService(Action<IHostStopContext> callback) => ServiceEvents.AddBeforeStop(callback);
+        public void BeforeStoppingService(Action<IHostStopContext> callback) => Events.AddBeforeStop(callback);
     }
 }

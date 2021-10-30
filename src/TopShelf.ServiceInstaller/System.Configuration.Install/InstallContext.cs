@@ -30,12 +30,13 @@ namespace System.Configuration.Install
                 return false;
             }
 
-            if (!string.Equals(text, "true", StringComparison.OrdinalIgnoreCase)
-                && !string.Equals(text, "yes", StringComparison.OrdinalIgnoreCase)
-                && !string.Equals(text, "1", StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(text, "true", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(text, "yes", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(text, "1", StringComparison.OrdinalIgnoreCase))
             {
                 return string.IsNullOrEmpty(text);
             }
+
             return true;
         }
 
@@ -57,55 +58,61 @@ namespace System.Configuration.Install
                     Parameters["logfile"] = null;
                 }
             }
+
             if (!IsParameterTrue("LogToConsole") && Parameters["logtoconsole"] != null)
             {
                 return;
             }
+
             Console.WriteLine(message);
         }
 
-        internal void LogMessageHelper(string? message)
+        private void LogMessageHelper(string? message)
         {
-            StreamWriter? streamWriter = null;
+            StreamWriter? log = null;
             try
             {
                 var parameter = Parameters["logfile"];
                 if (!string.IsNullOrEmpty(parameter))
                 {
-                    streamWriter = new StreamWriter(parameter, true, Encoding.UTF8);
-                    streamWriter.WriteLine(message);
+                    log = new StreamWriter(parameter, true, Encoding.UTF8);
+                    log.WriteLine(message);
                 }
             }
             finally
             {
-                streamWriter?.Close();
+                log?.Close();
             }
         }
 
-        protected static StringDictionary ParseCommandLine(string[]? args)
+        private static StringDictionary ParseCommandLine(string[]? args)
         {
-            var stringDictionary = new StringDictionary();
+            var options = new StringDictionary();
             if (args == null)
             {
-                return stringDictionary;
+                return options;
             }
+
             for (var i = 0; i < args.Length; i++)
             {
-                if (args[i].StartsWith("/", StringComparison.Ordinal) || args[i].StartsWith("-", StringComparison.Ordinal))
+                if (args[i].StartsWith("/", StringComparison.OrdinalIgnoreCase) ||
+                    args[i].StartsWith("-", StringComparison.OrdinalIgnoreCase))
                 {
                     args[i] = args[i][1..];
                 }
-                var num = args[i].IndexOf('=');
-                if (num < 0)
+
+                var equalsPos = args[i].IndexOf('=');
+                if (equalsPos < 0)
                 {
-                    stringDictionary[args[i].ToLower(CultureInfo.InvariantCulture)] = "";
+                    options[args[i].ToLower(CultureInfo.InvariantCulture)] = string.Empty;
                 }
                 else
                 {
-                    stringDictionary[args[i][..num].ToLower(CultureInfo.InvariantCulture)] = args[i][(num + 1)..];
+                    options[args[i][..equalsPos].ToLower(CultureInfo.InvariantCulture)] = args[i][(equalsPos + 1)..];
                 }
             }
-            return stringDictionary;
+
+            return options;
         }
     }
 }

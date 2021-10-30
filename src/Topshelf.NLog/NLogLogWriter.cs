@@ -150,8 +150,8 @@ namespace Topshelf.NLog
 
         private static LogMessageGenerator ToGenerator(LogWriterOutputProvider provider) => () =>
         {
-            var obj = provider?.Invoke();
-            return obj?.ToString() ?? "";
+            var obj = provider();
+            return obj.ToString();
         };
     }
 }

@@ -17,6 +17,6 @@ namespace Topshelf.Runtime.Windows
 {
     public static class WindowsUserAccessControl
     {
-        private static readonly ILogWriter _log = HostLogger.Get(typeof(WindowsUserAccessControl));
+        private static readonly ILogWriter Log = HostLogger.Get(typeof(WindowsUserAccessControl));
     }
 }

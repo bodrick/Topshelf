@@ -10,6 +10,7 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+
 using System;
 using Serilog;
 using Topshelf;
@@ -21,58 +22,55 @@ namespace SampleTopshelfService
     internal class Program
     {
         private static int Main() => (int)HostFactory.Run(x =>
-                                                   {
-                                                       Log.Logger = new LoggerConfiguration()
-                                                           .MinimumLevel.Debug()
-                                                           .WriteTo.Console()
-                                                           .CreateLogger();
-                                                       x.UseSerilog();
+        {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .CreateLogger();
+            x.UseSerilog();
 
-                                                       x.UseAssemblyInfoForServiceInfo();
+            x.UseAssemblyInfoForServiceInfo();
 
-                                                       var throwOnStart = false;
-                                                       var throwOnStop = false;
-                                                       var throwUnhandled = false;
+            var throwOnStart = false;
+            var throwOnStop = false;
+            var throwUnhandled = false;
 
-                                                       x.Service(settings => new SampleService(throwOnStart, throwOnStop, throwUnhandled), s =>
-                                                       {
-                                                           s.BeforeStartingService(_ => Console.WriteLine("BeforeStart"));
-                                                           s.BeforeStoppingService(_ => Console.WriteLine("BeforeStop"));
-                                                       });
+            x.Service(_ => new SampleService(throwOnStart, throwOnStop, throwUnhandled), s =>
+            {
+                s.BeforeStartingService(_ => Console.WriteLine("BeforeStart"));
+                s.BeforeStoppingService(_ => Console.WriteLine("BeforeStop"));
+            });
 
-                                                       x.SetStartTimeout(TimeSpan.FromSeconds(10));
-                                                       x.SetStopTimeout(TimeSpan.FromSeconds(10));
+            x.SetStartTimeout(TimeSpan.FromSeconds(10));
+            x.SetStopTimeout(TimeSpan.FromSeconds(10));
 
-                                                       x.EnableServiceRecovery(r =>
-                                                           {
-                                                               r.RestartService(3);
-                                                               r.RunProgram(7, "ping google.com");
-                                                               r.RestartComputer(5, "message");
+            x.EnableServiceRecovery(r =>
+            {
+                r.RestartService(3)
+                    .RunProgram(7, "ping google.com")
+                    .RestartComputer(5, "message");
 
-                                                               r.OnCrashOnly();
-                                                               r.SetResetPeriod(2);
-                                                           });
+                r.OnCrashOnly();
+                r.SetResetPeriod(2);
+            });
 
-                                                       x.AddCommandLineSwitch("throwonstart", v => throwOnStart = v);
-                                                       x.AddCommandLineSwitch("throwonstop", v => throwOnStop = v);
-                                                       x.AddCommandLineSwitch("throwunhandled", v => throwUnhandled = v);
+            x.AddCommandLineSwitch("throwonstart", v => throwOnStart = v);
+            x.AddCommandLineSwitch("throwonstop", v => throwOnStop = v);
+            x.AddCommandLineSwitch("throwunhandled", v => throwUnhandled = v);
 
-                                                       x.OnException((exception) =>
-                                                       {
-                                                           Console.WriteLine("Exception thrown - " + exception.Message);
-                                                       });
-                                                   });
+            x.OnException(exception => Console.WriteLine("Exception thrown - " + exception.Message));
+        });
 
         private void SansInterface() => HostFactory.New(x =>
-                                          {
-                                              // can define services without the interface dependency as well, this is just for
-                                              // show and not used in this sample.
-                                              x.Service<SampleSansInterfaceService>(s =>
-                                                                            {
-                                                                                s.ConstructUsing(() => new SampleSansInterfaceService());
-                                                                                s.WhenStarted(v => v.Start());
-                                                                                s.WhenStopped(v => v.Stop());
-                                                                            });
-                                          });
+        {
+            // can define services without the interface dependency as well, this is just for
+            // show and not used in this sample.
+            x.Service<SampleSansInterfaceService>(s =>
+            {
+                s.ConstructUsing(() => new SampleSansInterfaceService());
+                s.WhenStarted(v => v.Start());
+                s.WhenStopped(v => v.Stop());
+            });
+        });
     }
 }

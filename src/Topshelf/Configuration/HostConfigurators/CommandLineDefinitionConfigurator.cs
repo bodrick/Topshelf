@@ -31,7 +31,7 @@ namespace Topshelf.Configuration.HostConfigurators
             parser.Add(from s in parser.Definition(_name)
                        select (IOption)new ServiceDefinitionOption(s, _callback));
 
-        private class ServiceDefinitionOption : IOption
+        private sealed class ServiceDefinitionOption : IOption
         {
             private readonly Action<string> _callback;
             private readonly string _value;

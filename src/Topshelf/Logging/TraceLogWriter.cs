@@ -28,42 +28,40 @@ namespace Topshelf.Logging
         }
 
         public bool IsDebugEnabled => _level >= LoggingLevel.Debug;
-
         public bool IsErrorEnabled => _level >= LoggingLevel.Error;
         public bool IsFatalEnabled => _level >= LoggingLevel.Fatal;
         public bool IsInfoEnabled => _level >= LoggingLevel.Info;
-
         public bool IsWarnEnabled => _level >= LoggingLevel.Warn;
 
         /// <summary>
         /// Logs a debug message.
         ///
         /// </summary>
-        /// <param name="message">The message to log</param>
-        public void Debug(object message)
+        /// <param name="obj">The message to log</param>
+        public void Debug(object obj)
         {
             if (!IsDebugEnabled)
             {
                 return;
             }
 
-            Log(LoggingLevel.Debug, message, null);
+            Log(LoggingLevel.Debug, obj, null);
         }
 
         /// <summary>
         /// Logs a debug message.
         ///
         /// </summary>
+        /// <param name="obj">The message to log</param>
         /// <param name="exception">The exception to log</param>
-        /// <param name="message">The message to log</param>
-        public void Debug(object message, Exception exception)
+        public void Debug(object obj, Exception exception)
         {
             if (!IsDebugEnabled)
             {
                 return;
             }
 
-            Log(LoggingLevel.Debug, message, exception);
+            Log(LoggingLevel.Debug, obj, exception);
         }
 
         public void Debug(LogWriterOutputProvider messageProvider)
@@ -150,31 +148,31 @@ namespace Topshelf.Logging
         /// Logs an error message.
         ///
         /// </summary>
-        /// <param name="message">The message to log</param>
-        public void Error(object message)
+        /// <param name="obj">The message to log</param>
+        public void Error(object obj)
         {
             if (!IsErrorEnabled)
             {
                 return;
             }
 
-            Log(LoggingLevel.Error, message, null);
+            Log(LoggingLevel.Error, obj, null);
         }
 
         /// <summary>
         /// Logs an error message.
         ///
         /// </summary>
+        /// <param name="obj">The message to log</param>
         /// <param name="exception">The exception to log</param>
-        /// <param name="message">The message to log</param>
-        public void Error(object message, Exception exception)
+        public void Error(object obj, Exception exception)
         {
             if (!IsErrorEnabled)
             {
                 return;
             }
 
-            Log(LoggingLevel.Error, message, exception);
+            Log(LoggingLevel.Error, obj, exception);
         }
 
         public void Error(LogWriterOutputProvider messageProvider)
@@ -261,31 +259,31 @@ namespace Topshelf.Logging
         /// Logs a fatal message.
         ///
         /// </summary>
-        /// <param name="message">The message to log</param>
-        public void Fatal(object message)
+        /// <param name="obj">The message to log</param>
+        public void Fatal(object obj)
         {
             if (!IsFatalEnabled)
             {
                 return;
             }
 
-            Log(LoggingLevel.Fatal, message, null);
+            Log(LoggingLevel.Fatal, obj, null);
         }
 
         /// <summary>
         /// Logs a fatal message.
         ///
         /// </summary>
+        /// <param name="obj">The message to log</param>
         /// <param name="exception">The exception to log</param>
-        /// <param name="message">The message to log</param>
-        public void Fatal(object message, Exception exception)
+        public void Fatal(object obj, Exception exception)
         {
             if (!IsFatalEnabled)
             {
                 return;
             }
 
-            Log(LoggingLevel.Fatal, message, exception);
+            Log(LoggingLevel.Fatal, obj, exception);
         }
 
         public void Fatal(LogWriterOutputProvider messageProvider)
@@ -372,31 +370,31 @@ namespace Topshelf.Logging
         /// Logs an info message.
         ///
         /// </summary>
-        /// <param name="message">The message to log</param>
-        public void Info(object message)
+        /// <param name="obj">The message to log</param>
+        public void Info(object obj)
         {
             if (!IsInfoEnabled)
             {
                 return;
             }
 
-            Log(LoggingLevel.Info, message, null);
+            Log(LoggingLevel.Info, obj, null);
         }
 
         /// <summary>
         /// Logs an info message.
         ///
         /// </summary>
+        /// <param name="obj">The message to log</param>
         /// <param name="exception">The exception to log</param>
-        /// <param name="message">The message to log</param>
-        public void Info(object message, Exception exception)
+        public void Info(object obj, Exception exception)
         {
             if (!IsInfoEnabled)
             {
                 return;
             }
 
-            Log(LoggingLevel.Info, message, exception);
+            Log(LoggingLevel.Info, obj, exception);
         }
 
         public void Info(LogWriterOutputProvider messageProvider)
@@ -489,7 +487,7 @@ namespace Topshelf.Logging
             LogInternal(level, obj, null);
         }
 
-        public void Log(LoggingLevel level, object obj, Exception exception)
+        public void Log(LoggingLevel level, object obj, Exception? exception)
         {
             if (_level < level)
             {
@@ -535,31 +533,31 @@ namespace Topshelf.Logging
         /// Logs a warn message.
         ///
         /// </summary>
-        /// <param name="message">The message to log</param>
-        public void Warn(object message)
+        /// <param name="obj">The message to log</param>
+        public void Warn(object obj)
         {
             if (!IsWarnEnabled)
             {
                 return;
             }
 
-            Log(LoggingLevel.Warn, message, null);
+            Log(LoggingLevel.Warn, obj, null);
         }
 
         /// <summary>
         /// Logs a warn message.
         ///
         /// </summary>
+        /// <param name="obj">The message to log</param>
         /// <param name="exception">The exception to log</param>
-        /// <param name="message">The message to log</param>
-        public void Warn(object message, Exception exception)
+        public void Warn(object obj, Exception exception)
         {
             if (!IsWarnEnabled)
             {
                 return;
             }
 
-            Log(LoggingLevel.Warn, message, exception);
+            Log(LoggingLevel.Warn, obj, exception);
         }
 
         public void Warn(LogWriterOutputProvider messageProvider)
@@ -642,10 +640,10 @@ namespace Topshelf.Logging
             LogInternal(LoggingLevel.Warn, string.Format(formatProvider, format, args), exception);
         }
 
-        private void LogInternal(LoggingLevel level, object obj, Exception exception)
+        private void LogInternal(LoggingLevel level, object obj, Exception? exception)
         {
             var message = obj == null
-                                 ? ""
+                                 ? string.Empty
                                  : obj.ToString();
 
             if (exception == null)

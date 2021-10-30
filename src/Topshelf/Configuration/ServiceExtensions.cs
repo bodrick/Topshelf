@@ -23,9 +23,7 @@ namespace Topshelf.Configuration
 {
     public static class ServiceExtensions
     {
-        public static ServiceBuilderFactory CreateServiceBuilderFactory<TService>(
-            Func<IHostSettings, TService> serviceFactory,
-            Action<IServiceConfigurator> callback)
+        public static ServiceBuilderFactory CreateServiceBuilderFactory<TService>(Func<IHostSettings, TService> serviceFactory, Action<IServiceConfigurator> callback)
             where TService : class, IServiceControl
         {
             if (serviceFactory == null)
@@ -82,48 +80,35 @@ namespace Topshelf.Configuration
             return ServiceBuilderFactory;
         }
 
-        public static IHostConfigurator Service<TService>(this IHostConfigurator configurator,
-                            Func<IHostSettings, TService> serviceFactory, Action<IServiceConfigurator> callback)
+        public static IHostConfigurator Service<TService>(this IHostConfigurator configurator, Func<IHostSettings, TService> serviceFactory,
+            Action<IServiceConfigurator> callback)
             where TService : class, IServiceControl
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
             var serviceBuilderFactory = CreateServiceBuilderFactory(serviceFactory, callback);
-
             configurator.UseServiceBuilder(serviceBuilderFactory);
-
             return configurator;
         }
 
-        public static IHostConfigurator Service<T>(this IHostConfigurator configurator)
-            where T : class, IServiceControl, new() => Service(configurator, x => new T(), x => { });
+        public static IHostConfigurator Service<T>(this IHostConfigurator configurator) where T : class, IServiceControl, new() =>
+            Service(configurator, _ => new T(), _ => { });
 
         public static IHostConfigurator Service<T>(this IHostConfigurator configurator, Func<T> serviceFactory)
-            where T : class, IServiceControl => Service(configurator, x => serviceFactory(), x => { });
+            where T : class, IServiceControl =>
+            Service(configurator, _ => serviceFactory(), _ => { });
 
         public static IHostConfigurator Service<T>(this IHostConfigurator configurator, Func<T> serviceFactory,
-            Action<IServiceConfigurator> callback)
-            where T : class, IServiceControl => Service(configurator, x => serviceFactory(), callback);
+            Action<IServiceConfigurator> callback) where T : class, IServiceControl =>
+            Service(configurator, _ => serviceFactory(), callback);
 
-        public static IHostConfigurator Service<T>(this IHostConfigurator configurator,
-            Func<IHostSettings, T> serviceFactory)
-            where T : class, IServiceControl => Service(configurator, serviceFactory, x => { });
+        public static IHostConfigurator Service<T>(this IHostConfigurator configurator, Func<IHostSettings, T> serviceFactory)
+            where T : class, IServiceControl => Service(configurator, serviceFactory, _ => { });
 
-        public static IHostConfigurator Service<TService>(this IHostConfigurator configurator, Action<IServiceConfigurator<TService>> callback)
+        public static IHostConfigurator Service<TService>(this IHostConfigurator configurator,
+            Action<IServiceConfigurator<TService>> callback)
             where TService : class
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
             var serviceBuilderFactory = CreateServiceBuilderFactory(callback);
-
             configurator.UseServiceBuilder(serviceBuilderFactory);
-
             return configurator;
         }
     }

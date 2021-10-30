@@ -15,7 +15,7 @@ namespace Topshelf.Extensions.Logging
     {
         private const string NullValue = "(null)";
         private static readonly char[] FormatDelimiters = { ',', ':' };
-        private readonly string? _format;
+        private readonly string _format;
 
         // NOTE: If this assembly ever builds for netcoreapp, the below code should change to:
         // - Be annotated as [SkipLocalsInit] to avoid zero'ing the stackalloc'd char span
@@ -25,7 +25,7 @@ namespace Topshelf.Extensions.Logging
         {
             OriginalFormat = format ?? throw new ArgumentNullException(nameof(format));
 
-            var vsb = new ValueStringBuilder(stackalloc char[256]);
+            using var vsb = new ValueStringBuilder(stackalloc char[256]);
             var scanIndex = 0;
             var endIndex = format.Length;
 
@@ -63,7 +63,7 @@ namespace Topshelf.Extensions.Logging
             _format = vsb.ToString();
         }
 
-        public string OriginalFormat { get; private set; }
+        public string OriginalFormat { get; }
         public List<string> ValueNames { get; } = new();
 
         public string Format(object?[]? values)
@@ -97,7 +97,7 @@ namespace Topshelf.Extensions.Logging
         {
             if (index < 0 || index > ValueNames.Count)
             {
-                throw new IndexOutOfRangeException(nameof(index));
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
 
             if (ValueNames.Count > index)
@@ -196,7 +196,7 @@ namespace Topshelf.Extensions.Logging
             return findIndex == -1 ? endIndex : findIndex;
         }
 
-        private object FormatArgument(object? value)
+        private static object FormatArgument(object? value)
         {
             if (value == null)
             {
@@ -212,7 +212,7 @@ namespace Topshelf.Extensions.Logging
             // if the value implements IEnumerable, build a comma separated string.
             if (value is IEnumerable enumerable)
             {
-                var vsb = new ValueStringBuilder(stackalloc char[256]);
+                using var vsb = new ValueStringBuilder(stackalloc char[256]);
                 var first = true;
                 foreach (var e in enumerable)
                 {

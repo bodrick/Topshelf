@@ -10,9 +10,12 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+
+using System;
+
 namespace Topshelf.Configuration.CommandLineParser
 {
-    internal class ArgumentElement : IArgumentElement
+    internal class ArgumentElement : IArgumentElement, IEquatable<ArgumentElement>
     {
         public ArgumentElement(string id) => Id = id;
 
@@ -20,24 +23,19 @@ namespace Topshelf.Configuration.CommandLineParser
 
         public static ICommandLineElement New(string id) => new ArgumentElement(id);
 
-        public bool Equals(ArgumentElement other)
+        public bool Equals(ArgumentElement? other)
         {
             if (other is null)
             {
                 return false;
             }
 
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return Equals(other.Id, Id);
+            return ReferenceEquals(this, other) || Equals(other.Id, Id);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
             {
                 return false;
             }
@@ -47,15 +45,10 @@ namespace Topshelf.Configuration.CommandLineParser
                 return true;
             }
 
-            if (obj.GetType() != typeof(ArgumentElement))
-            {
-                return false;
-            }
-
-            return Equals((ArgumentElement)obj);
+            return obj.GetType() == typeof(ArgumentElement) && Equals((ArgumentElement)obj);
         }
 
-        public override int GetHashCode() => Id?.GetHashCode() ?? 0;
+        public override int GetHashCode() => Id.GetHashCode();
 
         public override string ToString() => "ARGUMENT: " + Id;
     }

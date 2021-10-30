@@ -14,9 +14,9 @@ using Microsoft.Win32.SafeHandles;
 
 namespace Topshelf.Runtime.Windows
 {
-    public class SCMHandle : SafeHandleZeroOrMinusOneIsInvalid
+    public class ScmHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
-        public SCMHandle() : base(true)
+        public ScmHandle() : base(true)
         {
         }
 

@@ -14,6 +14,7 @@ using System;
 using NUnit.Framework;
 using Topshelf.Configuration;
 using Topshelf.Hosts;
+// ReSharper disable InconsistentNaming
 
 namespace Topshelf.Tests
 {
@@ -23,7 +24,7 @@ namespace Topshelf.Tests
         [Test]
         public void Should_be_able_to_add_prefix_text_to_help()
         {
-            var prefix = "PhatBoyG In The House!";
+            const string prefix = "PhatBoyG In The House!";
 
             var host = HostFactory.New(x =>
             {
@@ -48,13 +49,13 @@ namespace Topshelf.Tests
 
             Assert.That(host, Is.InstanceOf<HelpHost>());
             var helpHost = (HelpHost)host;
-            Assert.That(helpHost.PrefixText, Is.EqualTo(null));
+            Assert.That(helpHost.PrefixText, Is.EqualTo(string.Empty));
         }
 
         [Test]
         public void Should_ignore_prefix_text_if_system_only_help_requested()
         {
-            var prefix = "PhatBoyG In The House!";
+            const string prefix = "PhatBoyG In The House!";
 
             var host = HostFactory.New(x =>
             {
@@ -65,7 +66,7 @@ namespace Topshelf.Tests
 
             Assert.That(host, Is.InstanceOf<HelpHost>());
             var helpHost = (HelpHost)host;
-            Assert.That(helpHost.PrefixText, Is.EqualTo(null));
+            Assert.That(helpHost.PrefixText, Is.EqualTo(string.Empty));
         }
 
         private class MyService : IServiceControl

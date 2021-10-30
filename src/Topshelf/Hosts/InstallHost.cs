@@ -21,7 +21,7 @@ namespace Topshelf.Hosts
 {
     public class InstallHost : IHost
     {
-        private static readonly ILogWriter _log = HostLogger.Get<InstallHost>();
+        private static readonly ILogWriter Log = HostLogger.Get<InstallHost>();
         private readonly IHostEnvironment _environment;
         private readonly IEnumerable<Action<IInstallHostSettings>> _postActions;
         private readonly IEnumerable<Action<IInstallHostSettings>> _postRollbackActions;
@@ -39,9 +39,7 @@ namespace Topshelf.Hosts
         {
             _environment = environment;
             Settings = settings;
-
             InstallSettings = new InstallServiceSettingsImpl(settings, credentials, startMode, dependencies.ToArray());
-
             _preActions = preActions;
             _postActions = postActions;
             _preRollbackActions = preRollbackActions;
@@ -57,7 +55,7 @@ namespace Topshelf.Hosts
         {
             if (_environment.IsServiceInstalled(Settings.ServiceName))
             {
-                _log.ErrorFormat("The {0} service is already installed.", Settings.ServiceName);
+                Log.ErrorFormat("The {0} service is already installed.", Settings.ServiceName);
                 return TopshelfExitCode.ServiceAlreadyInstalled;
             }
 
@@ -68,11 +66,11 @@ namespace Topshelf.Hosts
                     return TopshelfExitCode.Ok;
                 }
 
-                _log.ErrorFormat("The {0} service can only be installed as an administrator", Settings.ServiceName);
+                Log.ErrorFormat("The {0} service can only be installed as an administrator", Settings.ServiceName);
                 return TopshelfExitCode.SudoRequired;
             }
 
-            _log.DebugFormat("Attempting to install '{0}'", Settings.ServiceName);
+            Log.DebugFormat("Attempting to install '{0}'", Settings.ServiceName);
 
             _environment.InstallService(InstallSettings, ExecutePreActions, ExecutePostActions, ExecutePreRollbackActions, ExecutePostRollbackActions);
 
@@ -111,7 +109,7 @@ namespace Topshelf.Hosts
             }
         }
 
-        private class InstallServiceSettingsImpl : IInstallHostSettings
+        private sealed class InstallServiceSettingsImpl : IInstallHostSettings
         {
             private readonly IHostSettings _settings;
 
@@ -139,7 +137,7 @@ namespace Topshelf.Hosts
             public string[] Dependencies { get; }
             public string Description => _settings.Description;
             public string DisplayName => _settings.DisplayName;
-            public Action<Exception> ExceptionCallback => _settings.ExceptionCallback;
+            public Action<Exception>? ExceptionCallback => _settings.ExceptionCallback;
             public string InstanceName => _settings.InstanceName;
             public string Name => _settings.Name;
             public string ServiceName => _settings.ServiceName;

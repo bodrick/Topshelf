@@ -18,7 +18,7 @@ namespace System.Configuration.Install
                 if (!_replaced)
                 {
                     _replaced = true;
-                    DescriptionValue = Res.GetString(base.Description) ?? string.Empty;
+                    DescriptionValue = Res.GetString(base.Description);
                 }
                 return base.Description;
             }

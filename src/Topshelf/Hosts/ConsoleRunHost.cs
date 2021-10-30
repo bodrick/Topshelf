@@ -23,19 +23,15 @@ using Topshelf.Runtime;
 
 namespace Topshelf.Hosts
 {
-    public class ConsoleRunHost : IHost, IHostControl
+    public class ConsoleRunHost : IHost, IHostControl, IDisposable
     {
         private readonly IHostEnvironment _environment;
-
         private readonly ILogWriter _log = HostLogger.Get<ConsoleRunHost>();
-
         private readonly IServiceHandle _serviceHandle;
-
         private readonly IHostSettings _settings;
-
         private int _deadThread;
-
-        private ManualResetEvent _exit;
+        private bool _disposed;
+        private ManualResetEvent? _exit;
 
         private TopshelfExitCode _exitCode;
 
@@ -43,16 +39,6 @@ namespace Topshelf.Hosts
 
         public ConsoleRunHost(IHostSettings settings, IHostEnvironment environment, IServiceHandle serviceHandle)
         {
-            if (settings == null)
-            {
-                throw new ArgumentNullException(nameof(settings));
-            }
-
-            if (environment == null)
-            {
-                throw new ArgumentNullException(nameof(environment));
-            }
-
             _settings = settings;
             _environment = environment;
             _serviceHandle = serviceHandle;
@@ -66,6 +52,12 @@ namespace Topshelf.Hosts
             {
                 SystemEvents.PowerModeChanged += OnPowerModeChanged;
             }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         void IHostControl.RequestAdditionalTime(TimeSpan timeRemaining)
@@ -120,7 +112,7 @@ namespace Topshelf.Hosts
 
                 _log.InfoFormat("The {0} service is now running, press Control+C to exit.", _settings.ServiceName);
 
-                _exit.WaitOne();
+                _exit?.WaitOne();
             }
             catch (Exception ex)
             {
@@ -137,8 +129,8 @@ namespace Topshelf.Hosts
                     StopService();
                 }
 
-                _exit.Close();
-                (_exit as IDisposable).Dispose();
+                _exit?.Close();
+                _exit?.Dispose();
 
                 HostLogger.Shutdown();
             }
@@ -149,14 +141,31 @@ namespace Topshelf.Hosts
         void IHostControl.Stop()
         {
             _log.Info("Service Stop requested, exiting.");
-            _exit.Set();
+            _exit?.Set();
         }
 
         void IHostControl.Stop(TopshelfExitCode exitCode)
         {
             _log.Info($"Service Stop requested with exit code {exitCode}, exiting.");
             _exitCode = exitCode;
-            _exit.Set();
+            _exit?.Set();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                _serviceHandle.Dispose();
+                _exit?.Close();
+                _exit?.Dispose();
+            }
+
+            _disposed = true;
         }
 
         [DllImport("kernel32.dll")]
@@ -183,7 +192,7 @@ namespace Topshelf.Hosts
             if (e.IsTerminating)
             {
                 _exitCode = TopshelfExitCode.AbnormalExit;
-                _exit.Set();
+                _exit?.Set();
 
                 // it isn't likely that a TPL thread should land here, but if it does let's no block it
                 if (Task.CurrentId.HasValue)
@@ -205,7 +214,7 @@ namespace Topshelf.Hosts
             }
         }
 
-        private void HandleCancelKeyPress(object sender, ConsoleCancelEventArgs consoleCancelEventArgs)
+        private void HandleCancelKeyPress(object? sender, ConsoleCancelEventArgs consoleCancelEventArgs)
         {
             if (!_settings.CanHandleCtrlBreak && consoleCancelEventArgs.SpecialKey == ConsoleSpecialKey.ControlBreak)
             {
@@ -224,7 +233,7 @@ namespace Topshelf.Hosts
             if (_serviceHandle.Stop(this))
             {
                 _hasCancelled = true;
-                _exit.Set();
+                _exit?.Set();
             }
             else
             {
@@ -276,7 +285,7 @@ namespace Topshelf.Hosts
             }
         }
 
-        private class ConsolePowerEventArguments : IPowerEventArguments
+        private sealed class ConsolePowerEventArguments : IPowerEventArguments
         {
             public ConsolePowerEventArguments(PowerModes powerMode) => EventCode = powerMode switch
             {
@@ -288,7 +297,7 @@ namespace Topshelf.Hosts
 
             public PowerEventCode EventCode { get; }
         }
-        private class ConsoleSessionChangedArguments : ISessionChangedArguments
+        private sealed class ConsoleSessionChangedArguments : ISessionChangedArguments
         {
             public ConsoleSessionChangedArguments(SessionSwitchReason reason)
             {

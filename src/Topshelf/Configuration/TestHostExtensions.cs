@@ -25,8 +25,7 @@ namespace Topshelf.Configuration
         public static IHostConfigurator UseTestHost(this IHostConfigurator configurator)
         {
             configurator.UseHostBuilder((environment, settings) => new TestBuilder(environment, settings));
-            configurator.ApplyCommandLine("");
-
+            configurator.ApplyCommandLine(string.Empty);
             return configurator;
         }
     }

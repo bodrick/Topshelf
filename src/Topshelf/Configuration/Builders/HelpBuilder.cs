@@ -18,7 +18,7 @@ namespace Topshelf.Configuration.Builders
 {
     public class HelpBuilder : IHostBuilder
     {
-        private string _prefixText;
+        private string _prefixText = string.Empty;
         private bool _systemHelpTextOnly;
 
         public HelpBuilder(IHostEnvironment environment, IHostSettings settings)
@@ -33,22 +33,13 @@ namespace Topshelf.Configuration.Builders
 
         public IHost Build(IServiceBuilder serviceBuilder)
         {
-            var prefixText = _systemHelpTextOnly
-                                    ? null
-                                    : _prefixText;
-
+            var prefixText = _systemHelpTextOnly ? string.Empty : _prefixText;
             return new HelpHost(prefixText);
         }
 
         public void Match<T>(Action<T> callback) where T : class, IHostBuilder
         {
-            if (callback == null)
-            {
-                throw new ArgumentNullException(nameof(callback));
-            }
-
-            var self = this as T;
-            if (self != null)
+            if (this is T self)
             {
                 callback(self);
             }

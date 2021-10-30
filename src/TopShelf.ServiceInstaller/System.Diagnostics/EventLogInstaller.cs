@@ -9,13 +9,12 @@ namespace System.Diagnostics
     public class EventLogInstaller : ComponentInstaller
     {
         private readonly EventSourceCreationData _sourceData = new(null, null);
-
-        private UninstallAction _uninstallAction;
+        private readonly UninstallAction _uninstallAction;
 
         /// <summary>Gets or sets the number of categories in the category resource file.</summary>
         /// <returns>The number of categories in the category resource file. The default value is zero.</returns>
         [ComVisible(false)]
-        [ResDescription("Desc_CategoryCount")]
+        [ResDescription(Res.Desc_CategoryCount)]
         public int CategoryCount
         {
             get => _sourceData.CategoryCount;
@@ -27,7 +26,7 @@ namespace System.Diagnostics
         [TypeConverter("System.Diagnostics.Design.StringValueConverter, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [Editor("System.Windows.Forms.Design.FileNameEditor, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [ComVisible(false)]
-        [ResDescription("Desc_CategoryResourceFile")]
+        [ResDescription(Res.Desc_CategoryResourceFile)]
         public string CategoryResourceFile
         {
             get => _sourceData.CategoryResourceFile;
@@ -37,8 +36,8 @@ namespace System.Diagnostics
         /// <summary>Gets or sets the name of the log to set the source to.</summary>
         /// <returns>The name of the log. This can be Application, System, or a custom log name. The default is an empty string ("").</returns>
         [TypeConverter("System.Diagnostics.Design.StringValueConverter, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
-        [ResDescription("Desc_Log")]
-        public string? Log
+        [ResDescription(Res.Desc_Log)]
+        public string Log
         {
             get
             {
@@ -56,7 +55,7 @@ namespace System.Diagnostics
         [TypeConverter("System.Diagnostics.Design.StringValueConverter, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [Editor("System.Windows.Forms.Design.FileNameEditor, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [ComVisible(false)]
-        [ResDescription("Desc_MessageResourceFile")]
+        [ResDescription(Res.Desc_MessageResourceFile)]
         public string MessageResourceFile
         {
             get => _sourceData.MessageResourceFile;
@@ -68,7 +67,7 @@ namespace System.Diagnostics
         [TypeConverter("System.Diagnostics.Design.StringValueConverter, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [Editor("System.Windows.Forms.Design.FileNameEditor, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [ComVisible(false)]
-        [ResDescription("Desc_ParameterResourceFile")]
+        [ResDescription(Res.Desc_ParameterResourceFile)]
         public string ParameterResourceFile
         {
             get => _sourceData.ParameterResourceFile;
@@ -79,7 +78,7 @@ namespace System.Diagnostics
         /// <returns>The name to register with the event log as a source of entries. The default is an empty string ("").</returns>
         [TypeConverter("System.Diagnostics.Design.StringValueConverter, System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
         [ResDescription("Desc_Source")]
-        public string? Source
+        public string Source
         {
             get => _sourceData.Source;
             set => _sourceData.Source = value;
@@ -90,11 +89,11 @@ namespace System.Diagnostics
         /// <exception cref="InvalidEnumArgumentException">
         ///   <see cref="UninstallAction" /> contains an invalid value. The only valid values for this property are Remove and NoAction.</exception>
         [DefaultValue(UninstallAction.Remove)]
-        [ResDescription("Desc_UninstallAction")]
+        [ResDescription(Res.Desc_UninstallAction)]
         public UninstallAction UninstallAction
         {
             get => _uninstallAction;
-            set
+            init
             {
                 if (!Enum.IsDefined(typeof(UninstallAction), value))
                 {
@@ -111,7 +110,7 @@ namespace System.Diagnostics
         {
             if (component is not EventLog eventLog)
             {
-                throw new ArgumentException(Res.GetString("NotAnEventLog"));
+                throw new ArgumentException(Res.GetString(Res.NotAnEventLog));
             }
 
             if (!string.IsNullOrEmpty(eventLog.Log) && !string.IsNullOrEmpty(eventLog.Source))
@@ -120,7 +119,7 @@ namespace System.Diagnostics
                 Source = eventLog.Source;
                 return;
             }
-            throw new ArgumentException(Res.GetString("IncompleteEventLog"));
+            throw new ArgumentException(Res.GetString(Res.IncompleteEventLog));
         }
 
         /// <summary>Performs the installation and writes event log information to the registry.</summary>
@@ -130,16 +129,16 @@ namespace System.Diagnostics
         public override void Install(IDictionary stateSaver)
         {
             base.Install(stateSaver);
-            Context?.LogMessage(Res.GetString("CreatingEventLog", Source, Log));
+            Context?.LogMessage(Res.GetString(Res.CreatingEventLog, Source, Log));
             if (Environment.OSVersion.Platform != PlatformID.Win32NT)
             {
-                throw new PlatformNotSupportedException(Res.GetString("WinNTRequired"));
+                throw new PlatformNotSupportedException(Res.GetString(Res.WinNTRequired));
             }
             stateSaver["baseInstalledAndPlatformOK"] = true;
             stateSaver["logExists"] = EventLog.Exists(Log, ".");
-            var flag2 = EventLog.SourceExists(Source, ".");
-            stateSaver["alreadyRegistered"] = flag2;
-            if (flag2 && EventLog.LogNameFromSourceName(Source, ".") == Log)
+            var alreadyRegistered = EventLog.SourceExists(Source, ".");
+            stateSaver["alreadyRegistered"] = alreadyRegistered;
+            if (alreadyRegistered && EventLog.LogNameFromSourceName(Source, ".") == Log)
             {
                 return;
             }
@@ -160,10 +159,10 @@ namespace System.Diagnostics
 
         /// <summary>Restores the computer to the state it was in before the installation by rolling back the event log information that the installation procedure wrote to the registry.</summary>
         /// <param name="savedState">An <see cref="IDictionary" /> that contains the pre-installation state of the computer. </param>
-        public override void Rollback(IDictionary savedState)
+        protected override void Rollback(IDictionary savedState)
         {
             base.Rollback(savedState);
-            Context?.LogMessage(Res.GetString("RestoringEventLog", Source));
+            Context?.LogMessage(Res.GetString(Res.RestoringEventLog, Source));
             if (savedState["baseInstalledAndPlatformOK"] != null)
             {
                 var logExists = (bool)(savedState["logExists"] ?? false);
@@ -173,10 +172,20 @@ namespace System.Diagnostics
                 }
                 else
                 {
-                    var obj = savedState["alreadyRegistered"];
-                    var flag = obj != null && (bool)obj;
-                    if (!flag && EventLog.SourceExists(Source, "."))
+                    bool alreadyRegistered;
+                    var alreadyRegisteredObj = savedState["alreadyRegistered"];
+                    if (alreadyRegisteredObj == null)
                     {
+                        alreadyRegistered = false;
+                    }
+                    else
+                    {
+                        alreadyRegistered = (bool)alreadyRegisteredObj;
+                    }
+
+                    if (!alreadyRegistered && EventLog.SourceExists(Source, "."))
+                    {
+                        // delete the source we installed, assuming it succeeded. Then put back whatever used to be there.
                         EventLog.DeleteEventSource(Source, ".");
                     }
                 }
@@ -185,12 +194,12 @@ namespace System.Diagnostics
 
         /// <summary>Removes an installation by removing event log information from the registry.</summary>
         /// <param name="savedState">An <see cref="IDictionary" /> that contains the pre-installation state of the computer. </param>
-        public override void Uninstall(IDictionary savedState)
+        public override void Uninstall(IDictionary? savedState)
         {
             base.Uninstall(savedState);
             if (UninstallAction == UninstallAction.Remove)
             {
-                Context?.LogMessage(Res.GetString("RemovingEventLog", Source));
+                Context?.LogMessage(Res.GetString(Res.RemovingEventLog, Source));
                 if (EventLog.SourceExists(Source, "."))
                 {
                     if (!string.Equals(Log, Source, StringComparison.OrdinalIgnoreCase))
@@ -200,31 +209,31 @@ namespace System.Diagnostics
                 }
                 else
                 {
-                    Context?.LogMessage(Res.GetString("LocalSourceNotRegisteredWarning", Source));
+                    Context?.LogMessage(Res.GetString(Res.LocalSourceNotRegisteredWarning, Source));
                 }
-                var registryKey = Registry.LocalMachine;
-                RegistryKey? registryKey2 = null;
+                var key = Registry.LocalMachine;
+                RegistryKey? logKey = null;
                 try
                 {
-                    registryKey = registryKey.OpenSubKey("SYSTEM\\CurrentControlSet\\Services\\EventLog", false);
-                    if (registryKey != null)
+                    key = key.OpenSubKey("SYSTEM\\CurrentControlSet\\Services\\EventLog", false);
+                    if (key != null)
                     {
-                        registryKey2 = registryKey.OpenSubKey(Log, false);
+                        logKey = key.OpenSubKey(Log, false);
                     }
-                    if (registryKey2 != null)
+                    if (logKey != null)
                     {
-                        var subKeyNames = registryKey2.GetSubKeyNames();
-                        if (subKeyNames.Length == 0 || (subKeyNames.Length == 1 && string.Equals(subKeyNames[0], Log, StringComparison.OrdinalIgnoreCase)))
+                        var keyNames = logKey.GetSubKeyNames();
+                        if (keyNames.Length == 0 || (keyNames.Length == 1 && string.Equals(keyNames[0], Log, StringComparison.OrdinalIgnoreCase)))
                         {
-                            Context?.LogMessage(Res.GetString("DeletingEventLog", Log));
+                            Context?.LogMessage(Res.GetString(Res.DeletingEventLog, Log));
                             EventLog.Delete(Log, ".");
                         }
                     }
                 }
                 finally
                 {
-                    registryKey?.Close();
-                    registryKey2?.Close();
+                    key?.Close();
+                    logKey?.Close();
                 }
             }
         }

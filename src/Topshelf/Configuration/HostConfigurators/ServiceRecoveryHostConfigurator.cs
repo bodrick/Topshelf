@@ -40,15 +40,8 @@ namespace Topshelf.Configuration.HostConfigurators
         /// <exception cref="ArgumentNullException">builder</exception>
         public IHostBuilder Configure(IHostBuilder builder)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
             _settings = builder.Settings;
-
             builder.Match<InstallBuilder>(x => x.AfterInstall(ConfigureServiceRecovery));
-
             return builder;
         }
 
@@ -67,7 +60,6 @@ namespace Topshelf.Configuration.HostConfigurators
         public IServiceRecoveryConfigurator RestartComputer(TimeSpan delay, string message)
         {
             Options.AddAction(new RestartSystemRecoveryAction(delay, message));
-
             return this;
         }
 
@@ -87,7 +79,6 @@ namespace Topshelf.Configuration.HostConfigurators
         public IServiceRecoveryConfigurator RestartService(TimeSpan delay)
         {
             Options.AddAction(new RestartServiceRecoveryAction(delay));
-
             return this;
         }
 
@@ -107,7 +98,6 @@ namespace Topshelf.Configuration.HostConfigurators
         public IServiceRecoveryConfigurator RunProgram(TimeSpan delay, string command)
         {
             Options.AddAction(new RunProgramRecoveryAction(delay, command));
-
             return this;
         }
 
@@ -126,7 +116,6 @@ namespace Topshelf.Configuration.HostConfigurators
         public IServiceRecoveryConfigurator SetResetPeriod(int days)
         {
             Options.ResetPeriod = days;
-
             return this;
         }
 
@@ -137,7 +126,6 @@ namespace Topshelf.Configuration.HostConfigurators
         public IServiceRecoveryConfigurator TakeNoAction()
         {
             Options.AddAction(new TakeNoActionAction());
-
             return this;
         }
 
@@ -153,10 +141,6 @@ namespace Topshelf.Configuration.HostConfigurators
             }
         }
 
-        private void ConfigureServiceRecovery(IInstallHostSettings installSettings)
-        {
-            var controller = new WindowsServiceRecoveryController();
-            controller.SetServiceRecoveryOptions(installSettings, _options);
-        }
+        private void ConfigureServiceRecovery(IInstallHostSettings installSettings) => WindowsServiceRecoveryController.SetServiceRecoveryOptions(installSettings, _options);
     }
 }

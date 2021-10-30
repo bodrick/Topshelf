@@ -24,27 +24,17 @@ namespace Topshelf.Runtime.Windows
 {
     public class WindowsServiceHost : ServiceBase, IHost, IHostControl
     {
-        private static readonly ILogWriter _log = HostLogger.Get<WindowsServiceHost>();
+        private static readonly ILogWriter Log = HostLogger.Get<WindowsServiceHost>();
         private readonly IHostConfigurator _configurator;
         private readonly IHostEnvironment _environment;
         private readonly IServiceHandle _serviceHandle;
         private readonly IHostSettings _settings;
         private int _deadThread;
         private bool _disposed;
-        private Exception _unhandledException;
+        private Exception? _unhandledException;
 
         public WindowsServiceHost(IHostEnvironment environment, IHostSettings settings, IServiceHandle serviceHandle, IHostConfigurator configurator)
         {
-            if (settings == null)
-            {
-                throw new ArgumentNullException(nameof(settings));
-            }
-
-            if (serviceHandle == null)
-            {
-                throw new ArgumentNullException(nameof(serviceHandle));
-            }
-
             _settings = settings;
             _serviceHandle = serviceHandle;
             _environment = environment;
@@ -59,8 +49,7 @@ namespace Topshelf.Runtime.Windows
 
         void IHostControl.RequestAdditionalTime(TimeSpan timeRemaining)
         {
-            _log.DebugFormat("Requesting additional time: {0}", timeRemaining);
-
+            Log.DebugFormat("Requesting additional time: {0}", timeRemaining);
             RequestAdditionalTime((int)timeRemaining.TotalMilliseconds);
         }
 
@@ -72,18 +61,18 @@ namespace Topshelf.Runtime.Windows
 
             ExitCode = (int)TopshelfExitCode.Ok;
 
-            _log.Info("Starting as a Windows service");
+            Log.Info("Starting as a Windows service");
 
             if (!_environment.IsServiceInstalled(_settings.ServiceName))
             {
-                var message = $"The {_settings.ServiceName} service has not been installed yet. Please run '{Assembly.GetEntryAssembly().GetName()} install'.";
-                _log.Fatal(message);
+                var message = $"The {_settings.ServiceName} service has not been installed yet. Please run '{Assembly.GetEntryAssembly()?.GetName()} install'.";
+                Log.Fatal(message);
 
                 ExitCode = (int)TopshelfExitCode.ServiceNotInstalled;
                 throw new TopshelfException(message);
             }
 
-            _log.Debug("[Topshelf] Starting up as a windows service application");
+            Log.Debug("[Topshelf] Starting up as a windows service application");
 
             Run(this);
 
@@ -98,8 +87,7 @@ namespace Topshelf.Runtime.Windows
         {
             if (disposing && !_disposed)
             {
-                _serviceHandle?.Dispose();
-
+                _serviceHandle.Dispose();
                 _disposed = true;
             }
 
@@ -110,20 +98,20 @@ namespace Topshelf.Runtime.Windows
         {
             try
             {
-                _log.Info("[Topshelf] Resuming service");
+                Log.Info("[Topshelf] Resuming service");
 
                 if (!_serviceHandle.Continue(this))
                 {
                     throw new TopshelfException("The service did not continue successfully (returned false).");
                 }
 
-                _log.Info("[Topshelf] Resumed");
+                Log.Info("[Topshelf] Resumed");
             }
             catch (Exception ex)
             {
                 _settings.ExceptionCallback?.Invoke(ex);
 
-                _log.Fatal("The service did not resume successfully", ex);
+                Log.Fatal("The service did not resume successfully", ex);
                 throw;
             }
         }
@@ -132,17 +120,17 @@ namespace Topshelf.Runtime.Windows
         {
             try
             {
-                _log.InfoFormat("[Topshelf] Custom command {0} received", command);
+                Log.InfoFormat("[Topshelf] Custom command {0} received", command);
 
                 _serviceHandle.CustomCommand(this, command);
 
-                _log.InfoFormat("[Topshelf] Custom command {0} processed", command);
+                Log.InfoFormat("[Topshelf] Custom command {0} processed", command);
             }
             catch (Exception ex)
             {
                 _settings.ExceptionCallback?.Invoke(ex);
 
-                _log.Error("Unhandled exception during custom command processing detected", ex);
+                Log.Error("Unhandled exception during custom command processing detected", ex);
             }
         }
 
@@ -150,20 +138,20 @@ namespace Topshelf.Runtime.Windows
         {
             try
             {
-                _log.Info("[Topshelf] Pausing service");
+                Log.Info("[Topshelf] Pausing service");
 
                 if (!_serviceHandle.Pause(this))
                 {
                     throw new TopshelfException("The service did not pause successfully (returned false).");
                 }
 
-                _log.Info("[Topshelf] Paused");
+                Log.Info("[Topshelf] Paused");
             }
             catch (Exception ex)
             {
                 _settings.ExceptionCallback?.Invoke(ex);
 
-                _log.Fatal("The service did not pause gracefully", ex);
+                Log.Fatal("The service did not pause gracefully", ex);
                 throw;
             }
         }
@@ -172,13 +160,13 @@ namespace Topshelf.Runtime.Windows
         {
             try
             {
-                _log.Info("[Topshelf] Power event raised");
+                Log.Info("[Topshelf] Power event raised");
 
                 var arguments = new WindowsPowerEventArguments(powerStatus);
 
                 var result = _serviceHandle.PowerEvent(this, arguments);
 
-                _log.Info("[Topshelf] Power event handled");
+                Log.Info("[Topshelf] Power event handled");
 
                 return result;
             }
@@ -186,7 +174,7 @@ namespace Topshelf.Runtime.Windows
             {
                 _settings.ExceptionCallback?.Invoke(ex);
 
-                _log.Fatal("The service did handle the Power event correctly", ex);
+                Log.Fatal("The service did handle the Power event correctly", ex);
                 ExitCode = (int)TopshelfExitCode.ServiceControlRequestFailed;
                 throw;
             }
@@ -196,19 +184,19 @@ namespace Topshelf.Runtime.Windows
         {
             try
             {
-                _log.Info("[Topshelf] Service session changed");
+                Log.Info("[Topshelf] Service session changed");
 
                 var arguments = new WindowsSessionChangedArguments(changeDescription);
 
                 _serviceHandle.SessionChanged(this, arguments);
 
-                _log.Info("[Topshelf] Service session changed handled");
+                Log.Info("[Topshelf] Service session changed handled");
             }
             catch (Exception ex)
             {
                 _settings.ExceptionCallback?.Invoke(ex);
 
-                _log.Fatal("The did not handle Service session change correctly", ex);
+                Log.Fatal("The did not handle Service session change correctly", ex);
                 ExitCode = (int)TopshelfExitCode.ServiceControlRequestFailed;
                 throw;
             }
@@ -218,17 +206,17 @@ namespace Topshelf.Runtime.Windows
         {
             try
             {
-                _log.Info("[Topshelf] Service is being shutdown");
+                Log.Info("[Topshelf] Service is being shutdown");
 
                 _serviceHandle.Shutdown(this);
 
-                _log.Info("[Topshelf] Stopped");
+                Log.Info("[Topshelf] Stopped");
             }
             catch (Exception ex)
             {
                 _settings.ExceptionCallback?.Invoke(ex);
 
-                _log.Fatal("The service did not shut down gracefully", ex);
+                Log.Fatal("The service did not shut down gracefully", ex);
                 ExitCode = (int)TopshelfExitCode.ServiceControlRequestFailed;
                 throw;
             }
@@ -238,13 +226,13 @@ namespace Topshelf.Runtime.Windows
         {
             try
             {
-                _log.Info("[Topshelf] Starting");
+                Log.Info("[Topshelf] Starting");
 
                 Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
-                _log.DebugFormat("[Topshelf] Current Directory: {0}", Directory.GetCurrentDirectory());
+                Log.DebugFormat("[Topshelf] Current Directory: {0}", Directory.GetCurrentDirectory());
 
-                _log.DebugFormat("[Topshelf] Arguments: {0}", string.Join(",", args));
+                Log.DebugFormat("[Topshelf] Arguments: {0}", string.Join(",", args));
 
                 var startArgs = string.Join(" ", args);
                 _configurator.ApplyCommandLine(startArgs);
@@ -254,13 +242,13 @@ namespace Topshelf.Runtime.Windows
                     throw new TopshelfException("The service did not start successfully (returned false).");
                 }
 
-                _log.Info("[Topshelf] Started");
+                Log.Info("[Topshelf] Started");
             }
             catch (Exception ex)
             {
                 _settings.ExceptionCallback?.Invoke(ex);
 
-                _log.Fatal("The service did not start successfully", ex);
+                Log.Fatal("The service did not start successfully", ex);
 
                 ExitCode = (int)TopshelfExitCode.ServiceControlRequestFailed;
                 throw;
@@ -271,20 +259,20 @@ namespace Topshelf.Runtime.Windows
         {
             try
             {
-                _log.Info("[Topshelf] Stopping");
+                Log.Info("[Topshelf] Stopping");
 
                 if (!_serviceHandle.Stop(this))
                 {
                     throw new TopshelfException("The service did not stop successfully (return false).");
                 }
 
-                _log.Info("[Topshelf] Stopped");
+                Log.Info("[Topshelf] Stopped");
             }
             catch (Exception ex)
             {
                 _settings.ExceptionCallback?.Invoke(ex);
 
-                _log.Fatal("The service did not shut down gracefully", ex);
+                Log.Fatal("The service did not shut down gracefully", ex);
                 ExitCode = (int)TopshelfExitCode.ServiceControlRequestFailed;
                 throw;
             }
@@ -292,7 +280,7 @@ namespace Topshelf.Runtime.Windows
             if (_unhandledException != null)
             {
                 ExitCode = (int)TopshelfExitCode.AbnormalExit;
-                _log.Info("[Topshelf] Unhandled exception detected, rethrowing to cause application to restart.");
+                Log.Info("[Topshelf] Unhandled exception detected, rethrowing to cause application to restart.");
                 throw new InvalidOperationException("An unhandled exception was detected", _unhandledException);
             }
         }
@@ -306,7 +294,7 @@ namespace Topshelf.Runtime.Windows
                 return;
             }
 
-            _log.Fatal("The service threw an unhandled exception", (Exception)e.ExceptionObject);
+            Log.Fatal("The service threw an unhandled exception", (Exception)e.ExceptionObject);
 
             if (_settings.UnhandledExceptionPolicy == UnhandledExceptionPolicyCode.LogErrorOnly)
             {
@@ -314,11 +302,6 @@ namespace Topshelf.Runtime.Windows
             }
 
             HostLogger.Shutdown();
-
-            //            // IF not terminating, then no reason to stop the service?
-            //            if (!e.IsTerminating)
-            //                return;
-            //          This needs to be a configuration option to avoid breaking compatibility
 
             ExitCode = (int)TopshelfExitCode.AbnormalExit;
             _unhandledException = (Exception)e.ExceptionObject;
@@ -345,7 +328,7 @@ namespace Topshelf.Runtime.Windows
         {
             if (CanStop)
             {
-                _log.Debug("Stop requested by hosted service");
+                Log.Debug("Stop requested by hosted service");
                 if (exitCode.HasValue)
                 {
                     ExitCode = (int)exitCode.Value;
@@ -355,20 +338,18 @@ namespace Topshelf.Runtime.Windows
             }
             else
             {
-                _log.Debug("Stop requested by hosted service, but service cannot be stopped at this time");
+                Log.Debug("Stop requested by hosted service, but service cannot be stopped at this time");
                 throw new ServiceControlException("The service cannot be stopped at this time");
             }
         }
 
-        private class WindowsPowerEventArguments :
-            IPowerEventArguments
+        private sealed class WindowsPowerEventArguments : IPowerEventArguments
         {
             public WindowsPowerEventArguments(PowerBroadcastStatus powerStatus) => EventCode = (PowerEventCode)Enum.ToObject(typeof(PowerEventCode), (int)powerStatus);
 
             public PowerEventCode EventCode { get; }
         }
-        private class WindowsSessionChangedArguments :
-                    ISessionChangedArguments
+        private sealed class WindowsSessionChangedArguments : ISessionChangedArguments
         {
             public WindowsSessionChangedArguments(SessionChangeDescription changeDescription)
             {

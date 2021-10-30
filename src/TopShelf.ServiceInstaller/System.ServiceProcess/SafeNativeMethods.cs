@@ -1,23 +1,27 @@
 using System.Runtime.InteropServices;
-using System.Security;
 
 namespace System.ServiceProcess
 {
-    [SuppressUnmanagedCodeSecurity]
-    public static class SafeNativeMethods
+    internal static class SafeNativeMethods
     {
+        [DllImport("AdvApi32", ExactSpelling = true, SetLastError = true)]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
         public static extern bool CloseServiceHandle(IntPtr handle);
 
-        [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("AdvApi32", ExactSpelling = true)]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
         public static extern int LsaClose(IntPtr objectHandle);
 
-        [DllImport("advapi32.dll")]
+        [DllImport("AdvApi32", ExactSpelling = true)]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
         public static extern int LsaFreeMemory(IntPtr ptr);
 
-        [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("AdvApi32", ExactSpelling = true)]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
         public static extern int LsaNtStatusToWinError(int ntStatus);
 
-        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern IntPtr OpenSCManager(string? machineName, string? databaseName, int access);
+        [DllImport("AdvApi32", ExactSpelling = true, EntryPoint = "OpenSCManagerW", SetLastError = true, CharSet = CharSet.Unicode)]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+        public static extern IntPtr OpenSCManager(string? machineName, string? databaseName, uint access);
     }
 }

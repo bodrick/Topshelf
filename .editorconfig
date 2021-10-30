@@ -418,44 +418,29 @@ dotnet_naming_rule.parameters_rule.severity             = warning
 
 # Suppress Annoyances
 
-# CA1305: Specify IFormatProvider
-dotnet_diagnostic.CA1305.severity = none
-
-# CA1303: Do not pass literals as localized parameters
-dotnet_diagnostic.CA1303.severity = none
-
-# CA2007: Consider calling ConfigureAwait on the awaited task
-dotnet_diagnostic.CA2007.severity = none
-
-# CA1031: Do not catch general exception types
-dotnet_diagnostic.CA1031.severity = none
-
-# CA1707: Identifiers should not contain underscores
-dotnet_diagnostic.CA1707.severity = none
-
-# RCS1090: Add call to 'ConfigureAwait' (or vice versa).
-dotnet_diagnostic.RCS1090.severity = none
-
-# IDE0058: computed value is never used.
-dotnet_diagnostic.IDE0058.severity = none
-
-# CS1591: Missing XML comment for publicly visible type or member
-dotnet_diagnostic.CS1591.severity = none
-
-# VSTHRD111: Use ConfigureAwait(bool)
-dotnet_diagnostic.VSTHRD111.severity = none
+# RCS1181: Convert comment to documentation comment.
+dotnet_diagnostic.RCS1181.severity = none
 
 # IDE0010: Add missing cases
 dotnet_diagnostic.IDE0010.severity = none
 
-# RCS1181: Convert comment to documentation comment.
-dotnet_diagnostic.RCS1181.severity = none
+# IDE0072: Add missing cases
+dotnet_diagnostic.IDE0072.severity = none
 
-# RCS1191: Declare enum value as combination of names.
-dotnet_diagnostic.RCS1191.severity = none
+# CA1713: Events should not have 'Before' or 'After' prefix
+dotnet_diagnostic.CA1713.severity = none
 
-# S2737: "catch" clauses should do more than rethrow
-dotnet_diagnostic.S2737.severity = none
+# CA1711: Identifiers should not have incorrect suffix
+dotnet_code_quality.ca1711.allowed_suffixes = EventHandler|EventArgs
+
+# CA1716: Identifiers should not match keywords
+dotnet_code_quality.CA1716.analyzed_symbol_kinds = Namespace, NamedType, Property, Event, Parameter
+
+# S2376: Write-only properties should not be used
+dotnet_diagnostic.S2376.severity = none
+
+# CA1716: Identifiers should not match keywords
+dotnet_diagnostic.CA1716.severity = none
 
 ##########################################
 # License

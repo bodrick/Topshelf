@@ -12,8 +12,7 @@ namespace Topshelf.Caching
         /// Constructs a cache for the specified generic type
         /// </summary>
         /// <param name="genericType">The generic type to close</param>
-        public GenericTypeCache(Type genericType) : this(genericType,
-            new ConcurrentCache<Type, TInterface>(DefaultMissingValueProvider(genericType)))
+        public GenericTypeCache(Type genericType) : this(genericType, new ConcurrentCache<Type, TInterface?>(DefaultMissingValueProvider(genericType)))
         {
         }
 

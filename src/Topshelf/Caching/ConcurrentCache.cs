@@ -249,25 +249,18 @@ namespace Topshelf.Caching
             return defaultValue;
         }
 
-        public TResult WithValue<TResult>(TKey key, Func<TValue, TResult> callback, Func<TKey, TResult> defaultValue)
-        {
-            if (_values.TryGetValue(key, out var value))
-            {
-                return callback(value);
-            }
-
-            return defaultValue(key);
-        }
+        public TResult WithValue<TResult>(TKey key, Func<TValue, TResult> callback, Func<TKey, TResult> defaultValue) => _values.TryGetValue(key, out var value) ? callback(value) : defaultValue(key);
 
         private static void DefaultCacheItemCallback(TKey key, TValue value)
         {
+            // Method intentionally left empty.
         }
 
         private static TKey DefaultKeyAccessor(TValue value) => throw new InvalidOperationException("No default key accessor has been specified");
 
         private static void ThrowOnDuplicateValue(TKey key, TValue value) => throw new ArgumentException(
-                string.Format("An item with the same key already exists in the cache: {0}", key), "key");
+            $"An item with the same key already exists in the cache: {key}", nameof(key));
 
-        private static TValue ThrowOnMissingValue(TKey key) => throw new KeyNotFoundException("The specified element was not found: " + key);
+        private static TValue ThrowOnMissingValue(TKey key) => throw new KeyNotFoundException($"The specified element was not found: {key}");
     }
 }

@@ -32,7 +32,6 @@ namespace Topshelf.Configuration.Builders
             try
             {
                 var service = _serviceFactory(settings);
-
                 return new ControlServiceHandle(service, _serviceEvents);
             }
             catch (Exception ex)
@@ -41,7 +40,7 @@ namespace Topshelf.Configuration.Builders
             }
         }
 
-        private class ControlServiceHandle : IServiceHandle
+        private sealed class ControlServiceHandle : IServiceHandle
         {
             private readonly T _service;
             private readonly IServiceEvents _serviceEvents;

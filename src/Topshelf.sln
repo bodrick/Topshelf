@@ -27,9 +27,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TopShelf.ServiceInstaller",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{75D5FED8-96D8-4460-82DF-595A5F4B8114}"
 	ProjectSection(SolutionItems) = preProject
+		..\.editorconfig = ..\.editorconfig
 		Directory.Build.props = Directory.Build.props
 		SolutionVersion.cs = SolutionVersion.cs
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Topshelf.Extensions.Hosting", "Topshelf.Extensions.Hosting\Topshelf.Extensions.Hosting.csproj", "{C7C631A8-3C39-4362-BCCF-61F74D2DE6EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,6 +96,12 @@ Global
 		{699FB86C-E57F-4750-BE0F-ACDCC3F19364}.Release|Any CPU.Build.0 = Release|Any CPU
 		{699FB86C-E57F-4750-BE0F-ACDCC3F19364}.ReleaseUnsigned|Any CPU.ActiveCfg = Release|Any CPU
 		{699FB86C-E57F-4750-BE0F-ACDCC3F19364}.ReleaseUnsigned|Any CPU.Build.0 = Release|Any CPU
+		{C7C631A8-3C39-4362-BCCF-61F74D2DE6EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7C631A8-3C39-4362-BCCF-61F74D2DE6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7C631A8-3C39-4362-BCCF-61F74D2DE6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7C631A8-3C39-4362-BCCF-61F74D2DE6EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7C631A8-3C39-4362-BCCF-61F74D2DE6EB}.ReleaseUnsigned|Any CPU.ActiveCfg = Release|Any CPU
+		{C7C631A8-3C39-4362-BCCF-61F74D2DE6EB}.ReleaseUnsigned|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

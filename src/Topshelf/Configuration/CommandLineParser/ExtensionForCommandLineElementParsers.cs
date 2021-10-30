@@ -10,6 +10,7 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,28 +21,21 @@ namespace Topshelf.Configuration.CommandLineParser
         public static Parser<IEnumerable<ICommandLineElement>, ISwitchElement> Optional(
             this Parser<IEnumerable<ICommandLineElement>, ISwitchElement> source, string key, bool defaultValue) => input =>
         {
-            var query = input
-                .Where(x => x.GetType() == typeof(SwitchElement))
-                .Where(x => ((SwitchElement)x).Key == key);
+            var query = input.Where(x => x.GetType() == typeof(SwitchElement) && ((SwitchElement)x).Key == key);
 
             if (query.Any())
             {
-                return
-                    new Result<IEnumerable<ICommandLineElement>, ISwitchElement>(
-                        query.First() as ISwitchElement, input.Except(query));
+                return new Result<IEnumerable<ICommandLineElement>, ISwitchElement>(query.First() as ISwitchElement, input.Except(query));
             }
 
-            return
-                new Result<IEnumerable<ICommandLineElement>, ISwitchElement>(
-                    new SwitchElement(key, defaultValue), input);
+            return new Result<IEnumerable<ICommandLineElement>, ISwitchElement>(new SwitchElement(key, defaultValue), input);
         };
 
         public static Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Optional(
             this Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> source, string key, string defaultValue) => input =>
         {
             var query = input
-                .Where(x => x.GetType() == typeof(DefinitionElement))
-                .Where(x => ((DefinitionElement)x).Key == key);
+                .Where(x => x.GetType() == typeof(DefinitionElement) && ((DefinitionElement)x).Key == key);
 
             if (query.Any())
             {

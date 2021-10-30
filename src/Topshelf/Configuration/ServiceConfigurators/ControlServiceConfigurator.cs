@@ -24,7 +24,7 @@ namespace Topshelf.Configuration.ServiceConfigurators
 
         public ControlServiceConfigurator(Func<IHostSettings, T> serviceFactory) => _serviceFactory = serviceFactory;
 
-        public IServiceBuilder Build() => new ControlServiceBuilder<T>(_serviceFactory, ServiceEvents);
+        public IServiceBuilder Build() => new ControlServiceBuilder<T>(_serviceFactory, Events);
 
         public IEnumerable<IValidateResult> Validate()
         {

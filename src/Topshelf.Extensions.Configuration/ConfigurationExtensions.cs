@@ -42,7 +42,6 @@ namespace Topshelf.Extensions.Configuration
         public static void ApplyConfiguration(this IHostConfigurator configurator, IConfigurationSection configuration)
         {
             var options = configuration.Parse();
-
             configurator.ApplyOptions(options);
         }
 
@@ -64,16 +63,14 @@ namespace Topshelf.Extensions.Configuration
         /// </summary>
         /// <param name="configuration">The configuration.</param>
         /// <returns>The default Topshelf configuration section.</returns>
-        public static IConfigurationSection GetTopshelfSection(this IConfiguration configuration)
-            => configuration.GetSection("Topshelf");
+        public static IConfigurationSection GetTopshelfSection(this IConfiguration configuration) => configuration.GetSection("Topshelf");
 
         /// <summary>
         /// Parses the specified configuration.
         /// </summary>
         /// <param name="configuration">The configuration.</param>
         /// <returns>A list of configuration options.</returns>
-        public static IEnumerable<IOption> Parse(this IConfiguration configuration)
-            => configuration.GetTopshelfSection().Parse();
+        public static IEnumerable<IOption> Parse(this IConfiguration configuration) => configuration.GetTopshelfSection().Parse();
 
         /// <summary>
         /// Parses the specified configuration.
@@ -84,7 +81,6 @@ namespace Topshelf.Extensions.Configuration
         public static IEnumerable<IOption> Parse(this IConfigurationSection configuration)
         {
             var options = new List<IOption>();
-
             foreach (var (key, startMode) in configuration.AsEnumerable(true))
             {
                 if (string.Equals(key, "SystemOnly", StringComparison.OrdinalIgnoreCase))

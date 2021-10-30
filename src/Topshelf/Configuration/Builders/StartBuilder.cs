@@ -18,7 +18,7 @@ namespace Topshelf.Configuration.Builders
 {
     public class StartBuilder : IHostBuilder
     {
-        private readonly IHostBuilder _builder;
+        private readonly IHostBuilder? _builder;
 
         public StartBuilder(IHostBuilder builder)
         {
@@ -33,36 +33,27 @@ namespace Topshelf.Configuration.Builders
 
         public IHost Build(IServiceBuilder serviceBuilder)
         {
-            if (_builder != null)
+            if (_builder == null)
             {
-                var parentHost = _builder.Build(serviceBuilder);
-
-                return new StartHost(Environment, Settings, parentHost);
+                return new StartHost(Environment, Settings);
             }
 
-            return new StartHost(Environment, Settings);
+            var parentHost = _builder.Build(serviceBuilder);
+            return new StartHost(Environment, Settings, parentHost);
         }
 
         public void Match<T>(Action<T> callback) where T : class, IHostBuilder
         {
-            if (callback == null)
-            {
-                throw new ArgumentNullException(nameof(callback));
-            }
-
-            var self = this as T;
-            if (self != null)
+            if (this is T self)
             {
                 callback(self);
             }
         }
 
-        private static IHostBuilder GetParentBuilder(IHostBuilder builder)
+        private static IHostBuilder? GetParentBuilder(IHostBuilder builder)
         {
-            IHostBuilder result = null;
-
-            builder.Match<InstallBuilder>(x => { result = builder; });
-
+            IHostBuilder? result = null;
+            builder.Match<InstallBuilder>(_ => result = builder);
             return result;
         }
     }

@@ -12,6 +12,7 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Configuration.Install;
 using System.Diagnostics;
 using System.IO;
@@ -26,18 +27,17 @@ namespace Topshelf.Runtime.Windows
     {
         private readonly Installer _installer;
         private readonly TransactedInstaller _transactedInstaller;
+        private bool _disposed;
 
         public HostServiceInstaller(IInstallHostSettings settings)
         {
             _installer = CreateInstaller(settings);
-
             _transactedInstaller = CreateTransactedInstaller(_installer);
         }
 
         public HostServiceInstaller(IHostSettings settings)
         {
             _installer = CreateInstaller(settings);
-
             _transactedInstaller = CreateTransactedInstaller(_installer);
         }
 
@@ -45,36 +45,31 @@ namespace Topshelf.Runtime.Windows
 
         public void Dispose()
         {
-            try
-            {
-                _transactedInstaller.Dispose();
-            }
-            finally
-            {
-                _installer.Dispose();
-            }
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-        public void InstallService(Action<InstallEventArgs> beforeInstall, Action<InstallEventArgs> afterInstall, Action<InstallEventArgs> beforeRollback, Action<InstallEventArgs> afterRollback)
+        public void InstallService(Action<InstallEventArgs> beforeInstall, Action<InstallEventArgs> afterInstall,
+            Action<InstallEventArgs> beforeRollback, Action<InstallEventArgs> afterRollback)
         {
             if (beforeInstall != null)
             {
-                _installer.BeforeInstall += (sender, args) => beforeInstall(args);
+                _installer.BeforeInstall += (_, args) => beforeInstall(args);
             }
 
             if (afterInstall != null)
             {
-                _installer.AfterInstall += (sender, args) => afterInstall(args);
+                _installer.AfterInstall += (_, args) => afterInstall(args);
             }
 
             if (beforeRollback != null)
             {
-                _installer.BeforeRollback += (sender, args) => beforeRollback(args);
+                _installer.BeforeRollback += (_, args) => beforeRollback(args);
             }
 
             if (afterRollback != null)
             {
-                _installer.AfterRollback += (sender, args) => afterRollback(args);
+                _installer.AfterRollback += (_, args) => afterRollback(args);
             }
 
             Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
@@ -86,17 +81,39 @@ namespace Topshelf.Runtime.Windows
         {
             if (beforeUninstall != null)
             {
-                _installer.BeforeUninstall += (sender, args) => beforeUninstall(args);
+                _installer.BeforeUninstall += (_, args) => beforeUninstall(args);
             }
 
             if (afterUninstall != null)
             {
-                _installer.AfterUninstall += (sender, args) => afterUninstall(args);
+                _installer.AfterUninstall += (_, args) => afterUninstall(args);
             }
 
             Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
             _transactedInstaller.Uninstall(null);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                try
+                {
+                    _transactedInstaller.Dispose();
+                }
+                finally
+                {
+                    _installer.Dispose();
+                }
+            }
+
+            _disposed = true;
         }
 
         private static ServiceInstaller ConfigureServiceInstaller(IHostSettings settings, string[] dependencies, HostStartMode startMode)
@@ -110,21 +127,15 @@ namespace Topshelf.Runtime.Windows
             };
 
             SetStartMode(installer, startMode);
-
             return installer;
         }
 
-        private static ServiceProcessInstaller ConfigureServiceProcessInstaller(ServiceAccount account, string username, string password) => new ServiceProcessInstaller
-        {
-            Username = username,
-            Password = password,
-            Account = account,
-        };
+        private static ServiceProcessInstaller ConfigureServiceProcessInstaller(ServiceAccount account, string username, string password) =>
+            new() { Username = username, Password = password, Account = account, };
 
         private static Installer CreateHostInstaller(IHostSettings settings, Installer[] installers)
         {
             var arguments = " ";
-
             if (!string.IsNullOrEmpty(settings.InstanceName))
             {
                 arguments += $" -instance \"{settings.InstanceName}\"";
@@ -146,14 +157,28 @@ namespace Topshelf.Runtime.Windows
         private static Installer CreateInstaller(IInstallHostSettings settings)
         {
             var installers = new Installer[]
-                {
-                    ConfigureServiceInstaller(settings, settings.Dependencies, settings.StartMode),
-                    ConfigureServiceProcessInstaller(settings.Credentials.Account, settings.Credentials.Username, settings.Credentials.Password)
-                };
+            {
+                ConfigureServiceInstaller(settings, settings.Dependencies, settings.StartMode), ConfigureServiceProcessInstaller(
+                    settings.Credentials.Account, settings.Credentials.Username,
+                    settings.Credentials.Password)
+            };
 
             //DO not auto create EventLog Source while install service
             //MSDN: When the installation is performed, it automatically creates an EventLogInstaller to install the event log source associated with the ServiceBase derived class. The Log property for this source is set by the ServiceInstaller constructor to the computer's Application log. When you set the ServiceName of the ServiceInstaller (which should be identical to the ServiceBase..::.ServiceName of the service), the Source is automatically set to the same value. In an installation failure, the source's installation is rolled-back along with previously installed services.
             //MSDN: from EventLog.CreateEventSource Method (String, String) : an ArgumentException thrown when The first 8 characters of logName match the first 8 characters of an existing event log name.
+            RemoveEventLogInstallers(installers);
+
+            return CreateHostInstaller(settings, installers);
+        }
+
+        private static Installer CreateInstaller(IHostSettings settings)
+        {
+            var installers = new Installer[]
+            {
+                ConfigureServiceInstaller(settings, Array.Empty<string>(), HostStartMode.Automatic),
+                ConfigureServiceProcessInstaller(ServiceAccount.LocalService, string.Empty, string.Empty),
+            };
+
             RemoveEventLogInstallers(installers);
 
             return CreateHostInstaller(settings, installers);
@@ -179,26 +204,27 @@ namespace Topshelf.Runtime.Windows
                 throw new TopshelfException("Process.GetCurrentProcess() is null for some reason.");
             }
 
+            if (currentProcess.MainModule == null)
+            {
+                throw new TopshelfException("Process.GetCurrentProcess().MainModule is null for some reason.");
+            }
+
             var path =
                 IsDotnetExe(currentProcess)
-                ? $"/assemblypath={currentProcess.MainModule.FileName} \"{assembly.Location}\""
-                : $"/assemblypath={currentProcess.MainModule.FileName}";
+                    ? $"/assemblypath={currentProcess.MainModule.FileName} \"{assembly.Location}\""
+                    : $"/assemblypath={currentProcess.MainModule.FileName}";
 
-            string[]? commandLine = { path };
+            string[] commandLine = { path };
 
-            var context = new InstallContext(null, commandLine);
-            transactedInstaller.Context = context;
+            transactedInstaller.Context = new InstallContext(null, commandLine);
 
             return transactedInstaller;
         }
 
         private static bool IsDotnetExe(Process process) =>
-            process
-            .MainModule
-            .ModuleName
-            .Equals("dotnet.exe", StringComparison.OrdinalIgnoreCase);
+            process.MainModule?.ModuleName?.Equals("dotnet.exe", StringComparison.OrdinalIgnoreCase) == true;
 
-        private static void RemoveEventLogInstallers(Installer[] installers)
+        private static void RemoveEventLogInstallers(IEnumerable<Installer> installers)
         {
             foreach (var installer in installers)
             {
@@ -230,19 +256,6 @@ namespace Topshelf.Runtime.Windows
                     installer.DelayedAutoStart = true;
                     break;
             }
-        }
-
-        private Installer CreateInstaller(IHostSettings settings)
-        {
-            var installers = new Installer[]
-                {
-                    ConfigureServiceInstaller(settings, Array.Empty<string>(), HostStartMode.Automatic),
-                    ConfigureServiceProcessInstaller(ServiceAccount.LocalService, "", ""),
-                };
-
-            RemoveEventLogInstallers(installers);
-
-            return CreateHostInstaller(settings, installers);
         }
     }
 }

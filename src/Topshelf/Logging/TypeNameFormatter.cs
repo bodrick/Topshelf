@@ -18,15 +18,13 @@ namespace Topshelf.Logging
         {
         }
 
-        public TypeNameFormatter(string genericArgumentSeparator, string genericOpen, string genericClose,
-            string namespaceSeparator, string nestedTypeSeparator)
+        private TypeNameFormatter(string genericArgumentSeparator, string genericOpen, string genericClose, string namespaceSeparator, string nestedTypeSeparator)
         {
             _genericArgumentSeparator = genericArgumentSeparator;
             _genericOpen = genericOpen;
             _genericClose = genericClose;
             _namespaceSeparator = namespaceSeparator;
             _nestedTypeSeparator = nestedTypeSeparator;
-
             _cache = new ConcurrentCache<Type, string>(FormatTypeName);
         }
 
@@ -39,25 +37,30 @@ namespace Topshelf.Logging
                 throw new ArgumentException("An open generic type cannot be used as a message name");
             }
 
-            var sb = new StringBuilder("");
+            var sb = new StringBuilder(string.Empty);
 
             return FormatTypeName(sb, type, null);
         }
 
-        private string FormatTypeName(StringBuilder sb, Type type, string scope)
+        private string FormatTypeName(StringBuilder sb, Type? type, string? scope)
         {
+            if (type == null)
+            {
+                return string.Empty;
+            }
+
             if (type.IsGenericParameter)
             {
-                return "";
+                return string.Empty;
             }
 
             if (type.Namespace != null)
             {
                 var ns = type.Namespace;
-                if (!ns.Equals(scope))
+                if (!ns.Equals(scope, StringComparison.OrdinalIgnoreCase))
                 {
-                    sb.Append(ns);
-                    sb.Append(_namespaceSeparator);
+                    sb.Append(ns)
+                        .Append(_namespaceSeparator);
                 }
             }
 
@@ -78,8 +81,8 @@ namespace Topshelf.Logging
                     name = name.Remove(index);
                 }
 
-                sb.Append(name);
-                sb.Append(_genericOpen);
+                sb.Append(name)
+                    .Append(_genericOpen);
 
                 var arguments = type.GetTypeInfo().GenericTypeArguments;
 

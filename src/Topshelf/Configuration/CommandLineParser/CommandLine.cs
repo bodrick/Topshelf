@@ -20,7 +20,7 @@ namespace Topshelf.Configuration.CommandLineParser
     /// </summary>
     internal static class CommandLine
     {
-        private static readonly StringCommandLineParser _parser = new();
+        private static readonly StringCommandLineParser Parser = new();
 
         /// <summary>
         ///   Gets the command line from the Environment.CommandLine, removing the application name if present
@@ -34,7 +34,7 @@ namespace Topshelf.Configuration.CommandLineParser
 
             if (line == applicationPath)
             {
-                return "";
+                return string.Empty;
             }
 
             if (line[..applicationPath.Length] == applicationPath)
@@ -64,9 +64,7 @@ namespace Topshelf.Configuration.CommandLineParser
         public static IEnumerable<T> Parse<T>(Action<ICommandLineElementParser<T>> initializer, string commandLine)
         {
             var elementParser = new CommandLineElementParser<T>();
-
-            initializer?.Invoke(elementParser);
-
+            initializer(elementParser);
             return elementParser.Parse(Parse(commandLine));
         }
 
@@ -77,14 +75,14 @@ namespace Topshelf.Configuration.CommandLineParser
         /// <returns> The command line elements that were found </returns>
         private static IEnumerable<ICommandLineElement> Parse(string commandLine)
         {
-            var result = _parser.All(commandLine);
+            var result = Parser.All(commandLine);
             while (result != null)
             {
                 yield return result.Value;
 
                 var rest = result.Rest;
 
-                result = _parser.All(rest);
+                result = Parser.All(rest);
             }
         }
     }

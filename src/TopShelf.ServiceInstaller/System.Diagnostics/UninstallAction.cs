@@ -4,9 +4,9 @@ namespace System.Diagnostics
     public enum UninstallAction
     {
         /// <summary>Removes the resource the installer created.</summary>
-        Remove,
+        Remove = 0,
 
         /// <summary>Leaves the resource created by the installer as is.</summary>
-        NoAction
+        NoAction = 1
     }
 }

@@ -15,7 +15,7 @@ using System.Diagnostics;
 
 namespace Topshelf.Logging
 {
-    public class LoggingLevel
+    public sealed class LoggingLevel
     {
         public static readonly LoggingLevel All = new("All", 6, SourceLevels.All, TraceEventType.Verbose);
         public static readonly LoggingLevel Debug = new("Debug", 5, SourceLevels.Verbose, TraceEventType.Verbose);
@@ -63,13 +63,13 @@ namespace Topshelf.Logging
             _ => None,
         };
 
-        public static bool operator <(LoggingLevel left, LoggingLevel right) => right != null && (left != null && left._index < right._index);
+        public static bool operator <(LoggingLevel left, LoggingLevel right) => right != null && left != null && left._index < right._index;
 
-        public static bool operator <=(LoggingLevel left, LoggingLevel right) => right != null && (left != null && left._index <= right._index);
+        public static bool operator <=(LoggingLevel left, LoggingLevel right) => right != null && left != null && left._index <= right._index;
 
-        public static bool operator >(LoggingLevel left, LoggingLevel right) => right != null && (left != null && left._index > right._index);
+        public static bool operator >(LoggingLevel left, LoggingLevel right) => right != null && left != null && left._index > right._index;
 
-        public static bool operator >=(LoggingLevel left, LoggingLevel right) => right != null && (left != null && left._index >= right._index);
+        public static bool operator >=(LoggingLevel left, LoggingLevel right) => right != null && left != null && left._index >= right._index;
 
         public override string ToString() => Name;
     }

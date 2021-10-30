@@ -1,14 +1,14 @@
 // Copyright 2007-2012 Chris Patterson, Dru Sellers, Travis Smith, et. al.
-//  
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
-// this file except in compliance with the License. You may obtain a copy of the 
-// License at 
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software distributed 
-// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
 using System.ComponentModel;
@@ -18,12 +18,12 @@ using Topshelf.Exceptions;
 
 namespace Topshelf.Runtime.Windows
 {
-    public class WindowsServiceRecoveryController
+    public static class WindowsServiceRecoveryController
     {
-        public void SetServiceRecoveryOptions(IHostSettings settings, ServiceRecoveryOptions options)
+        public static void SetServiceRecoveryOptions(IHostSettings settings, ServiceRecoveryOptions options)
         {
-            SCMHandle scmHandle = null;
-            SCMHandle serviceHandle = null;
+            ScmHandle? scmHandle = null;
+            ScmHandle? serviceHandle = null;
             var lpsaActions = IntPtr.Zero;
             var lpInfo = IntPtr.Zero;
             var lpFlagInfo = IntPtr.Zero;
@@ -36,21 +36,20 @@ namespace Topshelf.Runtime.Windows
                     throw new TopshelfException("Must be at least one failure action configured");
                 }
 
-                scmHandle = NativeMethods.OpenSCManager(null, null, (int)NativeMethods.SCM_ACCESS.SC_MANAGER_ALL_ACCESS);
+                scmHandle = NativeMethods.OpenSCManager(null, null, (uint)NativeMethods.SCM_ACCESS.SC_MANAGER_ALL_ACCESS);
                 if (scmHandle == null)
                 {
                     throw new TopshelfException("Failed to open service control manager");
                 }
 
-                serviceHandle = NativeMethods.OpenService(scmHandle, settings.ServiceName,
-                    (int)NativeMethods.SCM_ACCESS.SC_MANAGER_ALL_ACCESS);
+                serviceHandle = NativeMethods.OpenService(scmHandle, settings.ServiceName, (uint)NativeMethods.SCM_ACCESS.SC_MANAGER_ALL_ACCESS);
                 if (serviceHandle == null)
                 {
-                    throw new TopshelfException("Failed to open service: " + settings.ServiceName);
+                    throw new TopshelfException($"Failed to open service: {settings.ServiceName}");
                 }
 
                 var actionSize = Marshal.SizeOf(typeof(NativeMethods.SC_ACTION));
-                lpsaActions = Marshal.AllocHGlobal(actionSize * actions.Count + 1);
+                lpsaActions = Marshal.AllocHGlobal((actionSize * actions.Count) + 1);
                 if (lpsaActions == IntPtr.Zero)
                 {
                     throw new TopshelfException("Unable to allocate memory for service recovery actions");
@@ -64,16 +63,14 @@ namespace Topshelf.Runtime.Windows
                 }
 
                 var rebootMessage = options.Actions.Where(x => x.GetType() == typeof(RestartSystemRecoveryAction))
-                    .OfType<RestartSystemRecoveryAction>().Select(x => x.RestartMessage).FirstOrDefault() ?? "";
+                    .OfType<RestartSystemRecoveryAction>().Select(x => x.RestartMessage).FirstOrDefault() ?? string.Empty;
 
                 var runProgramCommand = options.Actions.Where(x => x.GetType() == typeof(RunProgramRecoveryAction))
-                    .OfType<RunProgramRecoveryAction>().Select(x => x.Command).FirstOrDefault() ?? "";
-
+                    .OfType<RunProgramRecoveryAction>().Select(x => x.Command).FirstOrDefault() ?? string.Empty;
 
                 var failureActions = new NativeMethods.SERVICE_FAILURE_ACTIONS
                 {
-                    dwResetPeriod =
-                        (int)TimeSpan.FromDays(options.ResetPeriod).TotalSeconds,
+                    dwResetPeriod = (int)TimeSpan.FromDays(options.ResetPeriod).TotalSeconds,
                     lpRebootMsg = rebootMessage,
                     lpCommand = runProgramCommand,
                     cActions = actions.Count,
@@ -96,8 +93,7 @@ namespace Topshelf.Runtime.Windows
 
                 if (!NativeMethods.ChangeServiceConfig2(serviceHandle, NativeMethods.SERVICE_CONFIG_FAILURE_ACTIONS, lpInfo))
                 {
-                    throw new TopshelfException(
-                        $"Failed to change service recovery options. Windows Error: {new Win32Exception().Message}");
+                    throw new TopshelfException($"Failed to change service recovery options. Windows Error: {new Win32Exception().Message}");
                 }
 
                 if (!options.RecoverOnCrashOnly)
@@ -144,7 +140,7 @@ namespace Topshelf.Runtime.Windows
             }
         }
 
-        private void RequestShutdownPrivileges()
+        private static void RequestShutdownPrivileges()
         {
             ThrowOnFail(
                 NativeMethods.OpenProcessToken(System.Diagnostics.Process.GetCurrentProcess().Handle,
@@ -154,12 +150,9 @@ namespace Topshelf.Runtime.Windows
             NativeMethods.TOKEN_PRIVILEGES tkp;
             tkp.PrivilegeCount = 1;
             tkp.Privileges.Attributes = (int)NativeMethods.SYSTEM_ACCESS.SE_PRIVILEGE_ENABLED;
-            const string SE_SHUTDOWN_NAME = "SeShutdownPrivilege";
-            ThrowOnFail(
-                NativeMethods.LookupPrivilegeValue("", SE_SHUTDOWN_NAME, out tkp.Privileges.pLuid));
-
-            ThrowOnFail(
-                NativeMethods.AdjustTokenPrivileges(hToken, false, ref tkp, 0U, IntPtr.Zero, IntPtr.Zero));
+            const string seShutdownPrivilege = "SeShutdownPrivilege";
+            ThrowOnFail(NativeMethods.LookupPrivilegeValue(string.Empty, seShutdownPrivilege, out tkp.Privileges.pLuid));
+            ThrowOnFail(NativeMethods.AdjustTokenPrivileges(hToken, false, ref tkp, 0U, IntPtr.Zero, IntPtr.Zero));
         }
 
         private static void ThrowOnFail(bool success)

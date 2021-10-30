@@ -10,6 +10,7 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+
 using System;
 using System.Threading;
 using Topshelf;
@@ -17,10 +18,9 @@ using Topshelf.Logging;
 
 namespace SampleTopshelfService
 {
-    internal class SampleService :
-        IServiceControl
+    internal class SampleService : IServiceControl
     {
-        private static readonly ILogWriter _log = HostLogger.Get<SampleService>();
+        private static readonly ILogWriter Log = HostLogger.Get<SampleService>();
         private readonly bool _throwOnStart;
         private readonly bool _throwOnStop;
         private readonly bool _throwUnhandled;
@@ -34,21 +34,19 @@ namespace SampleTopshelfService
 
         public bool Continue(IHostControl hostControl)
         {
-            _log.Info("SampleService Continued");
-
+            Log.Info("SampleService Continued");
             return true;
         }
 
         public bool Pause(IHostControl hostControl)
         {
-            _log.Info("SampleService Paused");
-
+            Log.Info("SampleService Paused");
             return true;
         }
 
         public bool Start(IHostControl hostControl)
         {
-            _log.Info("SampleService Starting...");
+            Log.Info("SampleService Starting...");
 
             hostControl.RequestAdditionalTime(TimeSpan.FromSeconds(10));
 
@@ -56,31 +54,31 @@ namespace SampleTopshelfService
 
             if (_throwOnStart)
             {
-                _log.Info("Throwing as requested");
+                Log.Info("Throwing as requested");
                 throw new InvalidOperationException("Throw on Start Requested");
             }
 
-            ThreadPool.QueueUserWorkItem(x =>
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                Thread.Sleep(3000);
+
+                if (_throwUnhandled)
                 {
-                    Thread.Sleep(3000);
+                    throw new InvalidOperationException("Throw Unhandled In Random Thread");
+                }
 
-                    if (_throwUnhandled)
-                    {
-                        throw new InvalidOperationException("Throw Unhandled In Random Thread");
-                    }
+                Log.Info("Requesting stop");
 
-                    _log.Info("Requesting stop");
-
-                    hostControl.Stop();
-                });
-            _log.Info("SampleService Started");
+                hostControl.Stop();
+            });
+            Log.Info("SampleService Started");
 
             return true;
         }
 
         public bool Stop(IHostControl hostControl)
         {
-            _log.Info("SampleService Stopped");
+            Log.Info("SampleService Stopped");
 
             if (_throwOnStop)
             {

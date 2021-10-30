@@ -21,10 +21,10 @@ namespace Topshelf.Hosts
     {
         private readonly IHostEnvironment _environment;
         private readonly ILogWriter _log = HostLogger.Get<StartHost>();
-        private readonly IHost _parentHost;
+        private readonly IHost? _parentHost;
         private readonly IHostSettings _settings;
 
-        public StartHost(IHostEnvironment environment, IHostSettings settings, IHost parentHost = null)
+        public StartHost(IHostEnvironment environment, IHostSettings settings, IHost? parentHost = null)
         {
             _environment = environment;
             _settings = settings;

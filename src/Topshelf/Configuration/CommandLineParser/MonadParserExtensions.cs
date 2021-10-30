@@ -10,6 +10,7 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,13 +23,10 @@ namespace Topshelf.Configuration.CommandLineParser
             this Parser<TInput, TFirstValue> first,
             Parser<TInput, TSecondValue> second) => input => second(first(input).Rest);
 
-        public static Parser<TInput, TValue> FirstMatch<TInput, TValue>(this IEnumerable<Parser<TInput, TValue>> options) => input =>
-        {
-            return options
+        public static Parser<TInput, TValue> FirstMatch<TInput, TValue>(this IEnumerable<Parser<TInput, TValue>> options) =>
+            input => options
                 .Select(option => option(input))
-                .Where(result => result != null)
-                .FirstOrDefault();
-        };
+                .FirstOrDefault(result => result != null);
 
         public static Parser<TInput, TValue> Or<TInput, TValue>(this Parser<TInput, TValue> first,
             Parser<TInput, TValue> second) => input => first(input) ?? second(input);

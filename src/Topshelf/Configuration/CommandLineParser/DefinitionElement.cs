@@ -10,9 +10,12 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+
+using System;
+
 namespace Topshelf.Configuration.CommandLineParser
 {
-    internal class DefinitionElement : IDefinitionElement
+    internal class DefinitionElement : IDefinitionElement, IEquatable<DefinitionElement>
     {
         public DefinitionElement(string key, string value)
         {
@@ -25,9 +28,9 @@ namespace Topshelf.Configuration.CommandLineParser
 
         public static ICommandLineElement New(string key, string value) => new DefinitionElement(key, value);
 
-        public bool Equals(DefinitionElement other)
+        public bool Equals(DefinitionElement? other)
         {
-            if (ReferenceEquals(null, other))
+            if (other is null)
             {
                 return false;
             }
@@ -40,9 +43,9 @@ namespace Topshelf.Configuration.CommandLineParser
             return Equals(other.Key, Key) && Equals(other.Value, Value);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
             {
                 return false;
             }
@@ -52,19 +55,14 @@ namespace Topshelf.Configuration.CommandLineParser
                 return true;
             }
 
-            if (obj.GetType() != typeof(DefinitionElement))
-            {
-                return false;
-            }
-
-            return Equals((DefinitionElement)obj);
+            return obj.GetType() == typeof(DefinitionElement) && Equals((DefinitionElement)obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return ((Key?.GetHashCode() ?? 0) * 397) ^ (Value?.GetHashCode() ?? 0);
+                return (Key.GetHashCode() * 397) ^ Value.GetHashCode();
             }
         }
 

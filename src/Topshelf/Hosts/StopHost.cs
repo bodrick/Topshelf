@@ -19,7 +19,7 @@ namespace Topshelf.Hosts
 {
     public class StopHost : IHost
     {
-        private static readonly ILogWriter _log = HostLogger.Get<StopHost>();
+        private static readonly ILogWriter Log = HostLogger.Get<StopHost>();
         private readonly IHostEnvironment _environment;
         private readonly IHostSettings _settings;
 
@@ -39,7 +39,7 @@ namespace Topshelf.Hosts
             if (!_environment.IsServiceInstalled(_settings.ServiceName))
             {
                 var message = $"The {_settings.ServiceName} service is not installed.";
-                _log.Error(message);
+                Log.Error(message);
 
                 return TopshelfExitCode.ServiceNotInstalled;
             }
@@ -48,24 +48,24 @@ namespace Topshelf.Hosts
             {
                 if (!_environment.RunAsAdministrator())
                 {
-                    _log.ErrorFormat("The {0} service can only be stopped by an administrator", _settings.ServiceName);
+                    Log.ErrorFormat("The {0} service can only be stopped by an administrator", _settings.ServiceName);
                 }
 
                 return TopshelfExitCode.SudoRequired;
             }
 
-            _log.DebugFormat("Stopping {0}", _settings.ServiceName);
+            Log.DebugFormat("Stopping {0}", _settings.ServiceName);
 
             try
             {
                 _environment.StopService(_settings.ServiceName, _settings.StopTimeOut);
 
-                _log.InfoFormat("The {0} service was stopped.", _settings.ServiceName);
+                Log.InfoFormat("The {0} service was stopped.", _settings.ServiceName);
                 return TopshelfExitCode.Ok;
             }
             catch (Exception ex)
             {
-                _log.Error("The service failed to stop.", ex);
+                Log.Error("The service failed to stop.", ex);
                 return TopshelfExitCode.ServiceControlRequestFailed;
             }
         }

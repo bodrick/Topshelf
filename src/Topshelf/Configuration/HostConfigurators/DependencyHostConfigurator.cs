@@ -23,7 +23,7 @@ namespace Topshelf.Configuration.HostConfigurators
     {
         public DependencyHostConfigurator(string name) => Name = name;
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
         public IHostBuilder Configure(IHostBuilder builder)
         {

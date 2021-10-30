@@ -231,7 +231,7 @@ namespace Topshelf.Extensions.Logging
 
             var count = s.Length;
 
-            if (_pos > (RawChars.Length - count))
+            if (_pos > RawChars.Length - count)
             {
                 Grow(count);
             }

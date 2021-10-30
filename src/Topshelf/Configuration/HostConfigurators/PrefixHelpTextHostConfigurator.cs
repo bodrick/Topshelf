@@ -25,24 +25,24 @@ namespace Topshelf.Configuration.HostConfigurators
         {
             Assembly = assembly;
             ResourceName = resourceName;
+            Text = string.Empty;
         }
 
         public PrefixHelpTextHostConfigurator(string text) => Text = text;
 
-        public Assembly Assembly { get; private set; }
-        public string ResourceName { get; private set; }
+        public Assembly? Assembly { get; }
+        public string? ResourceName { get; }
         public string Text { get; private set; }
 
         public IHostBuilder Configure(IHostBuilder builder)
         {
             builder.Match<HelpBuilder>(x => x.SetAdditionalHelpText(Text));
-
             return builder;
         }
 
         public IEnumerable<IValidateResult> Validate()
         {
-            IValidateResult loadResult = null;
+            IValidateResult? loadResult = null;
             if (Assembly != null)
             {
                 if (ResourceName == null)
@@ -52,7 +52,7 @@ namespace Topshelf.Configuration.HostConfigurators
 
                 try
                 {
-                    var stream = Assembly.GetManifestResourceStream(ResourceName);
+                    var stream = Assembly.GetManifestResourceStream(ResourceName!);
                     if (stream == null)
                     {
                         loadResult = this.Failure("Resource", "Unable to load resource stream: " + ResourceName);

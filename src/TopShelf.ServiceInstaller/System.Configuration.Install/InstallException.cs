@@ -3,9 +3,11 @@ using System.Runtime.Serialization;
 namespace System.Configuration.Install
 {
     [Serializable]
-    internal class InstallException : SystemException
+    public class InstallException : SystemException
     {
-        public InstallException() => HResult = -2146232057;
+        internal const int Install = unchecked((int)0x80131907);
+
+        public InstallException() => HResult = Install;
 
         public InstallException(string message) : base(message)
         {

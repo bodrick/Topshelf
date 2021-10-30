@@ -25,16 +25,6 @@ namespace Topshelf.Hosts
 
         public TestHost(IHostSettings settings, IHostEnvironment environment, IServiceHandle serviceHandle)
         {
-            if (settings == null)
-            {
-                throw new ArgumentNullException(nameof(settings));
-            }
-
-            if (environment == null)
-            {
-                throw new ArgumentNullException(nameof(environment));
-            }
-
             _settings = settings;
             _serviceHandle = serviceHandle;
         }
