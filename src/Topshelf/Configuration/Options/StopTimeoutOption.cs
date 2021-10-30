@@ -18,24 +18,23 @@ namespace Topshelf.Configuration.Options
     /// Represents an option to set a service stop timeout (in seconds).
     /// </summary>
     /// <seealso cref="IOption" />
-    public class StopTimeoutOption
-        : IOption
+    public class StopTimeoutOption : IOption
     {
         /// <summary>
         /// The stop timeout (in seconds).
         /// </summary>
-        private readonly int stopTimeoout;
+        private readonly int _stopTimeout;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StopTimeoutOption"/> class.
         /// </summary>
-        /// <param name="stopTimeoout">The stop timeout (in seconds).</param>
-        public StopTimeoutOption(int stopTimeoout) => this.stopTimeoout = stopTimeoout;
+        /// <param name="stopTimeout">The stop timeout (in seconds).</param>
+        public StopTimeoutOption(int stopTimeout) => _stopTimeout = stopTimeout;
 
         /// <summary>
         /// Applies the option to the specified host configurator.
         /// </summary>
         /// <param name="configurator">The host configurator.</param>
-        public void ApplyTo(IHostConfigurator configurator) => configurator.SetStopTimeout(System.TimeSpan.FromSeconds(stopTimeoout));
+        public void ApplyTo(IHostConfigurator configurator) => configurator.SetStopTimeout(System.TimeSpan.FromSeconds(_stopTimeout));
     }
 }

@@ -14,8 +14,7 @@ using Topshelf.Configuration.HostConfigurators;
 
 namespace Topshelf.Configuration.Options
 {
-    public class DisplayNameOption :
-        IOption
+    public class DisplayNameOption : IOption
     {
         private readonly string _name;
 

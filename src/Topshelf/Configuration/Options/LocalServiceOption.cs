@@ -14,8 +14,7 @@ using Topshelf.Configuration.HostConfigurators;
 
 namespace Topshelf.Configuration.Options
 {
-    public class LocalServiceOption :
-        IOption
+    public class LocalServiceOption : IOption
     {
         public void ApplyTo(IHostConfigurator configurator) => configurator.RunAsLocalService();
     }

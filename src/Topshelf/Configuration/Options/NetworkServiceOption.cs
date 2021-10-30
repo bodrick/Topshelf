@@ -14,8 +14,7 @@ using Topshelf.Configuration.HostConfigurators;
 
 namespace Topshelf.Configuration.Options
 {
-    public class NetworkServiceOption :
-        IOption
+    public class NetworkServiceOption : IOption
     {
         public void ApplyTo(IHostConfigurator configurator) => configurator.RunAsNetworkService();
     }

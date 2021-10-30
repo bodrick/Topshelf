@@ -14,8 +14,7 @@ using Topshelf.Configuration.HostConfigurators;
 
 namespace Topshelf.Configuration.Options
 {
-    public class ManualStartOption :
-        IOption
+    public class ManualStartOption : IOption
     {
         public void ApplyTo(IHostConfigurator configurator) => configurator.StartManually();
     }

@@ -14,8 +14,7 @@ using Topshelf.Configuration.HostConfigurators;
 
 namespace Topshelf.Configuration.Options
 {
-    public class ServiceAccountOption :
-        IOption
+    public class ServiceAccountOption : IOption
     {
         private readonly string _password;
         private readonly string _username;

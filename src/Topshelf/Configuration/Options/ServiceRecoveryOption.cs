@@ -19,16 +19,15 @@ namespace Topshelf.Configuration.Options
     /// Represents an option to set a service recovery options.
     /// </summary>
     /// <seealso cref="IOption" />
-    public class ServiceRecoveryOption
-        : IOption
+    public class ServiceRecoveryOption : IOption
     {
-        private readonly ServiceRecoveryOptions serviceRecoveryOptions;
+        private readonly ServiceRecoveryOptions _serviceRecoveryOptions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceRecoveryOption"/> class.
         /// </summary>
         /// <param name="serviceRecoveryOptions">The service recovery options.</param>
-        public ServiceRecoveryOption(ServiceRecoveryOptions serviceRecoveryOptions) => this.serviceRecoveryOptions = serviceRecoveryOptions;
+        public ServiceRecoveryOption(ServiceRecoveryOptions serviceRecoveryOptions) => _serviceRecoveryOptions = serviceRecoveryOptions;
 
         /// <summary>
         /// Applies the option to the specified host configurator.
@@ -38,7 +37,7 @@ namespace Topshelf.Configuration.Options
         {
             var recoveryHostConfigurator = new ServiceRecoveryHostConfigurator();
 
-            foreach (var option in serviceRecoveryOptions.Actions)
+            foreach (var option in _serviceRecoveryOptions.Actions)
             {
                 switch (option)
                 {
@@ -56,12 +55,12 @@ namespace Topshelf.Configuration.Options
                 }
             }
 
-            if (serviceRecoveryOptions.RecoverOnCrashOnly)
+            if (_serviceRecoveryOptions.RecoverOnCrashOnly)
             {
                 recoveryHostConfigurator.OnCrashOnly();
             }
 
-            recoveryHostConfigurator.SetResetPeriod(serviceRecoveryOptions.ResetPeriod);
+            recoveryHostConfigurator.SetResetPeriod(_serviceRecoveryOptions.ResetPeriod);
 
             configurator.AddConfigurator(recoveryHostConfigurator);
         }

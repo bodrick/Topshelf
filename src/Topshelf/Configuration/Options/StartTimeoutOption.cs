@@ -18,24 +18,23 @@ namespace Topshelf.Configuration.Options
     /// Represents an option to set a service start timeout (in seconds).
     /// </summary>
     /// <seealso cref="IOption" />
-    public class StartTimeoutOption
-        : IOption
+    public class StartTimeoutOption : IOption
     {
         /// <summary>
         /// The start timeout (in seconds).
         /// </summary>
-        private readonly int startTimeout;
+        private readonly int _startTimeout;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StartTimeoutOption"/> class.
         /// </summary>
         /// <param name="startTimeout">The start timeout (in seconds).</param>
-        public StartTimeoutOption(int startTimeout) => this.startTimeout = startTimeout;
+        public StartTimeoutOption(int startTimeout) => _startTimeout = startTimeout;
 
         /// <summary>
         /// Applies the option to the specified host configurator.
         /// </summary>
         /// <param name="configurator">The host configurator.</param>
-        public void ApplyTo(IHostConfigurator configurator) => configurator.SetStartTimeout(System.TimeSpan.FromSeconds(startTimeout));
+        public void ApplyTo(IHostConfigurator configurator) => configurator.SetStartTimeout(System.TimeSpan.FromSeconds(_startTimeout));
     }
 }

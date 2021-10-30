@@ -18,24 +18,23 @@ namespace Topshelf.Configuration.Options
     /// Represents an option to set a service dependency.
     /// </summary>
     /// <seealso cref="IOption" />
-    public class DependencyOption
-        : IOption
+    public class DependencyOption : IOption
     {
         /// <summary>
         /// The dependency name
         /// </summary>
-        private readonly string dependencyName;
+        private readonly string _dependencyName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DependencyOption"/> class.
         /// </summary>
         /// <param name="dependencyName">Name of the dependency.</param>
-        public DependencyOption(string dependencyName) => this.dependencyName = dependencyName;
+        public DependencyOption(string dependencyName) => _dependencyName = dependencyName;
 
         /// <summary>
         /// Applies the option to the specified host configurator.
         /// </summary>
         /// <param name="configurator">The host configurator.</param>
-        public void ApplyTo(IHostConfigurator configurator) => configurator.AddDependency(dependencyName);
+        public void ApplyTo(IHostConfigurator configurator) => configurator.AddDependency(_dependencyName);
     }
 }

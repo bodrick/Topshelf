@@ -14,8 +14,7 @@ using Topshelf.Configuration.HostConfigurators;
 
 namespace Topshelf.Configuration.Options
 {
-    public class DisabledOption :
-        IOption
+    public class DisabledOption : IOption
     {
         public void ApplyTo(IHostConfigurator configurator) => configurator.Disabled();
     }

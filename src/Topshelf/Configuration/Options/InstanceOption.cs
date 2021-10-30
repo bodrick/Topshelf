@@ -10,26 +10,16 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-using System;
 using Topshelf.Configuration.HostConfigurators;
 
 namespace Topshelf.Configuration.Options
 {
-    public class InstanceOption :
-        IOption
+    public class InstanceOption : IOption
     {
         private readonly string _instanceName;
 
         public InstanceOption(string instanceName) => _instanceName = instanceName;
 
-        public void ApplyTo(IHostConfigurator configurator)
-        {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.SetInstanceName(_instanceName);
-        }
+        public void ApplyTo(IHostConfigurator configurator) => configurator.SetInstanceName(_instanceName);
     }
 }

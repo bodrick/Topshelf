@@ -14,8 +14,7 @@ using Topshelf.Configuration.HostConfigurators;
 
 namespace Topshelf.Configuration.Options
 {
-    public class SystemOnlyHelpOption :
-        IOption
+    public class SystemOnlyHelpOption : IOption
     {
         public void ApplyTo(IHostConfigurator configurator) => configurator.AddConfigurator(new SystemOnlyHelpHostConfigurator());
     }
