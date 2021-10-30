@@ -19,22 +19,9 @@ namespace Topshelf.Configuration
     {
         public static IHostConfigurator EnableServiceRecovery(this IHostConfigurator configurator, Action<IServiceRecoveryConfigurator> configureCallback)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            if (configureCallback == null)
-            {
-                throw new ArgumentNullException(nameof(configureCallback));
-            }
-
             var recoveryHostConfigurator = new ServiceRecoveryHostConfigurator();
-
             configureCallback(recoveryHostConfigurator);
-
             configurator.AddConfigurator(recoveryHostConfigurator);
-
             return configurator;
         }
     }

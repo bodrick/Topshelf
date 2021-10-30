@@ -19,10 +19,11 @@ namespace Topshelf.Configuration.CommandLineParser
         public Parser<TInput, TValue[]> Rep<TValue>(Parser<TInput, TValue> parser) =>
             Rep1(parser).Or(Succeed(System.Array.Empty<TValue>()));
 
-        public Parser<TInput, TValue[]> Rep1<TValue>(Parser<TInput, TValue> parser) => from x in parser
+        public Parser<TInput, TValue[]> Rep1<TValue>(Parser<TInput, TValue> parser) =>
+            from x in parser
             from xs in Rep(parser)
             select new[] { x }.Concat(xs).ToArray();
 
-        public Parser<TInput, TValue> Succeed<TValue>(TValue value) => input => new Result<TInput, TValue>(value, input);
+        public static Parser<TInput, TValue> Succeed<TValue>(TValue value) => input => new Result<TInput, TValue>(value, input);
     }
 }

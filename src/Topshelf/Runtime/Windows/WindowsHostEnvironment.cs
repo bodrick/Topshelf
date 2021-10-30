@@ -52,7 +52,7 @@ namespace Topshelf.Runtime.Windows
                 try
                 {
                     var process = GetParent(Process.GetCurrentProcess());
-                    if (process?.ProcessName == "services")
+                    if (process.ProcessName == "services")
                     {
                         _log.Debug("Started by the Windows services process");
                         return true;

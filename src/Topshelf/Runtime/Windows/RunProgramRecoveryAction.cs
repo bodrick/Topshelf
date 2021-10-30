@@ -29,7 +29,7 @@ namespace Topshelf.Runtime.Windows
         /// Gets the command to run.
         /// </summary>
         /// <value>The command. to run</value>
-        public string Command { get; private set; }
+        public string Command { get; }
 
         /// <summary>
         /// Gets the service recovery configuration action.

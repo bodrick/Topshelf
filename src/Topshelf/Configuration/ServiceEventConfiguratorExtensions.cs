@@ -23,16 +23,9 @@ namespace Topshelf.Configuration
         /// <typeparam name="T"></typeparam>
         /// <param name="configurator"></param>
         /// <param name="callback"></param>
-        public static T AfterStartingService<T>(this T configurator, Action callback)
-            where T : IServiceConfigurator
+        public static T AfterStartingService<T>(this T configurator, Action callback) where T : IServiceConfigurator
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.AfterStartingService(x => callback());
-
+            configurator.AfterStartingService(_ => callback());
             return configurator;
         }
 
@@ -42,16 +35,9 @@ namespace Topshelf.Configuration
         /// <typeparam name="T"></typeparam>
         /// <param name="configurator"></param>
         /// <param name="callback"></param>
-        public static T AfterStoppingService<T>(this T configurator, Action callback)
-            where T : IServiceConfigurator
+        public static T AfterStoppingService<T>(this T configurator, Action callback) where T : IServiceConfigurator
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.AfterStoppingService(x => callback());
-
+            configurator.AfterStoppingService(_ => callback());
             return configurator;
         }
 
@@ -61,16 +47,9 @@ namespace Topshelf.Configuration
         /// <typeparam name="T"></typeparam>
         /// <param name="configurator"></param>
         /// <param name="callback"></param>
-        public static T BeforeStartingService<T>(this T configurator, Action callback)
-            where T : IServiceConfigurator
+        public static T BeforeStartingService<T>(this T configurator, Action callback) where T : IServiceConfigurator
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.BeforeStartingService(x => callback());
-
+            configurator.BeforeStartingService(_ => callback());
             return configurator;
         }
 
@@ -80,16 +59,9 @@ namespace Topshelf.Configuration
         /// <typeparam name="T"></typeparam>
         /// <param name="configurator"></param>
         /// <param name="callback"></param>
-        public static T BeforeStoppingService<T>(this T configurator, Action callback)
-            where T : IServiceConfigurator
+        public static T BeforeStoppingService<T>(this T configurator, Action callback) where T : IServiceConfigurator
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.BeforeStoppingService(x => callback());
-
+            configurator.BeforeStoppingService(_ => callback());
             return configurator;
         }
     }

@@ -47,9 +47,9 @@ namespace Topshelf.Configuration.CommandLineParser
                                                                                                     where string.Equals(arg.Id, value, StringComparison.OrdinalIgnoreCase)
                                                                                                     select arg;
 
-        public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> Argument(Predicate<IArgumentElement> pred) =>
+        public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> Argument(Predicate<IArgumentElement> predicate) =>
             from arg in Argument()
-            where pred(arg)
+            where predicate(arg)
             select arg;
 
         public Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Definition() => from c in AnyElement

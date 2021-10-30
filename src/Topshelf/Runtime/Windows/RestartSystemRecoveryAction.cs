@@ -29,7 +29,7 @@ namespace Topshelf.Runtime.Windows
         /// Gets the system restart message.
         /// </summary>
         /// <value>The system restart message.</value>
-        public string RestartMessage { get; private set; }
+        public string RestartMessage { get; }
 
         /// <summary>
         /// Gets the service recovery configuration action.

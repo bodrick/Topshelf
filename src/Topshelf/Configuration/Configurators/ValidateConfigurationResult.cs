@@ -20,7 +20,7 @@ using Topshelf.Exceptions;
 namespace Topshelf.Configuration.Configurators
 {
     [Serializable, DebuggerDisplay("{Message}")]
-    public class ValidateConfigurationResult : IConfigurationResult
+    public sealed class ValidateConfigurationResult : IConfigurationResult
     {
         private readonly IList<IValidateResult> _results;
 
@@ -33,9 +33,8 @@ namespace Topshelf.Configuration.Configurators
             get
             {
                 var debuggerString = string.Join(Environment.NewLine, _results);
-
                 return string.IsNullOrWhiteSpace(debuggerString)
-                    ? ""
+                    ? string.Empty
                     : debuggerString;
             }
         }
@@ -48,10 +47,7 @@ namespace Topshelf.Configuration.Configurators
 
             if (result.ContainsFailure)
             {
-                var message = "The service was not properly configured: "
-                                 + Environment.NewLine
-                                 + result.Message;
-
+                var message = $"The service was not properly configured: {Environment.NewLine}{result.Message}";
                 throw new HostConfigurationException(message);
             }
 

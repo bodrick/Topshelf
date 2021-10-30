@@ -18,7 +18,7 @@ using Topshelf.Runtime;
 
 namespace Topshelf.Configuration.ServiceConfigurators
 {
-    public class ControlServiceConfigurator<T> : ServiceConfiguratorBase, IServiceConfigurator, Configurator where T : class, IServiceControl
+    public class ControlServiceConfigurator<T> : ServiceConfiguratorBase, IServiceConfigurator, IConfigurator where T : class, IServiceControl
     {
         private readonly Func<IHostSettings, T> _serviceFactory;
 

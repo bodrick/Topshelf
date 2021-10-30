@@ -24,7 +24,7 @@ using Topshelf.Runtime.Windows;
 
 namespace Topshelf.Configuration.HostConfigurators
 {
-    public class HostConfiguratorImpl : IHostConfigurator, Configurator
+    public class HostConfiguratorImpl : IHostConfigurator, IConfigurator
     {
         private readonly IList<ICommandLineConfigurator> _commandLineOptionConfigurators;
         private readonly IList<IHostBuilderConfigurator> _configurators;
@@ -39,7 +39,6 @@ namespace Topshelf.Configuration.HostConfigurators
             _configurators = new List<IHostBuilderConfigurator>();
             _commandLineOptionConfigurators = new List<ICommandLineConfigurator>();
             _settings = new WindowsHostSettings();
-
             _environmentBuilderFactory = DefaultEnvironmentBuilderFactory;
             _hostBuilderFactory = DefaultHostBuilderFactory;
         }

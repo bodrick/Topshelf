@@ -20,101 +20,49 @@ namespace Topshelf.Configuration
     {
         public static IHostConfigurator AfterInstall(this IHostConfigurator configurator, Action callback)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.AddConfigurator(new InstallHostConfiguratorAction("AfterInstall", x => x.AfterInstall(settings => callback())));
-
+            configurator.AddConfigurator(new InstallHostConfiguratorAction("AfterInstall", x => x.AfterInstall(_ => callback())));
             return configurator;
         }
 
-        public static IHostConfigurator AfterInstall(this IHostConfigurator configurator,
-            Action<IInstallHostSettings> callback)
+        public static IHostConfigurator AfterInstall(this IHostConfigurator configurator, Action<IInstallHostSettings> callback)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
             configurator.AddConfigurator(new InstallHostConfiguratorAction("AfterInstall", x => x.AfterInstall(callback)));
-
             return configurator;
         }
 
         public static IHostConfigurator AfterRollback(this IHostConfigurator configurator, Action callback)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.AddConfigurator(new InstallHostConfiguratorAction("AfterRollback", x => x.AfterRollback(settings => callback())));
-
+            configurator.AddConfigurator(new InstallHostConfiguratorAction("AfterRollback", x => x.AfterRollback(_ => callback())));
             return configurator;
         }
 
-        public static IHostConfigurator AfterRollback(this IHostConfigurator configurator,
-            Action<IInstallHostSettings> callback)
+        public static IHostConfigurator AfterRollback(this IHostConfigurator configurator, Action<IInstallHostSettings> callback)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
             configurator.AddConfigurator(new InstallHostConfiguratorAction("AfterRollback", x => x.AfterRollback(callback)));
-
             return configurator;
         }
 
         public static IHostConfigurator BeforeInstall(this IHostConfigurator configurator, Action callback)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.AddConfigurator(new InstallHostConfiguratorAction("BeforeInstall", x => x.BeforeInstall(settings => callback())));
-
+            configurator.AddConfigurator(new InstallHostConfiguratorAction("BeforeInstall", x => x.BeforeInstall(_ => callback())));
             return configurator;
         }
 
-        public static IHostConfigurator BeforeInstall(this IHostConfigurator configurator,
-            Action<IInstallHostSettings> callback)
+        public static IHostConfigurator BeforeInstall(this IHostConfigurator configurator, Action<IInstallHostSettings> callback)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
             configurator.AddConfigurator(new InstallHostConfiguratorAction("BeforeInstall", x => x.BeforeInstall(callback)));
-
             return configurator;
         }
 
         public static IHostConfigurator BeforeRollback(this IHostConfigurator configurator, Action callback)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
-            configurator.AddConfigurator(new InstallHostConfiguratorAction("BeforeRollback", x => x.BeforeRollback(settings => callback())));
-
+            configurator.AddConfigurator(new InstallHostConfiguratorAction("BeforeRollback", x => x.BeforeRollback(_ => callback())));
             return configurator;
         }
 
-        public static IHostConfigurator BeforeRollback(this IHostConfigurator configurator,
-            Action<IInstallHostSettings> callback)
+        public static IHostConfigurator BeforeRollback(this IHostConfigurator configurator, Action<IInstallHostSettings> callback)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
             configurator.AddConfigurator(new InstallHostConfiguratorAction("BeforeRollback", x => x.BeforeRollback(callback)));
-
             return configurator;
         }
     }

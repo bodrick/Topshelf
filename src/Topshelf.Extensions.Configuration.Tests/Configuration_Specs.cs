@@ -155,7 +155,7 @@ namespace Topshelf.Extensions.Configuration.Tests
 
             Assert.IsInstanceOf<ServiceRecoveryOption>(parsedConfiguration);
             var serviceRecoveryOptions = typeof(ServiceRecoveryOption)
-                .GetField("serviceRecoveryOptions", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .GetField("_serviceRecoveryOptions", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 .GetValue(parsedConfiguration) as ServiceRecoveryOptions;
 
             Assert.AreEqual(true, serviceRecoveryOptions.RecoverOnCrashOnly);

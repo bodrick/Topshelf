@@ -21,7 +21,6 @@ namespace Topshelf.Configuration.HostConfigurators
         public IHostBuilder Configure(IHostBuilder builder)
         {
             builder.Match<HelpBuilder>(x => x.SystemHelpTextOnly());
-
             return builder;
         }
 

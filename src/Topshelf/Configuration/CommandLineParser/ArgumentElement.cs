@@ -22,7 +22,7 @@ namespace Topshelf.Configuration.CommandLineParser
 
         public bool Equals(ArgumentElement other)
         {
-            if (ReferenceEquals(null, other))
+            if (other is null)
             {
                 return false;
             }

@@ -30,13 +30,7 @@ namespace Topshelf.Configuration.HostConfigurators
 
         public IHostBuilder Configure(IHostBuilder builder)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
             builder.Match<RunBuilder>(x => _callback(x));
-
             return builder;
         }
 

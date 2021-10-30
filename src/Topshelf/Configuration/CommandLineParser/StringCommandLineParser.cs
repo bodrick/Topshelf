@@ -23,34 +23,34 @@ namespace Topshelf.Configuration.CommandLineParser
             NewLine = Rep(Char('\r').Or(Char('\n')));
 
             EscChar = (from bs in Char('\\')
-                    from ch in Char('\\').Or(Char('\"')).Or(Char('-')).Or(Char('/')).Or(Char('\''))
-                    select ch)
+                       from ch in Char('\\').Or(Char('\"')).Or(Char('-')).Or(Char('/')).Or(Char('\''))
+                       select ch)
                 .Or(from ch in Char(x => x != '"') select ch);
 
             Id = from w in Whitespace
-                from c in Char(char.IsLetter)
-                from cs in Rep(Char(char.IsLetterOrDigit))
-                select cs.Aggregate(c.ToString(), (s, ch) => s + ch);
+                 from c in Char(char.IsLetter)
+                 from cs in Rep(Char(char.IsLetterOrDigit))
+                 select cs.Aggregate(c.ToString(), (s, ch) => s + ch);
 
             Key = from w in Whitespace
-                from c in Char(char.IsLetter)
-                from cs in Rep(Char(char.IsLetterOrDigit).Or(Char('.')))
-                select cs.Aggregate(c.ToString(), (s, ch) => s + ch);
+                  from c in Char(char.IsLetter)
+                  from cs in Rep(Char(char.IsLetterOrDigit).Or(Char('.')))
+                  select cs.Aggregate(c.ToString(), (s, ch) => s + ch);
 
             Value = (from symbol in Rep(Char(char.IsLetterOrDigit).Or(Char(char.IsPunctuation)).Or(Char(char.IsSymbol)))
-                select symbol.Aggregate("", (s, ch) => s + ch));
+                     select symbol.Aggregate("", (s, ch) => s + ch));
 
             ValueInQuotes = from oq in Char('"')
-                from value in Rep(EscChar)
-                from cq in Char('"')
-                select value.Aggregate("", (s, ch) => s + ch);
+                            from value in Rep(EscChar)
+                            from cq in Char('"')
+                            select value.Aggregate("", (s, ch) => s + ch);
 
             Definition = (from w in Whitespace
-                    from c in Char('-').Or(Char('/'))
-                    from key in Id
-                    from eq in Char(':').Or(Char('='))
-                    from value in Value
-                    select DefinitionElement.New(key, value))
+                          from c in Char('-').Or(Char('/'))
+                          from key in Id
+                          from eq in Char(':').Or(Char('='))
+                          from value in Value
+                          select DefinitionElement.New(key, value))
                 .Or(from w in Whitespace
                     from c in Char('-').Or(Char('/'))
                     from key in Id
@@ -59,22 +59,22 @@ namespace Topshelf.Configuration.CommandLineParser
                     select DefinitionElement.New(key, value));
 
             EmptyDefinition = (from w in Whitespace
-                from c in Char('-').Or(Char('/'))
-                from key in Id
-                from ws in Whitespace
-                select DefinitionElement.New(key, ""));
+                               from c in Char('-').Or(Char('/'))
+                               from key in Id
+                               from ws in Whitespace
+                               select DefinitionElement.New(key, ""));
 
             Argument = from w in Whitespace
-                from c in Char(char.IsLetterOrDigit).Or(Char(char.IsPunctuation))
-                from cs in Rep(Char(char.IsLetterOrDigit).Or(Char(char.IsPunctuation)))
-                select ArgumentElement.New(cs.Aggregate(c.ToString(), (s, ch) => s + ch));
+                       from c in Char(char.IsLetterOrDigit).Or(Char(char.IsPunctuation))
+                       from cs in Rep(Char(char.IsLetterOrDigit).Or(Char(char.IsPunctuation)))
+                       select ArgumentElement.New(cs.Aggregate(c.ToString(), (s, ch) => s + ch));
 
             Switch = (from w in Whitespace
-                    from c in Char('-').Or(Char('/'))
-                    from arg in Char(char.IsLetterOrDigit)
-                    from non in Rep(Char(char.IsLetterOrDigit))
-                    where non.Length == 0
-                    select SwitchElement.New(arg))
+                      from c in Char('-').Or(Char('/'))
+                      from arg in Char(char.IsLetterOrDigit)
+                      from non in Rep(Char(char.IsLetterOrDigit))
+                      where non.Length == 0
+                      select SwitchElement.New(arg))
                 .Or(from w in Whitespace
                     from c in Char('-').Or(Char('/'))
                     from arg in Char(char.IsLetterOrDigit)
@@ -87,10 +87,10 @@ namespace Topshelf.Configuration.CommandLineParser
                     select SwitchElement.New(arg));
 
             Token = from w in Whitespace
-                from o in Char('[')
-                from t in Key
-                from c in Char(']')
-                select TokenElement.New(t);
+                    from o in Char('[')
+                    from t in Key
+                    from c in Char(']')
+                    select TokenElement.New(t);
 
             All =
                 (from element in Definition select element)
@@ -102,7 +102,7 @@ namespace Topshelf.Configuration.CommandLineParser
 
         public Parser<string, ICommandLineElement> All { get; private set; }
 
-        private Parser<string, char> AnyChar => input => input.Length > 0
+        private static Parser<string, char> AnyChar => input => input.Length > 0
             ? new Result<string, char>(input[0], input.Substring(1))
             : null;
 

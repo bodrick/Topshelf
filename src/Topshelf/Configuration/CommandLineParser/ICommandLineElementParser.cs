@@ -31,7 +31,7 @@ namespace Topshelf.Configuration.CommandLineParser
 
         Parser<IEnumerable<ICommandLineElement>, IArgumentElement> Argument(string value);
 
-        Parser<IEnumerable<ICommandLineElement>, IArgumentElement> Argument(Predicate<IArgumentElement> pred);
+        Parser<IEnumerable<ICommandLineElement>, IArgumentElement> Argument(Predicate<IArgumentElement> predicate);
 
         Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Definition();
 

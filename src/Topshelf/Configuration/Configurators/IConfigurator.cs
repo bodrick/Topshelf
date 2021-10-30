@@ -10,22 +10,12 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-using Topshelf.Configuration.Builders;
-using Topshelf.Configuration.Configurators;
+using System.Collections.Generic;
 
-namespace Topshelf.Configuration.HostConfigurators
+namespace Topshelf.Configuration.Configurators
 {
-    /// <summary>
-    /// Can configure/replace the input <see cref="IHostBuilder"/>, returning the original
-    /// or a new <see cref="IHostBuilder"/>.
-    /// </summary>
-    public interface IHostBuilderConfigurator : IConfigurator
+    public interface IConfigurator
     {
-        /// <summary>
-        /// Configures the host builder.
-        /// </summary>
-        /// <param name="builder">The host builder.</param>
-        /// <returns>The configured host builder.</returns>
-        IHostBuilder Configure(IHostBuilder builder);
+        IEnumerable<IValidateResult> Validate();
     }
 }

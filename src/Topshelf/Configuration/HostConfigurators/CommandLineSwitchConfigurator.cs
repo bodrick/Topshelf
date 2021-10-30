@@ -27,11 +27,11 @@ namespace Topshelf.Configuration.HostConfigurators
             _callback = callback;
         }
 
-        public void Configure(ICommandLineElementParser<IOption> parser) => parser.Add(from s in parser.Switch(_name)
-                                                                                      select (IOption)new ServiceSwitchOption(s, _callback));
+        public void Configure(ICommandLineElementParser<IOption> parser) =>
+            parser.Add(from s in parser.Switch(_name)
+                       select (IOption)new ServiceSwitchOption(s, _callback));
 
-        private class ServiceSwitchOption :
-            IOption
+        private class ServiceSwitchOption : IOption
         {
             private readonly Action<bool> _callback;
             private readonly bool _value;

@@ -42,7 +42,7 @@ namespace Topshelf.Configuration
 
             callback(serviceConfigurator);
 
-            IServiceBuilder ServiceBuilderFactory(IHostSettings x)
+            IServiceBuilder ServiceBuilderFactory(IHostSettings hostSettings)
             {
                 var configurationResult = ValidateConfigurationResult.CompileResults(serviceConfigurator.Validate());
                 if (configurationResult.Results.Any())
@@ -112,8 +112,7 @@ namespace Topshelf.Configuration
             Func<IHostSettings, T> serviceFactory)
             where T : class, IServiceControl => Service(configurator, serviceFactory, x => { });
 
-        public static IHostConfigurator Service<TService>(this IHostConfigurator configurator,
-            Action<IServiceConfigurator<TService>> callback)
+        public static IHostConfigurator Service<TService>(this IHostConfigurator configurator, Action<IServiceConfigurator<TService>> callback)
             where TService : class
         {
             if (configurator == null)

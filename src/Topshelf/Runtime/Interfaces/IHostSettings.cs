@@ -58,7 +58,7 @@ namespace Topshelf.Runtime
         /// A callback to provide visibility into exceptions while Topshelf is performing its
         /// own handling.
         /// </summary>
-        Action<Exception> ExceptionCallback { get; }
+        Action<Exception>? ExceptionCallback { get; }
 
         /// <summary>
         ///   The service instance name that should be used when the service is registered

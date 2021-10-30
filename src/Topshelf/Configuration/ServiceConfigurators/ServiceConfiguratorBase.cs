@@ -17,9 +17,9 @@ namespace Topshelf.Configuration.ServiceConfigurators
 {
     public abstract class ServiceConfiguratorBase
     {
-        protected readonly ServiceEventsImpl ServiceEvents;
+        protected readonly ServiceEvents ServiceEvents;
 
-        protected ServiceConfiguratorBase() => ServiceEvents = new ServiceEventsImpl();
+        protected ServiceConfiguratorBase() => ServiceEvents = new ServiceEvents();
 
         public void AfterStartingService(Action<IHostStartedContext> callback) => ServiceEvents.AddAfterStart(callback);
 

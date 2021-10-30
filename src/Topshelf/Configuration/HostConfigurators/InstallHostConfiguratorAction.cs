@@ -21,11 +21,6 @@ namespace Topshelf.Configuration.HostConfigurators
     {
         public InstallHostConfiguratorAction(string key, Action<InstallBuilder> callback)
         {
-            if (callback == null)
-            {
-                throw new ArgumentNullException(nameof(callback));
-            }
-
             Key = key;
             Callback = callback;
         }
@@ -35,11 +30,6 @@ namespace Topshelf.Configuration.HostConfigurators
 
         public IHostBuilder Configure(IHostBuilder builder)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
             builder.Match<InstallBuilder>(x => Callback(x));
 
             return builder;

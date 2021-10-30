@@ -18,7 +18,7 @@ using Topshelf.Runtime;
 
 namespace Topshelf.Configuration.ServiceConfigurators
 {
-    public class DelegateServiceConfigurator<T> : ServiceConfiguratorBase, IServiceConfigurator<T>, Configurator where T : class
+    public class DelegateServiceConfigurator<T> : ServiceConfiguratorBase, IServiceConfigurator<T>, IConfigurator where T : class
     {
         private Func<T, IHostControl, bool> _continue;
         private Action<T, IHostControl, int> _customCommandReceived;

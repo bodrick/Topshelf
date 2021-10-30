@@ -15,8 +15,7 @@ using System;
 namespace Topshelf.Runtime.Windows
 {
     [Serializable]
-    public class WindowsHostSettings :
-        IHostSettings
+    public class WindowsHostSettings : IHostSettings
     {
         public const string InstanceSeparator = "$";
         private string _description;
@@ -36,16 +35,6 @@ namespace Topshelf.Runtime.Windows
         /// <param name="instanceName"> </param>
         public WindowsHostSettings(string name, string instanceName)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-            if (instanceName == null)
-            {
-                throw new ArgumentNullException(nameof(instanceName));
-            }
-
             Name = name;
             InstanceName = instanceName;
 
@@ -64,9 +53,7 @@ namespace Topshelf.Runtime.Windows
 
         public string Description
         {
-            get => string.IsNullOrEmpty(_description)
-                           ? DisplayName
-                           : _description;
+            get => string.IsNullOrEmpty(_description) ? DisplayName : _description;
             set => _description = value;
         }
 
@@ -74,28 +61,22 @@ namespace Topshelf.Runtime.Windows
         {
             get
             {
-                var displayName = string.IsNullOrEmpty(_displayName)
-                                         ? Name
-                                         : _displayName;
-
+                var displayName = string.IsNullOrEmpty(_displayName) ? Name : _displayName;
                 var instance = $" (Instance: {InstanceName})";
-                if (!string.IsNullOrEmpty(InstanceName) && !displayName.EndsWith(instance))
+                if (!string.IsNullOrEmpty(InstanceName) && !displayName.EndsWith(instance, StringComparison.OrdinalIgnoreCase))
                 {
                     return displayName + instance;
                 }
-
                 return displayName;
             }
             set => _displayName = value;
         }
 
-        public Action<Exception> ExceptionCallback { get; set; }
+        public Action<Exception>? ExceptionCallback { get; set; }
         public string InstanceName { get; set; }
         public string Name { get; set; }
 
-        public string ServiceName => string.IsNullOrEmpty(InstanceName)
-                           ? Name
-                           : Name + InstanceSeparator + InstanceName;
+        public string ServiceName => string.IsNullOrEmpty(InstanceName) ? Name : Name + InstanceSeparator + InstanceName;
 
         public TimeSpan StartTimeOut { get; set; }
 

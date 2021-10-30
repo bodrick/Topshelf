@@ -10,7 +10,6 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-using System;
 using Topshelf.Configuration.HostConfigurators;
 using Topshelf.Runtime;
 
@@ -20,49 +19,25 @@ namespace Topshelf.Configuration
     {
         public static IHostConfigurator Disabled(this IHostConfigurator configurator)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
             configurator.AddConfigurator(new StartModeHostConfigurator(HostStartMode.Disabled));
-
             return configurator;
         }
 
         public static IHostConfigurator StartAutomatically(this IHostConfigurator configurator)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
             configurator.AddConfigurator(new StartModeHostConfigurator(HostStartMode.Automatic));
-
             return configurator;
         }
 
         public static IHostConfigurator StartAutomaticallyDelayed(this IHostConfigurator configurator)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
             configurator.AddConfigurator(new StartModeHostConfigurator(HostStartMode.AutomaticDelayed));
-
             return configurator;
         }
 
         public static IHostConfigurator StartManually(this IHostConfigurator configurator)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
             configurator.AddConfigurator(new StartModeHostConfigurator(HostStartMode.Manual));
-
             return configurator;
         }
     }

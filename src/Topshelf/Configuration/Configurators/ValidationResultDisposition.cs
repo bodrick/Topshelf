@@ -17,8 +17,8 @@ namespace Topshelf.Configuration.Configurators
     [Serializable]
     public enum ValidationResultDisposition
     {
-        Success,
-        Warning,
-        Failure,
+        Success = 0,
+        Warning = 1,
+        Failure = 2,
     }
 }

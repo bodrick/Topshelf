@@ -19,25 +19,13 @@ namespace Topshelf.Configuration
     {
         public static IHostConfigurator AfterUninstall(this IHostConfigurator configurator, Action callback)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
             configurator.AddConfigurator(new UninstallHostConfiguratorAction("AfterUninstall", x => x.AfterUninstall(callback)));
-
             return configurator;
         }
 
         public static IHostConfigurator BeforeUninstall(this IHostConfigurator configurator, Action callback)
         {
-            if (configurator == null)
-            {
-                throw new ArgumentNullException(nameof(configurator));
-            }
-
             configurator.AddConfigurator(new UninstallHostConfiguratorAction("BeforeUninstall", x => x.BeforeUninstall(callback)));
-
             return configurator;
         }
     }

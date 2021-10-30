@@ -17,10 +17,11 @@ namespace Topshelf.Configuration.HostConfigurators
 {
     internal static class CommandLineParserOptions
     {
-        internal static void AddTopshelfOptions(ICommandLineElementParser<IOption> x) => x.Add((from arg in x.Argument("command")
-                                                                                               from cmd in x.Argument()
-                                                                                               where int.TryParse(cmd.Id, out var n)
-                                                                                               select (IOption)new CommandOption(cmd.Id))
+        internal static void AddTopshelfOptions(ICommandLineElementParser<IOption> x) =>
+            x.Add((from arg in x.Argument("command")
+                   from cmd in x.Argument()
+                   where int.TryParse(cmd.Id, out var n)
+                   select (IOption)new CommandOption(cmd.Id))
                 .Or(from arg in x.Argument("help")
                     select (IOption)new HelpOption())
                 .Or(from arg in x.Argument("run")
@@ -66,10 +67,11 @@ namespace Topshelf.Configuration.HostConfigurators
                     select (IOption)new LocalServiceOption())
                 .Or(from autostart in x.Switch("networkservice")
                     select (IOption)new NetworkServiceOption())
-);
+            );
 
-        internal static void AddUnknownOptions(ICommandLineElementParser<IOption> x) => x.Add((from unknown in x.Definition()
-                                                                                              select (IOption)new UnknownOption(unknown.ToString()))
+        internal static void AddUnknownOptions(ICommandLineElementParser<IOption> x) =>
+            x.Add((from unknown in x.Definition()
+                   select (IOption)new UnknownOption(unknown.ToString()))
                 .Or(from unknown in x.Switch()
                     select (IOption)new UnknownOption(unknown.ToString()))
                 .Or(from unknown in x.Argument()
