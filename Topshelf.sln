@@ -26,6 +26,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Topshelf.Serilog", "src\Top
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TopShelf.ServiceInstaller", "src\TopShelf.ServiceInstaller\TopShelf.ServiceInstaller.csproj", "{A0557173-693A-4117-BA10-3690467EFE01}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Topshelf.Extensions.Configuration.Tests", "tests\Topshelf.Extensions.Configuration.Tests\Topshelf.Extensions.Configuration.Tests.csproj", "{675AD881-E869-45B3-9F64-4217D1EB33B1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Topshelf.Tests", "tests\Topshelf.Tests\Topshelf.Tests.csproj", "{38EE5D36-CAC1-4A25-843D-B2C9DEB79249}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +68,14 @@ Global
 		{A0557173-693A-4117-BA10-3690467EFE01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0557173-693A-4117-BA10-3690467EFE01}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0557173-693A-4117-BA10-3690467EFE01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{675AD881-E869-45B3-9F64-4217D1EB33B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{675AD881-E869-45B3-9F64-4217D1EB33B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{675AD881-E869-45B3-9F64-4217D1EB33B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{675AD881-E869-45B3-9F64-4217D1EB33B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38EE5D36-CAC1-4A25-843D-B2C9DEB79249}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38EE5D36-CAC1-4A25-843D-B2C9DEB79249}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38EE5D36-CAC1-4A25-843D-B2C9DEB79249}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38EE5D36-CAC1-4A25-843D-B2C9DEB79249}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Show me the code! &#8212; Topshelf 3.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Topshelf Configuration" href="config_api.html" />
+    <link rel="prev" title="Configuring Topshelf" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="config_api.html" title="Topshelf Configuration"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Configuring Topshelf"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Topshelf 3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Configuring Topshelf</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Show me the code!</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="show-me-the-code">
+<h1>Show me the code!<a class="headerlink" href="#show-me-the-code" title="Permalink to this headline">¶</a></h1>
+<p>All right, all right, already. Here you go. Below is a functional setup of
+Topshelf.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">public</span> <span class="k">class</span> <span class="nc">TownCrier</span>
+<span class="linenos"> 2</span><span class="p">{</span>
+<span class="linenos"> 3</span>    <span class="k">readonly</span> <span class="n">Timer</span> <span class="n">_timer</span><span class="p">;</span>
+<span class="linenos"> 4</span>    <span class="k">public</span> <span class="nf">TownCrier</span><span class="p">()</span>
+<span class="linenos"> 5</span>    <span class="p">{</span>
+<span class="linenos"> 6</span>        <span class="n">_timer</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Timer</span><span class="p">(</span><span class="m">1000</span><span class="p">)</span> <span class="p">{</span><span class="n">AutoReset</span> <span class="p">=</span> <span class="k">true</span><span class="p">};</span>
+<span class="linenos"> 7</span>        <span class="n">_timer</span><span class="p">.</span><span class="n">Elapsed</span> <span class="p">+=</span> <span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">eventArgs</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">&quot;It is {0} and all is well&quot;</span><span class="p">,</span> <span class="n">DateTime</span><span class="p">.</span><span class="n">Now</span><span class="p">);</span>
+<span class="linenos"> 8</span>    <span class="p">}</span>
+<span class="linenos"> 9</span>    <span class="k">public</span> <span class="k">void</span> <span class="nf">Start</span><span class="p">()</span> <span class="p">{</span> <span class="n">_timer</span><span class="p">.</span><span class="n">Start</span><span class="p">();</span> <span class="p">}</span>
+<span class="linenos">10</span>    <span class="k">public</span> <span class="k">void</span> <span class="nf">Stop</span><span class="p">()</span> <span class="p">{</span> <span class="n">_timer</span><span class="p">.</span><span class="n">Stop</span><span class="p">();</span> <span class="p">}</span>
+<span class="linenos">11</span><span class="p">}</span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="k">public</span> <span class="k">class</span> <span class="nc">Program</span>
+<span class="linenos">14</span><span class="p">{</span>
+<span class="linenos">15</span>    <span class="k">public</span> <span class="k">static</span> <span class="k">void</span> <span class="nf">Main</span><span class="p">()</span>
+<span class="linenos">16</span>    <span class="p">{</span>
+<span class="linenos">17</span>        <span class="kt">var</span> <span class="n">rc</span> <span class="p">=</span> <span class="n">HostFactory</span><span class="p">.</span><span class="n">Run</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>                                   <span class="c1">//1</span>
+<span class="linenos">18</span>        <span class="p">{</span>
+<span class="linenos">19</span>            <span class="n">x</span><span class="p">.</span><span class="n">Service</span><span class="p">&lt;</span><span class="n">TownCrier</span><span class="p">&gt;(</span><span class="n">s</span> <span class="p">=&gt;</span>                                   <span class="c1">//2</span>
+<span class="linenos">20</span>            <span class="p">{</span>
+<span class="linenos">21</span>               <span class="n">s</span><span class="p">.</span><span class="n">ConstructUsing</span><span class="p">(</span><span class="n">name</span><span class="p">=&gt;</span> <span class="k">new</span> <span class="n">TownCrier</span><span class="p">());</span>                <span class="c1">//3</span>
+<span class="linenos">22</span>               <span class="n">s</span><span class="p">.</span><span class="n">WhenStarted</span><span class="p">(</span><span class="n">tc</span> <span class="p">=&gt;</span> <span class="n">tc</span><span class="p">.</span><span class="n">Start</span><span class="p">());</span>                         <span class="c1">//4</span>
+<span class="linenos">23</span>               <span class="n">s</span><span class="p">.</span><span class="n">WhenStopped</span><span class="p">(</span><span class="n">tc</span> <span class="p">=&gt;</span> <span class="n">tc</span><span class="p">.</span><span class="n">Stop</span><span class="p">());</span>                          <span class="c1">//5</span>
+<span class="linenos">24</span>            <span class="p">});</span>
+<span class="linenos">25</span>            <span class="n">x</span><span class="p">.</span><span class="n">RunAsLocalSystem</span><span class="p">();</span>                                       <span class="c1">//6</span>
+<span class="linenos">26</span>
+<span class="linenos">27</span>            <span class="n">x</span><span class="p">.</span><span class="n">SetDescription</span><span class="p">(</span><span class="s">&quot;Sample Topshelf Host&quot;</span><span class="p">);</span>                   <span class="c1">//7</span>
+<span class="linenos">28</span>            <span class="n">x</span><span class="p">.</span><span class="n">SetDisplayName</span><span class="p">(</span><span class="s">&quot;Stuff&quot;</span><span class="p">);</span>                                  <span class="c1">//8</span>
+<span class="linenos">29</span>            <span class="n">x</span><span class="p">.</span><span class="n">SetServiceName</span><span class="p">(</span><span class="s">&quot;Stuff&quot;</span><span class="p">);</span>                                  <span class="c1">//9</span>
+<span class="linenos">30</span>        <span class="p">});</span>                                                             <span class="c1">//10</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span>        <span class="kt">var</span> <span class="n">exitCode</span> <span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">Convert</span><span class="p">.</span><span class="n">ChangeType</span><span class="p">(</span><span class="n">rc</span><span class="p">,</span> <span class="n">rc</span><span class="p">.</span><span class="n">GetTypeCode</span><span class="p">());</span>  <span class="c1">//11</span>
+<span class="linenos">33</span>        <span class="n">Environment</span><span class="p">.</span><span class="n">Exit</span><span class="p">(</span><span class="n">exitCode</span><span class="p">);</span>
+<span class="linenos">34</span>    <span class="p">}</span>
+<span class="linenos">35</span><span class="p">}</span>
+</pre></div>
+</div>
+<section id="now-for-the-play-by-play">
+<h2>Now for the play by play.<a class="headerlink" href="#now-for-the-play-by-play" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Here we are setting up the host using the <code class="docutils literal notranslate"><span class="pre">HostFactory.Run</span></code>  the runner. We open up a new lambda where the <code class="docutils literal notranslate"><span class="pre">x</span></code> in this case exposes all of the host level configuration. Using this approach the command arguments are extracted from environment variables. We also capture the return code of the service - which we return on line 11.</p></li>
+<li><p>Here we are telling Topshelf that there is a service of type <code class="docutils literal notranslate"><span class="pre">TownCrier</span></code>. The lambda that gets opened here is exposing the service configuration options through the <code class="docutils literal notranslate"><span class="pre">s</span></code> parameter.</p></li>
+<li><p>This tells Topshelf how to build an instance of the service. Currently we are just going to ‘new it up’ but we could just as easily pull it from an IoC container with some code that would look something like <code class="docutils literal notranslate"><span class="pre">container.GetInstance&lt;TownCrier&gt;()</span></code></p></li>
+<li><p>How does Topshelf start the service</p></li>
+<li><p>How does Topshelf stop the service</p></li>
+<li><p>Here we are setting up the ‘run as’ and have selected the ‘local system’. We can also set up from the command line interactively with a win from type prompt and we can also just pass in some username/password as string arguments</p></li>
+<li><p>Here we are setting up the description for the winservice to be use in the windows service monitor</p></li>
+<li><p>Here we are setting up the display name for the winservice to be use in the windows service monitor</p></li>
+<li><p>Here we are setting up the service name for the winservice to be use in the windows service monitor</p></li>
+<li><p>Now that the lambda has closed, the configuration will be executed and the host will start running.</p></li>
+<li><p>Finally, we convert and return the service exit code.</p></li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You can only have ONE service! As of 3.x Topshelf the base product no longer
+support hosting multiple services. This was done because the code to implement
+was very brittle and hard to debug. We have opted for a simpler and cleaner
+base product. This feature will most likely come back in the form of an add
+on nuget.</p>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Show me the code!</a><ul>
+<li><a class="reference internal" href="#now-for-the-play-by-play">Now for the play by play.</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Configuring Topshelf</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="config_api.html"
+                        title="next chapter">Topshelf Configuration</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/configuration/quickstart.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="config_api.html" title="Topshelf Configuration"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Configuring Topshelf"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Topshelf 3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Configuring Topshelf</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Show me the code!</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Chris Patterson, Travis Smith, and Dru Sellers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

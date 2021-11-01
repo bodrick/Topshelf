@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Installing Topshelf &#8212; Topshelf 3.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Getting hold of us" href="help.html" />
+    <link rel="prev" title="Prerequisites" href="prerequisites.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="help.html" title="Getting hold of us"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="prerequisites.html" title="Prerequisites"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Topshelf 3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Topshelf Installation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Installing Topshelf</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="installing-topshelf">
+<h1>Installing Topshelf<a class="headerlink" href="#installing-topshelf" title="Permalink to this headline">¶</a></h1>
+<section id="nuget">
+<h2>NuGet<a class="headerlink" href="#nuget" title="Permalink to this headline">¶</a></h2>
+<p>The simplest way to install Topshelf into your solution/project is to use
+NuGet.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nuget</span> <span class="n">Install</span><span class="o">-</span><span class="n">Package</span> <span class="n">Topshelf</span>
+</pre></div>
+</div>
+</section>
+<section id="raw-binaries">
+<h2>Raw Binaries<a class="headerlink" href="#raw-binaries" title="Permalink to this headline">¶</a></h2>
+<p>If you are a fan of getting the binaries you can get released builds from <code class="docutils literal notranslate"><span class="pre">http://github.com/topshelf/Topshelf/downloads</span></code> then you will need to add references to <cite>Topshelf.dll</cite></p>
+</section>
+<section id="compiling-from-source">
+<h2>Compiling From Source<a class="headerlink" href="#compiling-from-source" title="Permalink to this headline">¶</a></h2>
+<p>Lastly, if you want to hack on Topshelf or just want to have the actual source
+code you can clone the source from github.com.</p>
+<p>To clone the repository using git try the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">Topshelf</span><span class="o">/</span><span class="n">Topshelf</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>If you want the development branch (where active development happens):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">Topshelf</span><span class="o">/</span><span class="n">Topshelf</span><span class="o">.</span><span class="n">git</span>
+<span class="n">cd</span> <span class="n">Topshelf</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="n">develop</span>
+</pre></div>
+</div>
+</section>
+<section id="build-dependencies">
+<h2>Build Dependencies<a class="headerlink" href="#build-dependencies" title="Permalink to this headline">¶</a></h2>
+<p>To compile Topshelf from source you will need the following developer tools
+installed:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>.Net 4.0 sdk</p></li>
+<li><p>ruby v 1.8.7</p></li>
+<li><p>gems (rake, albacore)</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="compiling">
+<h2>Compiling<a class="headerlink" href="#compiling" title="Permalink to this headline">¶</a></h2>
+<p>To compile the source code, drop to the command line and type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">.</span>\<span class="n">build</span><span class="o">.</span><span class="n">bat</span>
+</pre></div>
+</div>
+<p>If you look in the <code class="docutils literal notranslate"><span class="pre">.\build_output</span></code> folder you should see the binaries.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installing Topshelf</a><ul>
+<li><a class="reference internal" href="#nuget">NuGet</a></li>
+<li><a class="reference internal" href="#raw-binaries">Raw Binaries</a></li>
+<li><a class="reference internal" href="#compiling-from-source">Compiling From Source</a></li>
+<li><a class="reference internal" href="#build-dependencies">Build Dependencies</a></li>
+<li><a class="reference internal" href="#compiling">Compiling</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="prerequisites.html"
+                        title="previous chapter">Prerequisites</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="help.html"
+                        title="next chapter">Getting hold of us</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/installation/install.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="help.html" title="Getting hold of us"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="prerequisites.html" title="Prerequisites"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Topshelf 3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Topshelf Installation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Installing Topshelf</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Chris Patterson, Travis Smith, and Dru Sellers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

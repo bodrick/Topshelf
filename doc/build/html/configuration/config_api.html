@@ -1,0 +1,459 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Topshelf Configuration &#8212; Topshelf 3.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Logging Integration with Topshelf" href="logging.html" />
+    <link rel="prev" title="Show me the code!" href="quickstart.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="logging.html" title="Logging Integration with Topshelf"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Show me the code!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Topshelf 3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Configuring Topshelf</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Topshelf Configuration</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="topshelf-configuration">
+<h1>Topshelf Configuration<a class="headerlink" href="#topshelf-configuration" title="Permalink to this headline">¶</a></h1>
+<p>While the Quickstart gives you enough to get going, there are many more features available in Topshelf. The following details the configuration options available, and how to use them in Topshelf services.</p>
+<section id="service-name">
+<h2>Service Name<a class="headerlink" href="#service-name" title="Permalink to this headline">¶</a></h2>
+<p>Specify the base name of the service, as it is registered in the services control manager. This setting is optional and by default uses the namespace of the Program.cs file (well, basically, the calling assembly type namespace).</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">SetServiceName</span><span class="p">(</span><span class="s">&quot;MyService&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>It is recommended that service names not contains spaces or other whitespace characters.</p>
+<p>Each service on the system must have a unique name. If you need to run multiple instances of the same service,
+consider using the InstanceName command-line option when registering the service.</p>
+</section>
+<section id="service-description">
+<h2>Service Description<a class="headerlink" href="#service-description" title="Permalink to this headline">¶</a></h2>
+<p>Specify the description of the service in the services control manager. This is optional and defaults to the service name.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">SetDescription</span><span class="p">(</span><span class="s">&quot;My First Topshelf Service&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</section>
+<section id="display-name">
+<h2>Display Name<a class="headerlink" href="#display-name" title="Permalink to this headline">¶</a></h2>
+<p>Specify the display name of the service in the services control manager. This is optional and defaults to the service name.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">SetDisplayName</span><span class="p">(</span><span class="s">&quot;MyService&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</section>
+<section id="instance-name">
+<h2>Instance Name<a class="headerlink" href="#instance-name" title="Permalink to this headline">¶</a></h2>
+<p>Specify the instance name of the service, which is combined with the base service name and separated by a $. This is optional, and is only added if specified.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">SetInstanceName</span><span class="p">(</span><span class="s">&quot;MyService&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>This option is typically set using the command-line argument, but it allowed here for completeness.</p>
+</section>
+</section>
+<section id="service-configuration">
+<h1>Service Configuration<a class="headerlink" href="#service-configuration" title="Permalink to this headline">¶</a></h1>
+<p>The service can be configured in multiple ways, each with different goals. For services that can handle a dependency on Topshelf, the <code class="docutils literal notranslate"><span class="pre">ServiceControl</span></code> interface provides a lot of value for implementing the service control methods. Additionally, a zero-dependency solution is also available when lambda methods can be used to call methods in the service class.</p>
+<section id="simple-service">
+<h2>Simple Service<a class="headerlink" href="#simple-service" title="Permalink to this headline">¶</a></h2>
+<p>To configure a simple service, the easiest configuration method is available.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">Service</span><span class="p">&lt;</span><span class="n">MyService</span><span class="p">&gt;();</span>
+<span class="p">});</span>
+
+<span class="c1">// Service implements the ServiceControl methods directly and has a default constructor</span>
+<span class="k">class</span> <span class="nc">MyService</span> <span class="p">:</span> <span class="n">ServiceControl</span>
+<span class="p">{}</span>
+</pre></div>
+</div>
+<p>If the service does not have a default constructor, the constructor can be specified, allowing the service to be created by the application, such as when a container needs to be used.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">Service</span><span class="p">&lt;</span><span class="n">MyService</span><span class="p">&gt;(()</span> <span class="p">=&gt;</span> <span class="n">ObjectFactory</span><span class="p">.</span><span class="n">GetInstance</span><span class="p">&lt;</span><span class="n">MyService</span><span class="p">&gt;());</span>
+<span class="p">});</span>
+
+<span class="c1">// Service implements the ServiceControl methods directly and has a default constructor</span>
+<span class="k">class</span> <span class="nc">MyService</span> <span class="p">:</span> <span class="n">ServiceControl</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nf">MyService</span><span class="p">(</span><span class="n">SomeDependency</span> <span class="n">dependency</span><span class="p">)</span>
+    <span class="p">{}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If the service needs access to the HostSettings during construction, they are also available as an overload.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">Service</span><span class="p">&lt;</span><span class="n">MyService</span><span class="p">&gt;(</span><span class="n">hostSettings</span> <span class="p">=&gt;</span> <span class="k">new</span> <span class="n">MyService</span><span class="p">(</span><span class="n">hostSettings</span><span class="p">));</span>
+<span class="p">});</span>
+
+<span class="c1">// Service implements the ServiceControl methods directly and has a default constructor</span>
+<span class="k">class</span> <span class="nc">MyService</span> <span class="p">:</span> <span class="n">ServiceControl</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="nf">MyService</span><span class="p">(</span><span class="n">HostSettings</span> <span class="n">settings</span><span class="p">)</span>
+    <span class="p">{}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-service">
+<h2>Custom Service<a class="headerlink" href="#custom-service" title="Permalink to this headline">¶</a></h2>
+<p>To configure a completely custom service, such as one that has no dependencies on Topshelf, the following configuration is available.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">Service</span><span class="p">&lt;</span><span class="n">MyService</span><span class="p">&gt;(</span><span class="n">sc</span> <span class="p">=&gt;</span>
+    <span class="p">{</span>
+        <span class="n">sc</span><span class="p">.</span><span class="n">ConstructUsing</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="k">new</span> <span class="n">MyService</span><span class="p">());</span>
+
+        <span class="c1">// the start and stop methods for the service</span>
+        <span class="n">sc</span><span class="p">.</span><span class="n">WhenStarted</span><span class="p">(</span><span class="n">s</span> <span class="p">=&gt;</span> <span class="n">s</span><span class="p">.</span><span class="n">Start</span><span class="p">());</span>
+        <span class="n">sc</span><span class="p">.</span><span class="n">WhenStopped</span><span class="p">(</span><span class="n">s</span> <span class="p">=&gt;</span> <span class="n">s</span><span class="p">.</span><span class="n">Stop</span><span class="p">());</span>
+
+        <span class="c1">// optional pause/continue methods if used</span>
+        <span class="n">sc</span><span class="p">.</span><span class="n">WhenPaused</span><span class="p">(</span><span class="n">s</span> <span class="p">=&gt;</span> <span class="n">s</span><span class="p">.</span><span class="n">Pause</span><span class="p">());</span>
+        <span class="n">sc</span><span class="p">.</span><span class="n">WhenContinued</span><span class="p">(</span><span class="n">s</span> <span class="p">=&gt;</span> <span class="n">s</span><span class="p">.</span><span class="n">Continue</span><span class="p">());</span>
+
+        <span class="c1">// optional, when shutdown is supported</span>
+        <span class="n">sc</span><span class="p">.</span><span class="n">WhenShutdown</span><span class="p">(</span><span class="n">s</span> <span class="p">=&gt;</span> <span class="n">s</span><span class="p">.</span><span class="n">Shutdown</span><span class="p">());</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Each of the WhenXxx methods can also take an argument of the <code class="docutils literal notranslate"><span class="pre">HostControl</span></code> interface, which can be used to request the service be stopped, request additional start/stop time, etc.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">Service</span><span class="p">&lt;</span><span class="n">MyService</span><span class="p">&gt;(</span><span class="n">sc</span> <span class="p">=&gt;</span>
+    <span class="p">{</span>
+        <span class="n">sc</span><span class="p">.</span><span class="n">WhenStarted</span><span class="p">((</span><span class="n">s</span><span class="p">,</span> <span class="n">hostControl</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="n">s</span><span class="p">.</span><span class="n">Start</span><span class="p">(</span><span class="n">hostControl</span><span class="p">));</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">HostControl</span></code> interface can be retained and used as the service is running to Stop the service.</p>
+</section>
+</section>
+<section id="service-start-modes">
+<h1>Service Start Modes<a class="headerlink" href="#service-start-modes" title="Permalink to this headline">¶</a></h1>
+<p>There are multiple service start modes, each of which can be specified by the configuration. This option is only used if the service is being installed.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">StartAutomatically</span><span class="p">();</span> <span class="c1">// Start the service automatically</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">StartAutomaticallyDelayed</span><span class="p">();</span> <span class="c1">// Automatic (Delayed) -- only available on .NET 4.0 or later</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">StartManually</span><span class="p">();</span> <span class="c1">// Start the service manually</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">Disabled</span><span class="p">();</span> <span class="c1">// install the service as disabled</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</section>
+<section id="service-recovery">
+<h1>Service Recovery<a class="headerlink" href="#service-recovery" title="Permalink to this headline">¶</a></h1>
+<p>Topshelf also exposes the options needed to configure the service recovery options as well.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">EnableServiceRecovery</span><span class="p">(</span><span class="n">r</span> <span class="p">=&gt;</span>
+    <span class="p">{</span>
+        <span class="c1">//you can have up to three of these</span>
+        <span class="n">r</span><span class="p">.</span><span class="n">RestartComputer</span><span class="p">(</span><span class="m">5</span><span class="p">,</span> <span class="s">&quot;message&quot;</span><span class="p">);</span>
+        <span class="n">r</span><span class="p">.</span><span class="n">RestartService</span><span class="p">(</span><span class="m">0</span><span class="p">);</span>
+        <span class="c1">//the last one will act for all subsequent failures</span>
+        <span class="n">r</span><span class="p">.</span><span class="n">RunProgram</span><span class="p">(</span><span class="m">7</span><span class="p">,</span> <span class="s">&quot;ping google.com&quot;</span><span class="p">);</span>
+
+        <span class="c1">//should this be true for crashed or non-zero exits</span>
+        <span class="n">r</span><span class="p">.</span><span class="n">OnCrashOnly</span><span class="p">();</span>
+
+        <span class="c1">//number of days until the error count resets</span>
+        <span class="n">r</span><span class="p">.</span><span class="n">SetResetPeriod</span><span class="p">(</span><span class="m">1</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</section>
+<section id="service-identity">
+<h1>Service Identity<a class="headerlink" href="#service-identity" title="Permalink to this headline">¶</a></h1>
+<p>Services can be configured to run as a number of different identities, using the configuration option that is most appropriate.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">RunAs</span><span class="p">(</span><span class="s">&quot;username&quot;</span><span class="p">,</span> <span class="s">&quot;password&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Runs the service using the specified username and password. This can also be configured using the command-line.
+Please be sure to include the domain or UPN suffix in the username value e.g. <strong>domain\username</strong> or <strong>username&#64;suffix.com</strong>.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">RunAsPrompt</span><span class="p">();</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>When the service is installed, the installer will prompt for the username/password combination used to launch the service.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">RunAsNetworkService</span><span class="p">();</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Runs the service using the NETWORK_SERVICE built-in account.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">RunAsLocalSystem</span><span class="p">();</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Runs the service using the local system account.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">RunAsLocalService</span><span class="p">();</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Runs the service using the local service account.</p>
+</section>
+<section id="custom-install-actions">
+<h1>Custom Install Actions<a class="headerlink" href="#custom-install-actions" title="Permalink to this headline">¶</a></h1>
+<p>These actions allow user-specified code to be executed during the service install/uninstall process. Each install action takes a <em>settings</em> parameter of type Topshelf.HostSettings, providing you with an API to service-related properties such as the <em>InstanceName</em>, <em>ServiceName</em>, etc.</p>
+<section id="before-install-actions">
+<h2>Before Install Actions<a class="headerlink" href="#before-install-actions" title="Permalink to this headline">¶</a></h2>
+<p>Topshelf allows actions to be specified that are executed before the service is installed. Note that this action is only executed if the service is being installed.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">BeforeInstall</span><span class="p">(</span><span class="n">settings</span> <span class="p">=&gt;</span> <span class="p">{</span> <span class="p">...</span> <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</section>
+<section id="after-install-actions">
+<h2>After Install Actions<a class="headerlink" href="#after-install-actions" title="Permalink to this headline">¶</a></h2>
+<p>Topshelf allows actions to be specified that are executed after the service is installed. Note that this action is only executed if the service is being installed.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">AfterInstall</span><span class="p">(</span><span class="n">settings</span> <span class="p">=&gt;</span> <span class="p">{</span> <span class="p">...</span> <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</section>
+<section id="before-uninstall-actions">
+<h2>Before Uninstall Actions<a class="headerlink" href="#before-uninstall-actions" title="Permalink to this headline">¶</a></h2>
+<p>Topshelf allows actions to be specified that are executed before the service is uninstalled. Note that this action is only executed if the service is being uninstalled.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">BeforeUninstall</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span> <span class="p">...</span> <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</section>
+<section id="after-uninstall-actions">
+<h2>After Uninstall Actions<a class="headerlink" href="#after-uninstall-actions" title="Permalink to this headline">¶</a></h2>
+<p>Topshelf allows actions to be specified that are executed after the service is uninstalled. Note that this action is only executed if the service is being uninstalled.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">AfterUninstall</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span> <span class="p">...</span> <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="service-dependencies">
+<h1>Service Dependencies<a class="headerlink" href="#service-dependencies" title="Permalink to this headline">¶</a></h1>
+<p>Service dependencies can be specified such that the service does not start until the dependent services are started. This is managed by the windows services control manager, and not by Topshelf itself.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">DependsOn</span><span class="p">(</span><span class="s">&quot;SomeOtherService&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>There are a number of built-in extension methods for well-known services, including:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">DependsOnMsmq</span><span class="p">();</span> <span class="c1">// Microsoft Message Queueing</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">DependsOnMsSql</span><span class="p">();</span> <span class="c1">// Microsoft SQL Server</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">DependsOnEventLog</span><span class="p">();</span> <span class="c1">// Windows Event Log</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">DependsOnIis</span><span class="p">();</span> <span class="c1">// Internet Information Server</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-settings">
+<h1>Advanced Settings<a class="headerlink" href="#advanced-settings" title="Permalink to this headline">¶</a></h1>
+<section id="enablepauseandcontinue">
+<h2>EnablePauseAndContinue<a class="headerlink" href="#enablepauseandcontinue" title="Permalink to this headline">¶</a></h2>
+<p>Specifies that the service supports pause and continue, allowing the services control manager to pass pause and continue commands to the service.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">EnablePauseAndContinue</span><span class="p">();</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</section>
+<section id="enableshutdown">
+<h2>EnableShutdown<a class="headerlink" href="#enableshutdown" title="Permalink to this headline">¶</a></h2>
+<p>Specifies that the service supports the shutdown service command, allowing the services control manager to quickly shutdown the service.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">EnableShutdown</span><span class="p">();</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</section>
+<section id="onexception">
+<h2>OnException<a class="headerlink" href="#onexception" title="Permalink to this headline">¶</a></h2>
+<p>Provides a callback for exceptions that are thrown while the service is running. This callback is not a handler, and will not affect the default exception handling that Topshelf already provides. It is intended to provide visibility into thrown exceptions for triggering external actions, logging, etc.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">OnException</span><span class="p">(</span><span class="n">ex</span> <span class="p">=&gt;</span>
+    <span class="p">{</span>
+        <span class="c1">// Do something with the exception</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id1">
+<h1>Service Recovery<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>To configure the service recovery options, a configurator is available to specify one or more service recovery actions. The recovery options are only used when installing the service, and are set once the service has been successfully installed.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">EnableServiceRecovery</span><span class="p">(</span><span class="n">rc</span> <span class="p">=&gt;</span>
+    <span class="p">{</span>
+        <span class="n">rc</span><span class="p">.</span><span class="n">RestartService</span><span class="p">(</span><span class="m">1</span><span class="p">);</span> <span class="c1">// restart the service after 1 minute</span>
+        <span class="n">rc</span><span class="p">.</span><span class="n">RestartSystem</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="s">&quot;System is restarting!&quot;</span><span class="p">);</span> <span class="c1">// restart the system after 1 minute</span>
+        <span class="n">rc</span><span class="p">.</span><span class="n">RunProgram</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="s">&quot;notepad.exe&quot;</span><span class="p">);</span> <span class="c1">// run a program</span>
+        <span class="n">rc</span><span class="p">.</span><span class="n">SetResetPeriod</span><span class="p">(</span><span class="m">1</span><span class="p">);</span> <span class="c1">// set the reset interval to one day</span>
+    <span class="p">})</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>The recovery actions are executed in the order specified, with the next action being executed after the previous action was run and the service failed again. There is a limit (based on the OS) of how many actions can be executed, and is typically 2-3 actions.</p>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Topshelf Configuration</a><ul>
+<li><a class="reference internal" href="#service-name">Service Name</a></li>
+<li><a class="reference internal" href="#service-description">Service Description</a></li>
+<li><a class="reference internal" href="#display-name">Display Name</a></li>
+<li><a class="reference internal" href="#instance-name">Instance Name</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-configuration">Service Configuration</a><ul>
+<li><a class="reference internal" href="#simple-service">Simple Service</a></li>
+<li><a class="reference internal" href="#custom-service">Custom Service</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-start-modes">Service Start Modes</a></li>
+<li><a class="reference internal" href="#service-recovery">Service Recovery</a></li>
+<li><a class="reference internal" href="#service-identity">Service Identity</a></li>
+<li><a class="reference internal" href="#custom-install-actions">Custom Install Actions</a><ul>
+<li><a class="reference internal" href="#before-install-actions">Before Install Actions</a></li>
+<li><a class="reference internal" href="#after-install-actions">After Install Actions</a></li>
+<li><a class="reference internal" href="#before-uninstall-actions">Before Uninstall Actions</a></li>
+<li><a class="reference internal" href="#after-uninstall-actions">After Uninstall Actions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-dependencies">Service Dependencies</a></li>
+<li><a class="reference internal" href="#advanced-settings">Advanced Settings</a><ul>
+<li><a class="reference internal" href="#enablepauseandcontinue">EnablePauseAndContinue</a></li>
+<li><a class="reference internal" href="#enableshutdown">EnableShutdown</a></li>
+<li><a class="reference internal" href="#onexception">OnException</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id1">Service Recovery</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="quickstart.html"
+                        title="previous chapter">Show me the code!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="logging.html"
+                        title="next chapter">Logging Integration with Topshelf</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/configuration/config_api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="logging.html" title="Logging Integration with Topshelf"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Show me the code!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Topshelf 3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Configuring Topshelf</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Topshelf Configuration</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Chris Patterson, Travis Smith, and Dru Sellers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

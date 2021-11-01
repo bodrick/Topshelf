@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Configuring Topshelf &#8212; Topshelf 3.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Show me the code!" href="quickstart.html" />
+    <link rel="prev" title="How to report bugs" href="../installation/bugs.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="quickstart.html" title="Show me the code!"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../installation/bugs.html" title="How to report bugs"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Topshelf 3.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Configuring Topshelf</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="configuring-topshelf">
+<h1>Configuring Topshelf<a class="headerlink" href="#configuring-topshelf" title="Permalink to this headline">¶</a></h1>
+<p>Once Topshelf has been added to your service, you can configure the service using the Topshelf configuration API. Topshelf uses an internal domain specific language (DSL) for configuration, along with a series of fluent builders.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Show me the code!</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#now-for-the-play-by-play">Now for the play by play.</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="config_api.html">Topshelf Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="config_api.html#service-name">Service Name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_api.html#service-description">Service Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_api.html#display-name">Display Name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_api.html#instance-name">Instance Name</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="config_api.html#service-configuration">Service Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="config_api.html#simple-service">Simple Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_api.html#custom-service">Custom Service</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="config_api.html#service-start-modes">Service Start Modes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_api.html#service-recovery">Service Recovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_api.html#service-identity">Service Identity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_api.html#custom-install-actions">Custom Install Actions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="config_api.html#before-install-actions">Before Install Actions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_api.html#after-install-actions">After Install Actions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_api.html#before-uninstall-actions">Before Uninstall Actions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_api.html#after-uninstall-actions">After Uninstall Actions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="config_api.html#service-dependencies">Service Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_api.html#advanced-settings">Advanced Settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="config_api.html#enablepauseandcontinue">EnablePauseAndContinue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_api.html#enableshutdown">EnableShutdown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config_api.html#onexception">OnException</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="config_api.html#id1">Service Recovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging Integration with Topshelf</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="logging.html#logary-integration">Logary integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html#log4net-integration">log4net Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logging.html#nlog-integration">NLog Integration</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../installation/bugs.html"
+                        title="previous chapter">How to report bugs</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="quickstart.html"
+                        title="next chapter">Show me the code!</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/configuration/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="quickstart.html" title="Show me the code!"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../installation/bugs.html" title="How to report bugs"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Topshelf 3.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Configuring Topshelf</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Chris Patterson, Travis Smith, and Dru Sellers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

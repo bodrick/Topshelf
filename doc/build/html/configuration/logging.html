@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Logging Integration with Topshelf &#8212; Topshelf 3.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Topshelf Overview" href="../overview/index.html" />
+    <link rel="prev" title="Topshelf Configuration" href="config_api.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../overview/index.html" title="Topshelf Overview"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="config_api.html" title="Topshelf Configuration"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Topshelf 3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Configuring Topshelf</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Logging Integration with Topshelf</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="logging-integration-with-topshelf">
+<h1>Logging Integration with Topshelf<a class="headerlink" href="#logging-integration-with-topshelf" title="Permalink to this headline">¶</a></h1>
+<p>By default, Topshelf uses a TraceSource for logging. This is part of the .NET framework, and thus does not introduce any additional dependencies. However, many applications use more advanced logging libraries, such as Logary or NLog. To support this, an extensible logging interface is used by Topshelf.</p>
+<section id="logary-integration">
+<h2>Logary integration<a class="headerlink" href="#logary-integration" title="Permalink to this headline">¶</a></h2>
+<p>To ship logs with Logary, use the Logary.Adapters.Topshelf nuget. Once you’ve added this nuget to your project, you can configure Topshelf to use it via the configuration builder:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span> <span class="p">(</span><span class="kt">var</span> <span class="n">logary</span> <span class="p">=</span> <span class="p">...</span><span class="n">Result</span><span class="p">)</span>
+    <span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+    <span class="p">{</span>
+        <span class="n">x</span><span class="p">.</span><span class="n">UseLogary</span><span class="p">(</span><span class="n">logary</span><span class="p">);</span>
+    <span class="p">});</span>
+</pre></div>
+</div>
+<p>This makes it possible to get your logs off your node, so that you avoid running out of disk space and can log to modern log targets, such as ElasticSearch and InfluxDB.</p>
+<p>For more information, see the Logary README at <a class="reference external" href="https://github.com/logary/logary">https://github.com/logary/logary</a>.</p>
+</section>
+<section id="log4net-integration">
+<h2>log4net Integration<a class="headerlink" href="#log4net-integration" title="Permalink to this headline">¶</a></h2>
+<p>To enable logging via log4net, the Topshelf.Log4Net NuGet package is available. Once added to your project, configure Topshelf to use log4net via the configuration:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">UseLog4Net</span><span class="p">();</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>This will change the <code class="docutils literal notranslate"><span class="pre">HostLogger</span></code> to use log4net. There is an overload that allows a configuration file to be specified. If given, the filename will be resolved to the ApplicationBase folder and passed to log4net to configure the log appenders and levels.</p>
+</section>
+<section id="nlog-integration">
+<h2>NLog Integration<a class="headerlink" href="#nlog-integration" title="Permalink to this headline">¶</a></h2>
+<p>To enable logging via NLog, the Topshelf.NLog NuGet package is available. Once added to your project, configure Topshelf to use NLog via the configuration:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">HostFactory</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">UseNLog</span><span class="p">();</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>This will change the <code class="docutils literal notranslate"><span class="pre">HostLogger</span></code> to use NLog. An existing LogFactory can be passed as well, using an overload of the same method.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Logging Integration with Topshelf</a><ul>
+<li><a class="reference internal" href="#logary-integration">Logary integration</a></li>
+<li><a class="reference internal" href="#log4net-integration">log4net Integration</a></li>
+<li><a class="reference internal" href="#nlog-integration">NLog Integration</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="config_api.html"
+                        title="previous chapter">Topshelf Configuration</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../overview/index.html"
+                        title="next chapter">Topshelf Overview</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/configuration/logging.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../overview/index.html" title="Topshelf Overview"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="config_api.html" title="Topshelf Configuration"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Topshelf 3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Configuring Topshelf</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Logging Integration with Topshelf</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Chris Patterson, Travis Smith, and Dru Sellers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

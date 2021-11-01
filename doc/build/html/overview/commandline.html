@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Topshelf Command-Line Reference &#8212; Topshelf 3.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Troubleshooting Topshelf" href="../troubleshooting/index.html" />
+    <link rel="prev" title="Topshelf Key Concepts" href="faq.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../troubleshooting/index.html" title="Troubleshooting Topshelf"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="faq.html" title="Topshelf Key Concepts"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Topshelf 3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Topshelf Overview</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Topshelf Command-Line Reference</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="topshelf-command-line-reference">
+<h1>Topshelf Command-Line Reference<a class="headerlink" href="#topshelf-command-line-reference" title="Permalink to this headline">¶</a></h1>
+<p>Once a service has been created using Topshelf, an extensive command-line vocabulary is available which can be used to install, uninstall, start, and configure the service.</p>
+<p>The command-line help can be displayed at any time by entering <code class="docutils literal notranslate"><span class="pre">myService.exe</span> <span class="pre">help</span></code> on the command-line.</p>
+<section id="help-text">
+<h2>Help Text<a class="headerlink" href="#help-text" title="Permalink to this headline">¶</a></h2>
+<p>The help text from the command line is shown below for easy reference.</p>
+<blockquote>
+<div><p>service.exe <strong>[verb]</strong> [-option:value] [-switch]</p>
+<p><strong>run</strong>               Runs the service from the command line (default)</p>
+<p><strong>help</strong> or <strong>–help</strong>      Displays help</p>
+<p><strong>install</strong>           Installs the service</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-u<var>sername</var></span></kbd></dt>
+<dd><p>The username to run the service</p>
+</dd>
+<dt><kbd><span class="option">-p<var>assword</var></span></kbd></dt>
+<dd><p>The password for the specified username</p>
+</dd>
+<dt><kbd><span class="option">-i<var>nstance</var></span></kbd></dt>
+<dd><p>An instance name if registering the service
+multiple times</p>
+</dd>
+<dt><kbd><span class="option">--autostart</span></kbd></dt>
+<dd><p>The service should start automatically (default)</p>
+</dd>
+<dt><kbd><span class="option">--disabled</span></kbd></dt>
+<dd><p>The service should be set to disabled</p>
+</dd>
+<dt><kbd><span class="option">--manual</span></kbd></dt>
+<dd><p>The service should be started manually</p>
+</dd>
+<dt><kbd><span class="option">--delayed</span></kbd></dt>
+<dd><p>The service should start automatically (delayed)</p>
+</dd>
+<dt><kbd><span class="option">--localsystem</span></kbd></dt>
+<dd><p>Run the service with the local system account</p>
+</dd>
+<dt><kbd><span class="option">--localservice</span></kbd></dt>
+<dd><p>Run the service with the local service account</p>
+</dd>
+<dt><kbd><span class="option">--networkservice</span></kbd></dt>
+<dd><p>Run the service with the network service permission</p>
+</dd>
+<dt><kbd><span class="option">--interactive</span></kbd></dt>
+<dd><p>The service will prompt the user at installation for
+the service credentials</p>
+</dd>
+<dt><kbd><span class="option">--sudo</span></kbd></dt>
+<dd><p>Prompts for UAC if running on Vista/W7/2008</p>
+</dd>
+<dt><kbd><span class="option">-s<var>ervicename</var></span></kbd></dt>
+<dd><p>The name that the service should use when
+installing</p>
+</dd>
+<dt><kbd><span class="option">-d<var>escription</var></span></kbd></dt>
+<dd><p>The service description the service should use when
+installing.
+Eg: -description: MyService
+Eg: -description “My Service”</p>
+</dd>
+<dt><kbd><span class="option">-d<var>isplayname</var></span></kbd></dt>
+<dd><p>The display name the the service should use when
+installing
+Eg: -displayname: MyService
+Eg: -displayname “My Service”</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>start</strong>             Starts the service if it is not already running</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-i<var>nstance</var></span></kbd></dt>
+<dd><p>The instance to start</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>stop</strong>              Stops the service if it is running</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-i<var>nstance</var></span></kbd></dt>
+<dd><p>The instance to stop</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>uninstall</strong>         Uninstalls the service</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-i<var>nstance</var></span></kbd></dt>
+<dd><p>An instance name if registering the service
+multiple times</p>
+</dd>
+<dt><kbd><span class="option">--sudo</span></kbd></dt>
+<dd><p>Prompts for UAC if running on Vista/W7/2008</p>
+</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p><strong>Basic Service Installation</strong></p>
+<blockquote>
+<div><p>MyService.exe install -username:DOMAIN\ServiceAccount -password:itsASecret -servicename:AwesomeService –autostart</p>
+</div></blockquote>
+<p><strong>Service Installation with Quoted Arguments</strong></p>
+<blockquote>
+<div><p>MyService.exe install -username “DOMAIN\Service Account” -password “Its A Secret” -servicename “Awesome Service” –autostart</p>
+</div></blockquote>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Topshelf Command-Line Reference</a><ul>
+<li><a class="reference internal" href="#help-text">Help Text</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="faq.html"
+                        title="previous chapter">Topshelf Key Concepts</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../troubleshooting/index.html"
+                        title="next chapter">Troubleshooting Topshelf</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/overview/commandline.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../troubleshooting/index.html" title="Troubleshooting Topshelf"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="faq.html" title="Topshelf Key Concepts"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Topshelf 3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Topshelf Overview</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Topshelf Command-Line Reference</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Chris Patterson, Travis Smith, and Dru Sellers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

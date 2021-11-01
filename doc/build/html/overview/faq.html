@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Topshelf Key Concepts &#8212; Topshelf 3.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Topshelf Command-Line Reference" href="commandline.html" />
+    <link rel="prev" title="Topshelf Overview" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="commandline.html" title="Topshelf Command-Line Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Topshelf Overview"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Topshelf 3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Topshelf Overview</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Topshelf Key Concepts</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="topshelf-key-concepts">
+<h1>Topshelf Key Concepts<a class="headerlink" href="#topshelf-key-concepts" title="Permalink to this headline">¶</a></h1>
+<section id="why-would-i-want-to-use-topshelf">
+<h2>Why would I want to use Topshelf?<a class="headerlink" href="#why-would-i-want-to-use-topshelf" title="Permalink to this headline">¶</a></h2>
+<p>Topshelf is a Windows service framework for the .NET platform. Topshelf makes it easy to create a Windows service, test the service, debug the service, and ultimately install it into the Windows Service Control Manager (SCM). Topshelf does this by allowing developers to focus on service logic instead of the details of interacting with the built-in service support in the .NET framework. Developers don’t need to understand the complex details of service classes, perform installation via InstallUtil, or learn how to attach the debugger to services for troubleshooting issues.</p>
+</section>
+<section id="how-does-topshelf-do-this">
+<h2>How does Topshelf do this?<a class="headerlink" href="#how-does-topshelf-do-this" title="Permalink to this headline">¶</a></h2>
+<p>When a developer uses Topshelf, creating a Windows service is as easy as creating a console application. Once the console application is created, the developer creates a single service class that has public Start and Stop methods. With a few lines of configuration using Topshelf’s configuration API, the developer has a complete Windows service that can be debugged using the debugger (yes, F5 debugging support for services) and installed using the Topshelf command-line support.</p>
+</section>
+<section id="what-if-my-service-requires-custom-installation-options">
+<h2>What if my service requires custom installation options?<a class="headerlink" href="#what-if-my-service-requires-custom-installation-options" title="Permalink to this headline">¶</a></h2>
+<p>Topshelf supports most of the commonly used service installation options, including:</p>
+<ul class="simple">
+<li><p>Automatic, Automatic (Delayed), Manual, and Disabled start options.</p></li>
+<li><p>Local System, Local Service, Network Service, Username/Password, or prompted service credentials during installation.</p></li>
+<li><p>Service start dependencies, including SQL Server, MSMQ, and others.</p></li>
+<li><p>Multiple instance service installation with distinct service names.</p></li>
+<li><p>Service Recovery options, including restart, reboot, or run program.</p></li>
+</ul>
+</section>
+<section id="whats-the-impact-to-my-service">
+<h2>What’s the impact to my service?<a class="headerlink" href="#whats-the-impact-to-my-service" title="Permalink to this headline">¶</a></h2>
+<p>Topshelf is a small (around 200 KB) assembly with no dependencies, making it easy to integrate with any service.</p>
+</section>
+<section id="what-about-command-line-arguments">
+<h2>What about command-line arguments?<a class="headerlink" href="#what-about-command-line-arguments" title="Permalink to this headline">¶</a></h2>
+<p>Topshelf has an extensible command-line, allowing services to register parameters that can be specified using command-line arguments.</p>
+</section>
+<section id="what-else-can-i-get-by-using-topshelf">
+<h2>What else can I get by using Topshelf?<a class="headerlink" href="#what-else-can-i-get-by-using-topshelf" title="Permalink to this headline">¶</a></h2>
+<p>Topshelf is an open-source project, and new contributions are being accepted regularly. While the base Topshelf assembly is being kept small with very specific functionality, additional assemblies that build on top of Topshelf are also being created. For example, a supervisory extension that monitors service conditions such as CPU and memory is being created that will automatically cycle the service if conditions exceed specifications. This reduces the need to closely monitor services and manually restart them when they misbehave.</p>
+</section>
+<section id="is-topshelf-just-for-windows">
+<h2>Is Topshelf just for Windows?<a class="headerlink" href="#is-topshelf-just-for-windows" title="Permalink to this headline">¶</a></h2>
+<p>Topshelf works with Mono, making it possible to deploy services to Linux. The service installation features are currently Windows only, but others are working on creating native host environment support so that installation and management features are available as well.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Topshelf Key Concepts</a><ul>
+<li><a class="reference internal" href="#why-would-i-want-to-use-topshelf">Why would I want to use Topshelf?</a></li>
+<li><a class="reference internal" href="#how-does-topshelf-do-this">How does Topshelf do this?</a></li>
+<li><a class="reference internal" href="#what-if-my-service-requires-custom-installation-options">What if my service requires custom installation options?</a></li>
+<li><a class="reference internal" href="#whats-the-impact-to-my-service">What’s the impact to my service?</a></li>
+<li><a class="reference internal" href="#what-about-command-line-arguments">What about command-line arguments?</a></li>
+<li><a class="reference internal" href="#what-else-can-i-get-by-using-topshelf">What else can I get by using Topshelf?</a></li>
+<li><a class="reference internal" href="#is-topshelf-just-for-windows">Is Topshelf just for Windows?</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Topshelf Overview</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="commandline.html"
+                        title="next chapter">Topshelf Command-Line Reference</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/overview/faq.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="commandline.html" title="Topshelf Command-Line Reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Topshelf Overview"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Topshelf 3.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Topshelf Overview</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Topshelf Key Concepts</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Chris Patterson, Travis Smith, and Dru Sellers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>
