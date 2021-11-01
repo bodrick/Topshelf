@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net5.0-windows</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Serilog" Version="2.10.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Topshelf.Serilog\Topshelf.Serilog.csproj" />
+    <ProjectReference Include="..\Topshelf\Topshelf.csproj" />
+  </ItemGroup>
+</Project>
