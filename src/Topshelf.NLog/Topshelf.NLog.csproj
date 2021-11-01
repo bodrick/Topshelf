@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net5.0-windows</TargetFrameworks>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\Topshelf.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup>

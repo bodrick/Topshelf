@@ -2,10 +2,10 @@
   "version": 1,
   "isRoot": true,
   "tools": {
-    "dotnet-reportgenerator-globaltool": {
-      "version": "4.8.13",
+    "minver-cli": {
+      "version": "2.5.0",
       "commands": [
-        "reportgenerator"
+        "minver"
       ]
     }
   }

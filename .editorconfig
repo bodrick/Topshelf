@@ -442,6 +442,9 @@ dotnet_diagnostic.S2376.severity = none
 # CA1716: Identifiers should not match keywords
 dotnet_diagnostic.CA1716.severity = none
 
+# IDE0058: computed value is never used.
+dotnet_diagnostic.IDE0058.severity = none
+
 ##########################################
 # License
 ##########################################
