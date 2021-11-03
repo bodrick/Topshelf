@@ -26,8 +26,8 @@ namespace Topshelf.Configuration.HostConfigurators
             Password = password;
         }
 
-        public string Password { get; }
-        public string Username { get; }
+        private string Password { get; }
+        private string Username { get; }
 
         public IHostBuilder Configure(IHostBuilder builder)
         {

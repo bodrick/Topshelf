@@ -30,6 +30,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Topshelf.Extensions.Configu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Topshelf.Tests", "tests\Topshelf.Tests\Topshelf.Tests.csproj", "{38EE5D36-CAC1-4A25-843D-B2C9DEB79249}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A172CF80-BE3F-4594-BF76-7150E0B1FEBE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -79,6 +81,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{675AD881-E869-45B3-9F64-4217D1EB33B1} = {A172CF80-BE3F-4594-BF76-7150E0B1FEBE}
+		{38EE5D36-CAC1-4A25-843D-B2C9DEB79249} = {A172CF80-BE3F-4594-BF76-7150E0B1FEBE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DF857ED9-FBAA-438F-881E-A8BB738CA86C}

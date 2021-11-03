@@ -21,7 +21,7 @@ namespace Topshelf.Configuration.HostConfigurators
     {
         public IHostBuilder Configure(IHostBuilder builder)
         {
-            builder.Match<InstallBuilder>(x => x.RunAs("NT SERVICE\\" + x.Settings.ServiceName, "", ServiceAccount.User));
+            builder.Match<InstallBuilder>(x => x.RunAs($"NT SERVICE\\{x.Settings.ServiceName}", "", ServiceAccount.User));
             return builder;
         }
 

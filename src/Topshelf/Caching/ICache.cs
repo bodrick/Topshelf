@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Topshelf.Caching
 {
@@ -118,7 +119,7 @@ namespace Topshelf.Caching
         /// <param name="key">The key referencing the value in the cache</param>
         /// <param name="value">The value if it exists in the cache, otherwise the default value</param>
         /// <returns>True if the item was in the cache, otherwise false</returns>
-        bool TryGetValue(TKey key, out TValue value);
+        bool TryGetValue(TKey key, [NotNullWhen(true)] out TValue? value);
 
         /// <summary>
         /// Calls the callback with the value matching the specified key

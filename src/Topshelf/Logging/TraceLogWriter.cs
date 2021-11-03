@@ -516,7 +516,7 @@ namespace Topshelf.Logging
                 return;
             }
 
-            LogInternal(level, string.Format(format, args), null);
+            LogInternal(level, string.Format(CultureInfo.CurrentCulture, format, args), null);
         }
 
         public void LogFormat(LoggingLevel level, IFormatProvider formatProvider, string format, params object[] args)

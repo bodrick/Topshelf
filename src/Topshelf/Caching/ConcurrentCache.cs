@@ -7,13 +7,18 @@ using System.Linq;
 namespace Topshelf.Caching
 {
     [Serializable]
-    internal class ConcurrentCache<TKey, TValue> : ICache<TKey, TValue>
+    internal class ConcurrentCache<TKey, TValue> : ICache<TKey, TValue> where TKey : notnull
     {
         private readonly ConcurrentDictionary<TKey, TValue> _values;
+
         private CacheItemCallback<TKey, TValue> _duplicateValueAdded = ThrowOnDuplicateValue;
+
         private KeySelector<TKey, TValue> _keySelector = DefaultKeyAccessor;
+
         private MissingValueProvider<TKey, TValue> _missingValueProvider = ThrowOnMissingValue;
+
         private CacheItemCallback<TKey, TValue> _valueAddedCallback = DefaultCacheItemCallback;
+
         private CacheItemCallback<TKey, TValue> _valueRemovedCallback = DefaultCacheItemCallback;
 
         public ConcurrentCache() => _values = new ConcurrentDictionary<TKey, TValue>();

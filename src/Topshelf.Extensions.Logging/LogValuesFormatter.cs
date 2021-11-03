@@ -52,7 +52,7 @@ namespace Topshelf.Extensions.Logging
                     var formatDelimiterIndex = FindIndexOfAny(format, FormatDelimiters, openBraceIndex, closeBraceIndex);
 
                     vsb.Append(format.AsSpan(scanIndex, openBraceIndex - scanIndex + 1));
-                    vsb.Append(ValueNames.Count.ToString());
+                    vsb.Append(ValueNames.Count.ToString(CultureInfo.CurrentCulture));
                     ValueNames.Add(format.Substring(openBraceIndex + 1, formatDelimiterIndex - openBraceIndex - 1));
                     vsb.Append(format.AsSpan(formatDelimiterIndex, closeBraceIndex - formatDelimiterIndex + 1));
 

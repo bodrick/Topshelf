@@ -11,6 +11,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using Topshelf.Logging;
 using Topshelf.Runtime;
@@ -42,7 +43,7 @@ namespace Topshelf.Hosts
             {
                 if (!_environment.RunAsAdministrator())
                 {
-                    _log.ErrorFormat("The {0} service can only be started by an administrator", _settings.ServiceName);
+                    _log.ErrorFormat(CultureInfo.CurrentCulture, "The {0} service can only be started by an administrator", _settings.ServiceName);
                 }
 
                 return TopshelfExitCode.SudoRequired;
@@ -52,17 +53,17 @@ namespace Topshelf.Hosts
 
             if (!_environment.IsServiceInstalled(_settings.ServiceName))
             {
-                _log.ErrorFormat("The {0} service is not installed.", _settings.ServiceName);
+                _log.ErrorFormat(CultureInfo.CurrentCulture, "The {0} service is not installed.", _settings.ServiceName);
                 return TopshelfExitCode.ServiceNotInstalled;
             }
 
-            _log.DebugFormat("Starting {0}", _settings.ServiceName);
+            _log.DebugFormat(CultureInfo.CurrentCulture, "Starting {0}", _settings.ServiceName);
 
             try
             {
                 _environment.StartService(_settings.ServiceName, _settings.StartTimeOut);
 
-                _log.InfoFormat("The {0} service was started.", _settings.ServiceName);
+                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service was started.", _settings.ServiceName);
                 return TopshelfExitCode.Ok;
             }
             catch (Exception ex)

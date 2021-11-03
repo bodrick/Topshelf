@@ -15,6 +15,7 @@ using System;
 using System.ComponentModel;
 using System.Configuration.Install;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -78,9 +79,11 @@ namespace Topshelf.Runtime.DotNetCore
             }
         }
 
-        public IHost CreateServiceHost(IHostSettings settings, IServiceHandle serviceHandle) => new WindowsServiceHost(this, settings, serviceHandle, _hostConfigurator);
+        public IHost CreateServiceHost(IHostSettings settings, IServiceHandle serviceHandle) =>
+            new WindowsServiceHost(this, settings, serviceHandle, _hostConfigurator);
 
-        public void InstallService(IInstallHostSettings settings, Action<IInstallHostSettings> beforeInstall, Action afterInstall, Action beforeRollback, Action afterRollback)
+        public void InstallService(IInstallHostSettings settings, Action<IInstallHostSettings> beforeInstall, Action afterInstall,
+            Action beforeRollback, Action afterRollback)
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -88,6 +91,7 @@ namespace Topshelf.Runtime.DotNetCore
             }
 
             using var installer = new HostServiceInstaller(settings);
+
             void BeforeInstall(InstallEventArgs _)
             {
                 beforeInstall(settings);
@@ -100,7 +104,7 @@ namespace Topshelf.Runtime.DotNetCore
                 if (settings.Credentials.Account == ServiceAccount.User && (gMSA || string.Equals(settings.Credentials.Username,
                     "NT SERVICE\\" + settings.ServiceName, StringComparison.OrdinalIgnoreCase)))
                 {
-                    _log.InfoFormat(gMSA ? "Installing as gMSA {0}." : "Installing as virtual service account",
+                    _log.InfoFormat(CultureInfo.CurrentCulture, gMSA ? "Installing as gMSA {0}." : "Installing as virtual service account",
                         settings.Credentials.Username);
                     installer.ServiceProcessInstaller.Password = string.Empty;
                     installer.ServiceProcessInstaller.GetType().GetField("haveLoginInfo", BindingFlags.Instance | BindingFlags.NonPublic)
@@ -119,7 +123,8 @@ namespace Topshelf.Runtime.DotNetCore
             installer.InstallService(BeforeInstall, AfterInstall, BeforeRollback, AfterRollback);
         }
 
-        public bool IsServiceInstalled(string serviceName) => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && IsServiceListed(serviceName);
+        public bool IsServiceInstalled(string serviceName) =>
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && IsServiceListed(serviceName);
 
         public bool IsServiceStopped(string serviceName)
         {
@@ -181,7 +186,8 @@ namespace Topshelf.Runtime.DotNetCore
             }
             else
             {
-                _log.WarnFormat("The {0} service can't be commanded now as it has the status {1}. Try again later...",
+                _log.WarnFormat(CultureInfo.CurrentCulture,
+                    "The {0} service can't be commanded now as it has the status {1}. Try again later...",
                     serviceName, sc.Status.ToString());
             }
         }
@@ -192,11 +198,11 @@ namespace Topshelf.Runtime.DotNetCore
             switch (sc.Status)
             {
                 case ServiceControllerStatus.Running:
-                    _log.InfoFormat("The {0} service is already running.", serviceName);
+                    _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is already running.", serviceName);
                     return;
 
                 case ServiceControllerStatus.StartPending:
-                    _log.InfoFormat("The {0} service is already starting.", serviceName);
+                    _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is already starting.", serviceName);
                     return;
 
                 case ServiceControllerStatus.Stopped or ServiceControllerStatus.Paused:
@@ -206,7 +212,9 @@ namespace Topshelf.Runtime.DotNetCore
 
                 default:
                     // Status is StopPending, ContinuePending or PausedPending, print warning
-                    _log.WarnFormat("The {0} service can't be started now as it has the status {1}. Try again later...", serviceName, sc.Status.ToString());
+                    _log.WarnFormat(CultureInfo.CurrentCulture,
+                        "The {0} service can't be started now as it has the status {1}. Try again later...", serviceName,
+                        sc.Status.ToString());
                     break;
             }
         }
@@ -217,11 +225,11 @@ namespace Topshelf.Runtime.DotNetCore
             switch (sc.Status)
             {
                 case ServiceControllerStatus.Stopped:
-                    _log.InfoFormat("The {0} service is not running.", serviceName);
+                    _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is not running.", serviceName);
                     return;
 
                 case ServiceControllerStatus.StopPending:
-                    _log.InfoFormat("The {0} service is already stopping.", serviceName);
+                    _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is already stopping.", serviceName);
                     return;
 
                 case ServiceControllerStatus.Running or ServiceControllerStatus.Paused:
@@ -231,7 +239,9 @@ namespace Topshelf.Runtime.DotNetCore
 
                 default:
                     // Status is StartPending, ContinuePending or PausedPending, print warning
-                    _log.WarnFormat("The {0} service can't be stopped now as it has the status {1}. Try again later...", serviceName, sc.Status.ToString());
+                    _log.WarnFormat(CultureInfo.CurrentCulture,
+                        "The {0} service can't be stopped now as it has the status {1}. Try again later...", serviceName,
+                        sc.Status.ToString());
                     break;
             }
         }
@@ -267,10 +277,7 @@ namespace Topshelf.Runtime.DotNetCore
                     return null;
                 }
 
-                var processInfo = new Kernel32.PROCESSENTRY32
-                {
-                    dwSize = (uint)Marshal.SizeOf(typeof(Kernel32.PROCESSENTRY32))
-                };
+                var processInfo = new Kernel32.PROCESSENTRY32 { dwSize = (uint)Marshal.SizeOf(typeof(Kernel32.PROCESSENTRY32)) };
 
                 if (!Kernel32.Process32First(hnd, ref processInfo))
                 {

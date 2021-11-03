@@ -105,7 +105,7 @@ namespace Topshelf.Extensions.Logging
         /// <param name="formatProvider">The format provider.</param>
         /// <param name="format">The format.</param>
         /// <param name="args">The arguments.</param>
-        public void DebugFormat(IFormatProvider formatProvider, string format, params object[] args) => DebugFormat(format, args);
+        public void DebugFormat(IFormatProvider formatProvider, string format, params object[] args) => _logger.LogDebug(format, args);
 
         /// <summary>
         /// Debugs the format.
@@ -166,7 +166,7 @@ namespace Topshelf.Extensions.Logging
         /// <param name="formatProvider">The format provider.</param>
         /// <param name="format">The format.</param>
         /// <param name="args">The arguments.</param>
-        public void ErrorFormat(IFormatProvider formatProvider, string format, params object[] args) => ErrorFormat(format, args);
+        public void ErrorFormat(IFormatProvider formatProvider, string format, params object[] args) => _logger.LogError(format, args);
 
         /// <summary>
         /// Errors the format.
@@ -227,7 +227,7 @@ namespace Topshelf.Extensions.Logging
         /// <param name="formatProvider">The format provider.</param>
         /// <param name="format">The format.</param>
         /// <param name="args">The arguments.</param>
-        public void FatalFormat(IFormatProvider formatProvider, string format, params object[] args) => FatalFormat(format, args);
+        public void FatalFormat(IFormatProvider formatProvider, string format, params object[] args) => _logger.LogCritical(format, args);
 
         /// <summary>
         /// Fatal the format.
@@ -278,7 +278,7 @@ namespace Topshelf.Extensions.Logging
         /// <param name="formatProvider">The format provider.</param>
         /// <param name="format">The format.</param>
         /// <param name="args">The arguments.</param>
-        public void InfoFormat(IFormatProvider formatProvider, string format, params object[] args) => InfoFormat(format, args);
+        public void InfoFormat(IFormatProvider formatProvider, string format, params object[] args) => _logger.LogInformation(format, args);
 
         /// <summary>
         /// Information the format.

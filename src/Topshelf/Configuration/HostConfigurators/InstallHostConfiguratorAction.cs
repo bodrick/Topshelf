@@ -25,8 +25,8 @@ namespace Topshelf.Configuration.HostConfigurators
             Callback = callback;
         }
 
-        public Action<InstallBuilder> Callback { get; }
-        public string Key { get; }
+        private Action<InstallBuilder> Callback { get; }
+        private string Key { get; }
 
         public IHostBuilder Configure(IHostBuilder builder)
         {

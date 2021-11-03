@@ -27,7 +27,7 @@ namespace Topshelf.Configuration.HostConfigurators
     /// <seealso cref="IHostBuilderConfigurator" />
     public class ServiceRecoveryHostConfigurator : IServiceRecoveryConfigurator, IHostBuilderConfigurator
     {
-        private ServiceRecoveryOptions _options;
+        private ServiceRecoveryOptions? _options;
         private IHostSettings _settings;
 
         private ServiceRecoveryOptions Options => _options ??= new ServiceRecoveryOptions();

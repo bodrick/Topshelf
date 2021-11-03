@@ -28,8 +28,7 @@ namespace Topshelf.Configuration.HostConfigurators
         }
 
         public void Configure(ICommandLineElementParser<IOption> parser) =>
-            parser.Add(from s in parser.Definition(_name)
-                       select (IOption)new ServiceDefinitionOption(s, _callback));
+            parser.Add(parser.Definition(_name).Select(s => (IOption)new ServiceDefinitionOption(s, _callback)));
 
         private sealed class ServiceDefinitionOption : IOption
         {

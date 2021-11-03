@@ -10,6 +10,8 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+
+using System.Globalization;
 using Topshelf.Configuration.HostConfigurators;
 
 namespace Topshelf.Configuration.Options
@@ -18,7 +20,7 @@ namespace Topshelf.Configuration.Options
     {
         private readonly int _command;
 
-        public CommandOption(string command) => _command = int.Parse(command);
+        public CommandOption(string command) => _command = int.Parse(command, CultureInfo.InvariantCulture);
 
         public void ApplyTo(IHostConfigurator configurator)
         {

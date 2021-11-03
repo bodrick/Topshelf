@@ -62,16 +62,10 @@ namespace Topshelf.Configuration.CommandLineParser
                 return true;
             }
 
-            return obj.GetType() == typeof(SwitchElement) && Equals((SwitchElement)obj);
+            return obj is SwitchElement switchElement && Equals(switchElement);
         }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Key.GetHashCode() * 397) ^ Value.GetHashCode();
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(Key, Value);
 
         public override string ToString() => "SWITCH: " + Key + " (" + Value + ")";
     }

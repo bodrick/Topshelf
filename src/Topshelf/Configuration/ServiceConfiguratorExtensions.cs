@@ -23,15 +23,13 @@ namespace Topshelf.Configuration
             return configurator;
         }
 
-        public static IServiceConfigurator<T> ConstructUsing<T>(this IServiceConfigurator<T> configurator, Func<string, T> factory)
-            where T : class
+        public static IServiceConfigurator<T> ConstructUsing<T>(this IServiceConfigurator<T> configurator, Func<string, T> factory) where T : class
         {
             configurator.ConstructUsing(_ => factory(typeof(T).Name));
             return configurator;
         }
 
-        public static IServiceConfigurator<T> WhenContinued<T>(this IServiceConfigurator<T> configurator, Action<T> callback)
-            where T : class
+        public static IServiceConfigurator<T> WhenContinued<T>(this IServiceConfigurator<T> configurator, Action<T> callback) where T : class
         {
             configurator.WhenContinued((service, _) =>
             {
@@ -53,8 +51,7 @@ namespace Topshelf.Configuration
             return configurator;
         }
 
-        public static IServiceConfigurator<T> WhenPowerEvent<T>(this IServiceConfigurator<T> configurator,
-            Func<T, IPowerEventArguments, bool> callback) where T : class
+        public static IServiceConfigurator<T> WhenPowerEvent<T>(this IServiceConfigurator<T> configurator, Func<T, IPowerEventArguments, bool> callback) where T : class
         {
             configurator.WhenPowerEvent((service, _, arguments) => callback(service, arguments));
             return configurator;

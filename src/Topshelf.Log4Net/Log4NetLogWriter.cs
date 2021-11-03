@@ -46,7 +46,7 @@ namespace Topshelf.Log4Net
             _log.Debug(messageProvider());
         }
 
-        public void DebugFormat(string format, params object[] args) => _log.DebugFormat(format, args);
+        public void DebugFormat(string format, params object[] args) => _log.DebugFormat(CultureInfo.CurrentCulture, format, args);
 
         public void DebugFormat(IFormatProvider formatProvider, string format, params object[] args) => _log.DebugFormat(formatProvider, format, args);
 
@@ -64,7 +64,7 @@ namespace Topshelf.Log4Net
             _log.Error(messageProvider());
         }
 
-        public void ErrorFormat(string format, params object[] args) => _log.ErrorFormat(format, args);
+        public void ErrorFormat(string format, params object[] args) => _log.ErrorFormat(CultureInfo.CurrentCulture, format, args);
 
         public void ErrorFormat(IFormatProvider formatProvider, string format, params object[] args) => _log.ErrorFormat(formatProvider, format, args);
 
@@ -82,7 +82,7 @@ namespace Topshelf.Log4Net
             _log.Fatal(messageProvider());
         }
 
-        public void FatalFormat(string format, params object[] args) => _log.FatalFormat(format, args);
+        public void FatalFormat(string format, params object[] args) => _log.FatalFormat(CultureInfo.CurrentCulture, format, args);
 
         public void FatalFormat(IFormatProvider formatProvider, string format, params object[] args) => _log.FatalFormat(formatProvider, format, args);
 
@@ -100,7 +100,7 @@ namespace Topshelf.Log4Net
             _log.Info(messageProvider());
         }
 
-        public void InfoFormat(string format, params object[] args) => _log.InfoFormat(format, args);
+        public void InfoFormat(string format, params object[] args) => _log.InfoFormat(CultureInfo.CurrentCulture, format, args);
 
         public void InfoFormat(IFormatProvider formatProvider, string format, params object[] args) => _log.InfoFormat(formatProvider, format, args);
 
@@ -238,7 +238,7 @@ namespace Topshelf.Log4Net
             _log.Warn(messageProvider());
         }
 
-        public void WarnFormat(string format, params object[] args) => _log.WarnFormat(format, args);
+        public void WarnFormat(string format, params object[] args) => _log.WarnFormat(CultureInfo.CurrentCulture, format, args);
 
         public void WarnFormat(IFormatProvider formatProvider, string format, params object[] args) => _log.WarnFormat(formatProvider, format, args);
     }

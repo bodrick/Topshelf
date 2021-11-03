@@ -11,3 +11,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>")]
 [assembly: SuppressMessage("Redundancy", "RCS1163:Unused parameter.", Justification = "<Pending>")]
 [assembly: SuppressMessage("Usage", "CA2201:Do not raise reserved exception types", Justification = "<Pending>")]
+[assembly: SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "<Pending>")]

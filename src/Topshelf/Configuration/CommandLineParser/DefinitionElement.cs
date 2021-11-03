@@ -55,16 +55,10 @@ namespace Topshelf.Configuration.CommandLineParser
                 return true;
             }
 
-            return obj.GetType() == typeof(DefinitionElement) && Equals((DefinitionElement)obj);
+            return obj is DefinitionElement definitionElement && Equals(definitionElement);
         }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Key.GetHashCode() * 397) ^ Value.GetHashCode();
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(Key, Value);
 
         public override string ToString() => "DEFINE: " + Key + " = " + Value;
     }

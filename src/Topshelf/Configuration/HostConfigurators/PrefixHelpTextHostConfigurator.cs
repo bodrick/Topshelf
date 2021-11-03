@@ -30,9 +30,9 @@ namespace Topshelf.Configuration.HostConfigurators
 
         public PrefixHelpTextHostConfigurator(string text) => Text = text;
 
-        public Assembly? Assembly { get; }
-        public string? ResourceName { get; }
-        public string Text { get; private set; }
+        private Assembly? Assembly { get; }
+        private string? ResourceName { get; }
+        private string Text { get; set; }
 
         public IHostBuilder Configure(IHostBuilder builder)
         {
@@ -55,7 +55,7 @@ namespace Topshelf.Configuration.HostConfigurators
                     var stream = Assembly.GetManifestResourceStream(ResourceName!);
                     if (stream == null)
                     {
-                        loadResult = this.Failure("Resource", "Unable to load resource stream: " + ResourceName);
+                        loadResult = this.Failure("Resource", $"Unable to load resource stream: {ResourceName}");
                     }
                     else
                     {
@@ -65,7 +65,7 @@ namespace Topshelf.Configuration.HostConfigurators
                 }
                 catch (Exception ex)
                 {
-                    loadResult = this.Failure("Failed to load help source: " + ex.Message);
+                    loadResult = this.Failure($"Failed to load help source: {ex.Message}");
                 }
 
                 if (loadResult != null)

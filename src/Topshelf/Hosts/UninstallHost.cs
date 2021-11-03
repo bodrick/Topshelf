@@ -12,6 +12,7 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Topshelf.Logging;
 using Topshelf.Runtime;
 
@@ -41,7 +42,7 @@ namespace Topshelf.Hosts
         {
             if (!_environment.IsServiceInstalled(_settings.ServiceName))
             {
-                Log.ErrorFormat("The {0} service is not installed.", _settings.ServiceName);
+                Log.ErrorFormat(CultureInfo.CurrentCulture, "The {0} service is not installed.", _settings.ServiceName);
                 return TopshelfExitCode.ServiceNotInstalled;
             }
 
@@ -52,11 +53,11 @@ namespace Topshelf.Hosts
                     return TopshelfExitCode.Ok;
                 }
 
-                Log.ErrorFormat("The {0} service can only be uninstalled as an administrator", _settings.ServiceName);
+                Log.ErrorFormat(CultureInfo.CurrentCulture, "The {0} service can only be uninstalled as an administrator", _settings.ServiceName);
                 return TopshelfExitCode.SudoRequired;
             }
 
-            Log.DebugFormat("Uninstalling {0}", _settings.ServiceName);
+            Log.DebugFormat(CultureInfo.CurrentCulture, "Uninstalling {0}", _settings.ServiceName);
 
             _environment.UninstallService(_settings, ExecutePreActions, ExecutePostActions);
 

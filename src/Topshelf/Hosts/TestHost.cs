@@ -11,6 +11,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
+using System.Globalization;
 using System.Threading;
 using Topshelf.Logging;
 using Topshelf.Runtime;
@@ -42,17 +43,17 @@ namespace Topshelf.Hosts
             {
                 exitCode = TopshelfExitCode.ServiceControlRequestFailed;
 
-                _log.InfoFormat("The {0} service is being started.", _settings.ServiceName);
+                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is being started.", _settings.ServiceName);
                 _serviceHandle.Start(this);
-                _log.InfoFormat("The {0} service was started.", _settings.ServiceName);
+                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service was started.", _settings.ServiceName);
 
                 Thread.Sleep(100);
 
                 exitCode = TopshelfExitCode.ServiceControlRequestFailed;
 
-                _log.InfoFormat("The {0} service is being stopped.", _settings.ServiceName);
+                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is being stopped.", _settings.ServiceName);
                 _serviceHandle.Stop(this);
-                _log.InfoFormat("The {0} service was stopped.", _settings.ServiceName);
+                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service was stopped.", _settings.ServiceName);
 
                 exitCode = TopshelfExitCode.Ok;
             }

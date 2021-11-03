@@ -12,6 +12,7 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -74,7 +75,7 @@ namespace Topshelf.Hosts
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && _environment.IsServiceInstalled(_settings.ServiceName) && !_environment.IsServiceStopped(_settings.ServiceName))
             {
-                _log.ErrorFormat(
+                _log.ErrorFormat(CultureInfo.CurrentCulture,
                     "The {0} service is running and must be stopped before running via the console",
                     _settings.ServiceName);
 
@@ -110,7 +111,7 @@ namespace Topshelf.Hosts
 
                 started = true;
 
-                _log.InfoFormat("The {0} service is now running, press Control+C to exit.", _settings.ServiceName);
+                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is now running, press Control+C to exit.", _settings.ServiceName);
 
                 _exit?.WaitOne();
             }
@@ -229,7 +230,7 @@ namespace Topshelf.Hosts
                 return;
             }
 
-            _log.InfoFormat("Control+{0} detected, attempting to stop service.", consoleCancelEventArgs.SpecialKey == ConsoleSpecialKey.ControlBreak ? "Break" : "C");
+            _log.InfoFormat(CultureInfo.CurrentCulture, "Control+{0} detected, attempting to stop service.", consoleCancelEventArgs.SpecialKey == ConsoleSpecialKey.ControlBreak ? "Break" : "C");
             if (_serviceHandle.Stop(this))
             {
                 _hasCancelled = true;
@@ -262,7 +263,7 @@ namespace Topshelf.Hosts
             {
                 if (!_hasCancelled)
                 {
-                    _log.InfoFormat("Stopping the {0} service", _settings.ServiceName);
+                    _log.InfoFormat(CultureInfo.CurrentCulture, "Stopping the {0} service", _settings.ServiceName);
 
                     if (!_serviceHandle.Stop(this))
                     {
@@ -281,7 +282,7 @@ namespace Topshelf.Hosts
             {
                 _serviceHandle.Dispose();
 
-                _log.InfoFormat("The {0} service has stopped.", _settings.ServiceName);
+                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service has stopped.", _settings.ServiceName);
             }
         }
 

@@ -9,7 +9,7 @@
     <Description>$(Description)</Description>
   </PropertyGroup>
 
-  <ItemGroup>
+ <ItemGroup>
     <ProjectReference Include="..\TopShelf.ServiceInstaller\TopShelf.ServiceInstaller.csproj" />
   </ItemGroup>
 

@@ -11,6 +11,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.ServiceProcess;
@@ -49,7 +50,7 @@ namespace Topshelf.Runtime.Windows
 
         void IHostControl.RequestAdditionalTime(TimeSpan timeRemaining)
         {
-            Log.DebugFormat("Requesting additional time: {0}", timeRemaining);
+            Log.DebugFormat(CultureInfo.CurrentCulture, "Requesting additional time: {0}", timeRemaining);
             RequestAdditionalTime((int)timeRemaining.TotalMilliseconds);
         }
 
@@ -120,11 +121,11 @@ namespace Topshelf.Runtime.Windows
         {
             try
             {
-                Log.InfoFormat("[Topshelf] Custom command {0} received", command);
+                Log.InfoFormat(CultureInfo.CurrentCulture, "[Topshelf] Custom command {0} received", command);
 
                 _serviceHandle.CustomCommand(this, command);
 
-                Log.InfoFormat("[Topshelf] Custom command {0} processed", command);
+                Log.InfoFormat(CultureInfo.CurrentCulture, "[Topshelf] Custom command {0} processed", command);
             }
             catch (Exception ex)
             {
@@ -230,9 +231,9 @@ namespace Topshelf.Runtime.Windows
 
                 Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
-                Log.DebugFormat("[Topshelf] Current Directory: {0}", Directory.GetCurrentDirectory());
+                Log.DebugFormat(CultureInfo.CurrentCulture, "[Topshelf] Current Directory: {0}", Directory.GetCurrentDirectory());
 
-                Log.DebugFormat("[Topshelf] Arguments: {0}", string.Join(",", args));
+                Log.DebugFormat(CultureInfo.CurrentCulture, "[Topshelf] Arguments: {0}", string.Join(",", args));
 
                 var startArgs = string.Join(" ", args);
                 _configurator.ApplyCommandLine(startArgs);

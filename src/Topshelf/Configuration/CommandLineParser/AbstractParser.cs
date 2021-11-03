@@ -16,14 +16,12 @@ namespace Topshelf.Configuration.CommandLineParser
 {
     internal abstract class AbstractParser<TInput>
     {
-        public Parser<TInput, TValue[]> Rep<TValue>(Parser<TInput, TValue> parser) =>
+        protected Parser<TInput, TValue[]> Rep<TValue>(Parser<TInput, TValue> parser) =>
             Rep1(parser).Or(Succeed(System.Array.Empty<TValue>()));
 
-        public Parser<TInput, TValue[]> Rep1<TValue>(Parser<TInput, TValue> parser) =>
-            from x in parser
-            from xs in Rep(parser)
-            select new[] { x }.Concat(xs).ToArray();
+        private Parser<TInput, TValue[]> Rep1<TValue>(Parser<TInput, TValue> parser) =>
+            parser.SelectMany(_ => Rep(parser), (x, xs) => new[] { x }.Concat(xs).ToArray());
 
-        public static Parser<TInput, TValue> Succeed<TValue>(TValue value) => input => new Result<TInput, TValue>(value, input);
+        private static Parser<TInput, TValue> Succeed<TValue>(TValue value) => input => new Result<TInput, TValue>(value, input);
     }
 }

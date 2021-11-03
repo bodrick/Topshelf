@@ -14,6 +14,7 @@ using System;
 using System.ComponentModel;
 using System.Configuration.Install;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -86,7 +87,7 @@ namespace Topshelf.Runtime.Windows
                 if (settings.Credentials.Account == ServiceAccount.User && (gMSA || string.Equals(settings.Credentials.Username,
                     "NT SERVICE\\" + settings.ServiceName, StringComparison.OrdinalIgnoreCase)))
                 {
-                    _log.InfoFormat(gMSA ? "Installing as gMSA {0}." : "Installing as virtual service account",
+                    _log.InfoFormat(CultureInfo.CurrentCulture, gMSA ? "Installing as gMSA {0}." : "Installing as virtual service account",
                         settings.Credentials.Username);
                     installer.ServiceProcessInstaller.Password = string.Empty;
                     installer.ServiceProcessInstaller.GetType().GetField("haveLoginInfo", BindingFlags.Instance | BindingFlags.NonPublic)
@@ -157,7 +158,7 @@ namespace Topshelf.Runtime.Windows
             }
             else
             {
-                _log.WarnFormat("The {0} service can't be commanded now as it has the status {1}. Try again later...", serviceName,
+                _log.WarnFormat(CultureInfo.CurrentCulture, "The {0} service can't be commanded now as it has the status {1}. Try again later...", serviceName,
                     sc.Status.ToString());
             }
         }
@@ -167,13 +168,13 @@ namespace Topshelf.Runtime.Windows
             using var sc = new ServiceController(serviceName);
             if (sc.Status == ServiceControllerStatus.Running)
             {
-                _log.InfoFormat("The {0} service is already running.", serviceName);
+                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is already running.", serviceName);
                 return;
             }
 
             if (sc.Status == ServiceControllerStatus.StartPending)
             {
-                _log.InfoFormat("The {0} service is already starting.", serviceName);
+                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is already starting.", serviceName);
                 return;
             }
 
@@ -185,7 +186,7 @@ namespace Topshelf.Runtime.Windows
             else
             {
                 // Status is StopPending, ContinuePending or PausedPending, print warning
-                _log.WarnFormat("The {0} service can't be started now as it has the status {1}. Try again later...", serviceName,
+                _log.WarnFormat(CultureInfo.CurrentCulture, "The {0} service can't be started now as it has the status {1}. Try again later...", serviceName,
                     sc.Status.ToString());
             }
         }
@@ -195,13 +196,13 @@ namespace Topshelf.Runtime.Windows
             using var sc = new ServiceController(serviceName);
             if (sc.Status == ServiceControllerStatus.Stopped)
             {
-                _log.InfoFormat("The {0} service is not running.", serviceName);
+                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is not running.", serviceName);
                 return;
             }
 
             if (sc.Status == ServiceControllerStatus.StopPending)
             {
-                _log.InfoFormat("The {0} service is already stopping.", serviceName);
+                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is already stopping.", serviceName);
                 return;
             }
 
@@ -213,7 +214,7 @@ namespace Topshelf.Runtime.Windows
             else
             {
                 // Status is StartPending, ContinuePending or PausedPending, print warning
-                _log.WarnFormat("The {0} service can't be stopped now as it has the status {1}. Try again later...", serviceName,
+                _log.WarnFormat(CultureInfo.CurrentCulture, "The {0} service can't be stopped now as it has the status {1}. Try again later...", serviceName,
                     sc.Status.ToString());
             }
         }

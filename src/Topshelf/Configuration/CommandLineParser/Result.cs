@@ -20,7 +20,7 @@ namespace Topshelf.Configuration.CommandLineParser
             Rest = rest;
         }
 
-        public TInput Rest { get; private set; }
-        public TValue Value { get; private set; }
+        public TInput Rest { get; }
+        public TValue Value { get; }
     }
 }

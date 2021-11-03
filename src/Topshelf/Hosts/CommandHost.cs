@@ -11,6 +11,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
+using System.Globalization;
 using Topshelf.Logging;
 using Topshelf.Runtime;
 
@@ -34,23 +35,23 @@ namespace Topshelf.Hosts
         {
             if (!_environment.IsServiceInstalled(_settings.ServiceName))
             {
-                _log.ErrorFormat("The {0} service is not installed.", _settings.ServiceName);
+                _log.ErrorFormat(CultureInfo.CurrentCulture, "The {0} service is not installed.", _settings.ServiceName);
                 return TopshelfExitCode.ServiceNotInstalled;
             }
 
             if (_environment.IsServiceStopped(_settings.ServiceName))
             {
-                _log.ErrorFormat("The {0} service is not running.", _settings.ServiceName);
+                _log.ErrorFormat(CultureInfo.CurrentCulture, "The {0} service is not running.", _settings.ServiceName);
                 return TopshelfExitCode.ServiceNotRunning;
             }
 
-            _log.DebugFormat("Sending command {0} to {1}", _command, _settings.ServiceName);
+            _log.DebugFormat(CultureInfo.CurrentCulture, "Sending command {0} to {1}", _command, _settings.ServiceName);
 
             try
             {
                 _environment.SendServiceCommand(_settings.ServiceName, _command);
 
-                _log.InfoFormat("The command {0} was sent to the {1} service.", _command, _settings.ServiceName);
+                _log.InfoFormat(CultureInfo.CurrentCulture, "The command {0} was sent to the {1} service.", _command, _settings.ServiceName);
                 return TopshelfExitCode.Ok;
             }
             catch (Exception ex)

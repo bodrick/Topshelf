@@ -11,6 +11,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
+using System.Globalization;
 using Topshelf.Configuration.Configurators;
 using Topshelf.Configuration.HostConfigurators;
 using Topshelf.Logging;
@@ -57,7 +58,7 @@ namespace Topshelf
 
                 if (result.Message.Length > 0)
                 {
-                    HostLogger.Get(typeof(HostFactory)).InfoFormat("Configuration Result:{0}{1}", Environment.NewLine, result.Message);
+                    HostLogger.Get(typeof(HostFactory)).InfoFormat(CultureInfo.CurrentCulture, "Configuration Result:{0}{1}", Environment.NewLine, result.Message);
                 }
 
                 return configurator.CreateHost();
@@ -79,15 +80,12 @@ namespace Topshelf
         {
             try
             {
-                return New(configureCallback)
-                    .Run();
+                return New(configureCallback).Run();
             }
             catch (Exception ex)
             {
-                HostLogger.Get(typeof(HostFactory))
-                          .Error("The service terminated abnormally", ex);
+                HostLogger.Get(typeof(HostFactory)).Error("The service terminated abnormally", ex);
                 HostLogger.Shutdown();
-
                 return TopshelfExitCode.AbnormalExit;
             }
         }

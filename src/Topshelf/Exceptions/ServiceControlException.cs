@@ -11,6 +11,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace Topshelf.Exceptions
@@ -38,6 +39,6 @@ namespace Topshelf.Exceptions
         {
         }
 
-        private static string FormatMessage(string format, Type serviceType, string command) => string.Format(format, serviceType, command);
+        private static string FormatMessage(string format, Type serviceType, string command) => string.Format(CultureInfo.CurrentCulture, format, serviceType, command);
     }
 }

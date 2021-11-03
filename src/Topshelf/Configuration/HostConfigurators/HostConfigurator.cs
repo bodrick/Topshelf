@@ -34,7 +34,7 @@ namespace Topshelf.Configuration.HostConfigurators
         private bool _commandLineApplied;
         private EnvironmentBuilderFactory _environmentBuilderFactory;
         private HostBuilderFactory _hostBuilderFactory;
-        private ServiceBuilderFactory _serviceBuilderFactory;
+        private ServiceBuilderFactory? _serviceBuilderFactory;
 
         public HostConfigurator()
         {
@@ -96,17 +96,12 @@ namespace Topshelf.Configuration.HostConfigurators
 
             var environment = environmentBuilder.Build();
 
-            var serviceBuilder = _serviceBuilderFactory(_settings);
-
             var builder = _hostBuilderFactory(environment, _settings);
-
-            foreach (var configurator in _configurators)
-            {
-                builder = configurator.Configure(builder);
-            }
+            builder = _configurators.Aggregate(builder, (current, configurator) => configurator.Configure(current));
 
             try
             {
+                var serviceBuilder = _serviceBuilderFactory(_settings);
                 return builder.Build(serviceBuilder);
             }
             //Intercept exceptions from serviceBuilder, TopShelf handling is in HostFactory

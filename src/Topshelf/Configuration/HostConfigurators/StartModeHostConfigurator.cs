@@ -21,7 +21,7 @@ namespace Topshelf.Configuration.HostConfigurators
     {
         public StartModeHostConfigurator(HostStartMode startMode) => StartMode = startMode;
 
-        public HostStartMode StartMode { get; }
+        private HostStartMode StartMode { get; }
 
         public IHostBuilder Configure(IHostBuilder builder)
         {

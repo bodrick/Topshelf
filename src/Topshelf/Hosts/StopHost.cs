@@ -11,6 +11,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using Topshelf.Logging;
 using Topshelf.Runtime;
@@ -48,19 +49,19 @@ namespace Topshelf.Hosts
             {
                 if (!_environment.RunAsAdministrator())
                 {
-                    Log.ErrorFormat("The {0} service can only be stopped by an administrator", _settings.ServiceName);
+                    Log.ErrorFormat(CultureInfo.CurrentCulture, "The {0} service can only be stopped by an administrator", _settings.ServiceName);
                 }
 
                 return TopshelfExitCode.SudoRequired;
             }
 
-            Log.DebugFormat("Stopping {0}", _settings.ServiceName);
+            Log.DebugFormat(CultureInfo.CurrentCulture, "Stopping {0}", _settings.ServiceName);
 
             try
             {
                 _environment.StopService(_settings.ServiceName, _settings.StopTimeOut);
 
-                Log.InfoFormat("The {0} service was stopped.", _settings.ServiceName);
+                Log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service was stopped.", _settings.ServiceName);
                 return TopshelfExitCode.Ok;
             }
             catch (Exception ex)

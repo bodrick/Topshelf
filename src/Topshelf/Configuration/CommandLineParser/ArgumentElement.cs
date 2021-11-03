@@ -15,9 +15,9 @@ using System;
 
 namespace Topshelf.Configuration.CommandLineParser
 {
-    internal class ArgumentElement : IArgumentElement, IEquatable<ArgumentElement>
+    internal sealed class ArgumentElement : IArgumentElement, IEquatable<ArgumentElement>
     {
-        public ArgumentElement(string id) => Id = id;
+        private ArgumentElement(string id) => Id = id;
 
         public string Id { get; }
 
@@ -45,7 +45,7 @@ namespace Topshelf.Configuration.CommandLineParser
                 return true;
             }
 
-            return obj.GetType() == typeof(ArgumentElement) && Equals((ArgumentElement)obj);
+            return obj is ArgumentElement argumentElement && Equals(argumentElement);
         }
 
         public override int GetHashCode() => Id.GetHashCode();

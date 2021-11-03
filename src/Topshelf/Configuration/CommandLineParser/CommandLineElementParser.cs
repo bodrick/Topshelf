@@ -10,6 +10,7 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,9 +18,7 @@ using System.Linq;
 
 namespace Topshelf.Configuration.CommandLineParser
 {
-    internal class CommandLineElementParser<TResult> :
-        AbstractParser<IEnumerable<ICommandLineElement>>,
-        ICommandLineElementParser<TResult>
+    internal class CommandLineElementParser<TResult> : AbstractParser<IEnumerable<ICommandLineElement>>, ICommandLineElementParser<TResult>
     {
         private readonly IList<Parser<IEnumerable<ICommandLineElement>, TResult>> _parsers;
 
@@ -30,39 +29,32 @@ namespace Topshelf.Configuration.CommandLineParser
             All = from element in _parsers.FirstMatch() select element;
         }
 
-        public Parser<IEnumerable<ICommandLineElement>, TResult> All { get; set; }
-
-        public Parser<IEnumerable<ICommandLineElement>, ICommandLineElement> AnyElement => input => input.Any()
+        public static Parser<IEnumerable<ICommandLineElement>, ICommandLineElement> AnyElement => input => input.Any()
             ? new Result<IEnumerable<ICommandLineElement>, ICommandLineElement>(input.First(),
                 input.Skip(1))
             : null;
 
+        private Parser<IEnumerable<ICommandLineElement>, TResult> All { get; }
+
         public void Add(Parser<IEnumerable<ICommandLineElement>, TResult> parser) => _parsers.Add(parser);
 
-        public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> Argument() => from c in AnyElement
-                                                                                        where c.GetType() == typeof(ArgumentElement)
-                                                                                        select (IArgumentElement)c;
+        public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> Argument() =>
+            AnyElement.Where(c => c is ArgumentElement).Select(c => (IArgumentElement)c);
 
-        public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> Argument(string value) => from arg in Argument()
-                                                                                                    where string.Equals(arg.Id, value, StringComparison.OrdinalIgnoreCase)
-                                                                                                    select arg;
+        public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> Argument(string value) =>
+            Argument().Where(arg => string.Equals(arg.Id, value, StringComparison.OrdinalIgnoreCase));
 
         public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> Argument(Predicate<IArgumentElement> predicate) =>
-            from arg in Argument()
-            where predicate(arg)
-            select arg;
+            Argument().Where(arg => predicate(arg));
 
-        public Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Definition() => from c in AnyElement
-                                                                                            where c.GetType() == typeof(DefinitionElement)
-                                                                                            select (IDefinitionElement)c;
+        public Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Definition() =>
+            AnyElement.Where(c => c is DefinitionElement).Select(c => (IDefinitionElement)c);
 
-        public Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Definition(string key) => from def in Definition()
-                                                                                                      where def.Key == key
-                                                                                                      select def;
+        public Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Definition(string key) =>
+            Definition().Where(def => def.Key == key);
 
-        public Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Definitions(params string[] keys) => from def in Definition()
-                                                                                                                 where keys.Contains(def.Key)
-                                                                                                                 select def;
+        public Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Definitions(params string[] keys) =>
+            Definition().Where(def => keys.Contains(def.Key));
 
         public IEnumerable<TResult> Parse(IEnumerable<ICommandLineElement> elements)
         {
@@ -75,22 +67,17 @@ namespace Topshelf.Configuration.CommandLineParser
             }
         }
 
-        public Parser<IEnumerable<ICommandLineElement>, ISwitchElement> Switch() => from c in AnyElement
-                                                                                    where c.GetType() == typeof(SwitchElement)
-                                                                                    select (ISwitchElement)c;
+        public Parser<IEnumerable<ICommandLineElement>, ISwitchElement> Switch() =>
+            AnyElement.Where(c => c is SwitchElement).Select(c => (ISwitchElement)c);
 
-        public Parser<IEnumerable<ICommandLineElement>, ISwitchElement> Switch(string key) => from sw in Switch()
-                                                                                              where string.Equals(sw.Key, key, StringComparison.OrdinalIgnoreCase)
-                                                                                              select sw;
+        public Parser<IEnumerable<ICommandLineElement>, ISwitchElement> Switch(string key) =>
+            Switch().Where(sw => string.Equals(sw.Key, key, StringComparison.OrdinalIgnoreCase));
 
-        public Parser<IEnumerable<ICommandLineElement>, ISwitchElement> Switches(params string[] keys) => from sw in Switch()
-                                                                                                          where keys.Contains(sw.Key)
-                                                                                                          select sw;
+        public Parser<IEnumerable<ICommandLineElement>, ISwitchElement> Switches(params string[] keys) =>
+            Switch().Where(sw => keys.Contains(sw.Key));
 
-        public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> ValidPath() => from c in AnyElement
-                                                                                         where c.GetType() == typeof(ArgumentElement)
-                                                                                         where IsValidPath(((ArgumentElement)c).Id)
-                                                                                         select (IArgumentElement)c;
+        public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> ValidPath() =>
+            AnyElement.Where(c => c is ArgumentElement element && IsValidPath(element.Id)).Select(c => (IArgumentElement)c);
 
         private static bool IsValidPath(string path)
         {

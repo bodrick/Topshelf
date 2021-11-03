@@ -15,9 +15,9 @@ using System;
 
 namespace Topshelf.Configuration.CommandLineParser
 {
-    internal class TokenElement : ITokenElement, IEquatable<TokenElement>
+    internal sealed class TokenElement : ITokenElement, IEquatable<TokenElement>
     {
-        public TokenElement(string token) => Token = token;
+        private TokenElement(string token) => Token = token;
 
         public string Token { get; }
 
@@ -45,7 +45,7 @@ namespace Topshelf.Configuration.CommandLineParser
                 return true;
             }
 
-            return obj.GetType() == typeof(TokenElement) && Equals((TokenElement)obj);
+            return obj is TokenElement tokenElement && Equals(tokenElement);
         }
 
         public override int GetHashCode() => Token.GetHashCode();

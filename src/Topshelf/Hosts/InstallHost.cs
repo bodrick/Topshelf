@@ -12,6 +12,7 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Topshelf.Configuration;
 using Topshelf.Logging;
@@ -55,7 +56,7 @@ namespace Topshelf.Hosts
         {
             if (_environment.IsServiceInstalled(Settings.ServiceName))
             {
-                Log.ErrorFormat("The {0} service is already installed.", Settings.ServiceName);
+                Log.ErrorFormat(CultureInfo.CurrentCulture, "The {0} service is already installed.", Settings.ServiceName);
                 return TopshelfExitCode.ServiceAlreadyInstalled;
             }
 
@@ -66,11 +67,11 @@ namespace Topshelf.Hosts
                     return TopshelfExitCode.Ok;
                 }
 
-                Log.ErrorFormat("The {0} service can only be installed as an administrator", Settings.ServiceName);
+                Log.ErrorFormat(CultureInfo.CurrentCulture, "The {0} service can only be installed as an administrator", Settings.ServiceName);
                 return TopshelfExitCode.SudoRequired;
             }
 
-            Log.DebugFormat("Attempting to install '{0}'", Settings.ServiceName);
+            Log.DebugFormat(CultureInfo.CurrentCulture, "Attempting to install '{0}'", Settings.ServiceName);
 
             _environment.InstallService(InstallSettings, ExecutePreActions, ExecutePostActions, ExecutePreRollbackActions, ExecutePostRollbackActions);
 

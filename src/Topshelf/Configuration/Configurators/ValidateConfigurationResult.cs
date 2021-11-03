@@ -45,13 +45,13 @@ namespace Topshelf.Configuration.Configurators
         {
             var result = new ValidateConfigurationResult(results);
 
-            if (result.ContainsFailure)
+            if (!result.ContainsFailure)
             {
-                var message = $"The service was not properly configured: {Environment.NewLine}{result.Message}";
-                throw new HostConfigurationException(message);
+                return result;
             }
 
-            return result;
+            var message = $"The service was not properly configured: {Environment.NewLine}{result.Message}";
+            throw new HostConfigurationException(message);
         }
     }
 }

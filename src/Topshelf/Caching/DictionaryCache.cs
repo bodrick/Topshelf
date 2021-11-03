@@ -1,15 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Topshelf.Caching
 {
     [Serializable]
-    internal class DictionaryCache<TKey, TValue> : ICache<TKey, TValue>
+    internal class DictionaryCache<TKey, TValue> : ICache<TKey, TValue> where TKey : notnull
     {
         private readonly IDictionary<TKey, TValue> _values;
-        private CacheItemCallback<TKey, TValue> _duplicateValueAdded;
+        private CacheItemCallback<TKey, TValue> _duplicateValueAdded = ThrowOnDuplicateValue;
         private KeySelector<TKey, TValue> _keySelector = DefaultKeyAccessor;
         private MissingValueProvider<TKey, TValue> _missingValueProvider = ThrowOnMissingValue;
         private CacheItemCallback<TKey, TValue> _valueAddedCallback = DefaultCacheItemCallback;
@@ -17,8 +18,8 @@ namespace Topshelf.Caching
 
         public DictionaryCache() => _values = new Dictionary<TKey, TValue>();
 
-        public DictionaryCache(MissingValueProvider<TKey, TValue> missingValueProvider)
-            : this() => _missingValueProvider = missingValueProvider;
+        public DictionaryCache(MissingValueProvider<TKey, TValue> missingValueProvider) : this() =>
+            _missingValueProvider = missingValueProvider;
 
         public DictionaryCache(IEqualityComparer<TKey> equalityComparer) => _values = new Dictionary<TKey, TValue>(equalityComparer);
 
@@ -30,35 +31,29 @@ namespace Topshelf.Caching
 
         public DictionaryCache(KeySelector<TKey, TValue> keySelector, IEnumerable<TValue> values) : this(keySelector) => Fill(values);
 
-        public DictionaryCache(IEqualityComparer<TKey> equalityComparer,
-            MissingValueProvider<TKey, TValue> missingValueProvider)
-            : this(equalityComparer) => _missingValueProvider = missingValueProvider;
+        public DictionaryCache(IEqualityComparer<TKey> equalityComparer, MissingValueProvider<TKey, TValue> missingValueProvider) :
+            this(equalityComparer) => _missingValueProvider = missingValueProvider;
 
         public DictionaryCache(IEnumerable<KeyValuePair<TKey, TValue>> values) => _values = values.ToDictionary(x => x.Key, x => x.Value);
 
-        public DictionaryCache(IDictionary<TKey, TValue> values) : this(values, true)
-        {
-        }
+        public DictionaryCache(IDictionary<TKey, TValue> values, bool copy = true) =>
+            _values = copy
+                ? new Dictionary<TKey, TValue>(values)
+                : values;
 
-        public DictionaryCache(IDictionary<TKey, TValue> values, bool copy) => _values = copy
-                          ? new Dictionary<TKey, TValue>(values)
-                          : values;
+        public DictionaryCache(IDictionary<TKey, TValue> values, MissingValueProvider<TKey, TValue> missingValueProvider) : this(values) =>
+            _missingValueProvider = missingValueProvider;
 
-        public DictionaryCache(IDictionary<TKey, TValue> values,
-            MissingValueProvider<TKey, TValue> missingValueProvider)
-            : this(values, true) => _missingValueProvider = missingValueProvider;
+        public DictionaryCache(IDictionary<TKey, TValue> values, MissingValueProvider<TKey, TValue> missingValueProvider, bool copy) :
+            this(values, copy) => _missingValueProvider = missingValueProvider;
 
-        public DictionaryCache(IDictionary<TKey, TValue> values,
-            MissingValueProvider<TKey, TValue> missingValueProvider,
-            bool copy)
-            : this(values, copy) => _missingValueProvider = missingValueProvider;
+        public DictionaryCache(IEnumerable<KeyValuePair<TKey, TValue>> values, IEqualityComparer<TKey> equalityComparer) =>
+            _values = values.ToDictionary(x => x.Key, x => x.Value, equalityComparer);
 
-        public DictionaryCache(IEnumerable<KeyValuePair<TKey, TValue>> values, IEqualityComparer<TKey> equalityComparer) => _values = values.ToDictionary(x => x.Key, x => x.Value, equalityComparer);
+        public DictionaryCache(IDictionary<TKey, TValue> values, IEqualityComparer<TKey> equalityComparer) =>
+            _values = new Dictionary<TKey, TValue>(values, equalityComparer);
 
-        public DictionaryCache(IDictionary<TKey, TValue> values, IEqualityComparer<TKey> equalityComparer) => _values = new Dictionary<TKey, TValue>(values, equalityComparer);
-
-        public DictionaryCache(IDictionary<TKey, TValue> values,
-            IEqualityComparer<TKey> equalityComparer,
+        public DictionaryCache(IDictionary<TKey, TValue> values, IEqualityComparer<TKey> equalityComparer,
             MissingValueProvider<TKey, TValue> missingValueProvider)
             : this(values, equalityComparer) => _missingValueProvider = missingValueProvider;
 
@@ -66,27 +61,27 @@ namespace Topshelf.Caching
 
         public CacheItemCallback<TKey, TValue> DuplicateValueAdded
         {
-            set => _duplicateValueAdded = value ?? ThrowOnDuplicateValue;
+            set => _duplicateValueAdded = value;
         }
 
         public KeySelector<TKey, TValue> KeySelector
         {
-            set => _keySelector = value ?? DefaultKeyAccessor;
+            set => _keySelector = value;
         }
 
         public MissingValueProvider<TKey, TValue> MissingValueProvider
         {
-            set => _missingValueProvider = value ?? ThrowOnMissingValue;
+            set => _missingValueProvider = value;
         }
 
         public CacheItemCallback<TKey, TValue> ValueAddedCallback
         {
-            set => _valueAddedCallback = value ?? DefaultCacheItemCallback;
+            set => _valueAddedCallback = value;
         }
 
         public CacheItemCallback<TKey, TValue> ValueRemovedCallback
         {
-            set => _valueRemovedCallback = value ?? DefaultCacheItemCallback;
+            set => _valueRemovedCallback = value;
         }
 
         public TValue this[TKey key]
@@ -138,9 +133,9 @@ namespace Topshelf.Caching
 
         public void Each(Action<TKey, TValue> callback)
         {
-            foreach (var value in _values)
+            foreach (var (key, value) in _values)
             {
-                callback(value.Key, value.Value);
+                callback(key, value);
             }
         }
 
@@ -191,34 +186,13 @@ namespace Topshelf.Caching
 
         IEnumerator IEnumerable.GetEnumerator() => _values.Values.GetEnumerator();
 
-        public TValue GetValue(TKey key, TValue defaultValue)
-        {
-            if (_values.TryGetValue(key, out var value))
-            {
-                return value;
-            }
+        public TValue GetValue(TKey key, TValue defaultValue) => _values.TryGetValue(key, out var value) ? value : defaultValue;
 
-            return defaultValue;
-        }
-
-        public TValue GetValue(TKey key, Func<TValue> defaultValueProvider)
-        {
-            if (_values.TryGetValue(key, out var value))
-            {
-                return value;
-            }
-
-            return defaultValueProvider();
-        }
+        public TValue GetValue(TKey key, Func<TValue> defaultValueProvider) => _values.TryGetValue(key, out var value) ? value : defaultValueProvider();
 
         public bool Has(TKey key) => _values.ContainsKey(key);
 
-        public bool HasValue(TValue value)
-        {
-            var key = _keySelector(value);
-
-            return Has(key);
-        }
+        public bool HasValue(TValue value) => Has(_keySelector(value));
 
         public void Remove(TKey key)
         {
@@ -229,14 +203,13 @@ namespace Topshelf.Caching
             }
         }
 
-        public void RemoveValue(TValue value)
+        public void RemoveValue(TValue value) => Remove(_keySelector(value));
+
+        public bool TryGetValue(TKey key, [NotNullWhen(true)] out TValue? value)
         {
-            var key = _keySelector(value);
-
-            Remove(key);
+            value = _values.ContainsKey(key) ? _values[key] : default;
+            return value is not null;
         }
-
-        public bool TryGetValue(TKey key, out TValue value) => _values.TryGetValue(key, out value);
 
         public bool WithValue(TKey key, Action<TValue> callback)
         {
@@ -249,9 +222,7 @@ namespace Topshelf.Caching
             return false;
         }
 
-        public TResult WithValue<TResult>(TKey key,
-            Func<TValue, TResult> callback,
-            TResult defaultValue)
+        public TResult WithValue<TResult>(TKey key, Func<TValue, TResult> callback, TResult defaultValue)
         {
             if (_values.TryGetValue(key, out var value))
             {
@@ -276,11 +247,13 @@ namespace Topshelf.Caching
             // Method intentionally left empty.
         }
 
-        private static TKey DefaultKeyAccessor(TValue value) => throw new InvalidOperationException("No default key accessor has been specified");
+        private static TKey DefaultKeyAccessor(TValue value) =>
+            throw new InvalidOperationException("No default key accessor has been specified");
 
         private static void ThrowOnDuplicateValue(TKey key, TValue value) => throw new ArgumentException(
             $"An item with the same key already exists in the cache: {key}", nameof(key));
 
-        private static TValue ThrowOnMissingValue(TKey key) => throw new KeyNotFoundException($"The specified element was not found: {key}");
+        private static TValue ThrowOnMissingValue(TKey key) =>
+            throw new KeyNotFoundException($"The specified element was not found: {key}");
     }
 }

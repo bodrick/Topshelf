@@ -445,6 +445,12 @@ dotnet_diagnostic.CA1716.severity = none
 # IDE0058: computed value is never used.
 dotnet_diagnostic.IDE0058.severity = none
 
+# IDE0060: Remove unused parameter
+dotnet_code_quality_unused_parameters = non_public
+
+# RCS1175: Unused this parameter.
+dotnet_diagnostic.RCS1175.severity = none
+
 ##########################################
 # License
 ##########################################
