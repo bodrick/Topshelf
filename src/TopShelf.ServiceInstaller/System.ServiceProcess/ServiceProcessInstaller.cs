@@ -42,24 +42,6 @@ namespace System.ServiceProcess
             }
         }
 
-        /// <summary>Gets help text displayed for service installation options.</summary>
-        /// <returns>Help text that provides a description of the steps for setting the user name and password in order to run the service under a particular account.</returns>
-        /// <PermissionSet>
-        ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode, ControlEvidence" />
-        /// </PermissionSet>
-        protected override string HelpText
-        {
-            get
-            {
-                if (_helpPrinted)
-                {
-                    return base.HelpText;
-                }
-                _helpPrinted = true;
-                return Res.GetString(Res.HelpText) + "\r\n" + base.HelpText;
-            }
-        }
-
         /// <summary>Gets or sets the password associated with the user account under which the service application runs.</summary>
         /// <returns>The password associated with the account under which the service should run. The default is an empty string (""). The property is not public, and is never serialized.</returns>
         /// <PermissionSet>
@@ -112,6 +94,24 @@ namespace System.ServiceProcess
             {
                 _haveLoginInfo = false;
                 _username = value;
+            }
+        }
+
+        /// <summary>Gets help text displayed for service installation options.</summary>
+        /// <returns>Help text that provides a description of the steps for setting the user name and password in order to run the service under a particular account.</returns>
+        /// <PermissionSet>
+        ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode, ControlEvidence" />
+        /// </PermissionSet>
+        protected override string HelpText
+        {
+            get
+            {
+                if (_helpPrinted)
+                {
+                    return base.HelpText;
+                }
+                _helpPrinted = true;
+                return Res.GetString(Res.HelpText) + Environment.NewLine + base.HelpText;
             }
         }
 
@@ -267,13 +267,7 @@ namespace System.ServiceProcess
             var sidNameUse = new int[1];
             if (accountName[..2] == ".\\")
             {
-                var compName = new StringBuilder(32);
-                var nameLen = 32;
-                if (!NativeMethods.GetComputerName(compName, ref nameLen))
-                {
-                    throw new Win32Exception();
-                }
-                accountName = compName + accountName[1..];
+                accountName = Environment.MachineName + accountName[1..];
             }
             if (!NativeMethods.LookupAccountName(null, accountName, newSid, sidLen, domName, domNameLen, sidNameUse))
             {

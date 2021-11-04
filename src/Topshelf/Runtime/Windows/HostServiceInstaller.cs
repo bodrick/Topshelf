@@ -23,7 +23,7 @@ using Topshelf.Exceptions;
 
 namespace Topshelf.Runtime.Windows
 {
-    public class HostServiceInstaller : IDisposable
+    public sealed class HostServiceInstaller : IDisposable
     {
         private readonly Installer _installer;
         private readonly TransactedInstaller _transactedInstaller;
@@ -43,11 +43,7 @@ namespace Topshelf.Runtime.Windows
 
         public ServiceProcessInstaller ServiceProcessInstaller => (ServiceProcessInstaller)_installer.Installers[1];
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        public void Dispose() => Dispose(true);
 
         public void InstallService(Action<InstallEventArgs> beforeInstall, Action<InstallEventArgs> afterInstall,
             Action<InstallEventArgs> beforeRollback, Action<InstallEventArgs> afterRollback)
@@ -92,28 +88,6 @@ namespace Topshelf.Runtime.Windows
             Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
             _transactedInstaller.Uninstall(null);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                try
-                {
-                    _transactedInstaller.Dispose();
-                }
-                finally
-                {
-                    _installer.Dispose();
-                }
-            }
-
-            _disposed = true;
         }
 
         private static ServiceInstaller ConfigureServiceInstaller(IHostSettings settings, string[] dependencies, HostStartMode startMode)
@@ -256,6 +230,28 @@ namespace Topshelf.Runtime.Windows
                     installer.DelayedAutoStart = true;
                     break;
             }
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                try
+                {
+                    _transactedInstaller.Dispose();
+                }
+                finally
+                {
+                    _installer.Dispose();
+                }
+            }
+
+            _disposed = true;
         }
     }
 }

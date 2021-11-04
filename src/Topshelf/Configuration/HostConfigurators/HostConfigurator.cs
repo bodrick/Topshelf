@@ -101,7 +101,7 @@ namespace Topshelf.Configuration.HostConfigurators
 
             try
             {
-                var serviceBuilder = _serviceBuilderFactory(_settings);
+                var serviceBuilder = _serviceBuilderFactory!(_settings);
                 return builder.Build(serviceBuilder);
             }
             //Intercept exceptions from serviceBuilder, TopShelf handling is in HostFactory
@@ -145,19 +145,9 @@ namespace Topshelf.Configuration.HostConfigurators
 
         public IEnumerable<IValidateResult> Validate()
         {
-            if (_hostBuilderFactory == null)
-            {
-                yield return this.Failure("HostBuilderFactory", "must not be null");
-            }
-
             if (_serviceBuilderFactory == null)
             {
                 yield return this.Failure("ServiceBuilderFactory", "must not be null");
-            }
-
-            if (_environmentBuilderFactory == null)
-            {
-                yield return this.Failure("EnvironmentBuilderFactory", "must not be null");
             }
 
             if (string.IsNullOrEmpty(_settings.DisplayName) && string.IsNullOrEmpty(_settings.Name))

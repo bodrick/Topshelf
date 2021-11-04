@@ -191,9 +191,9 @@ namespace Topshelf.Extensions.Configuration
                         ResetPeriod = section.GetSection(nameof(ServiceRecoveryOptions.ResetPeriod)).Get<int>()
                     };
 
-                    foreach (var recoveryActionSection in section.GetSection("RecoveryActions")?.GetChildren())
+                    foreach (var recoveryActionSection in section.GetSection("RecoveryActions").GetChildren())
                     {
-                        switch (recoveryActionSection.GetSection("Type")?.Value)
+                        switch (recoveryActionSection.GetSection("Type").Value)
                         {
                             case "RestartService":
                                 serviceRecoveryOptions.AddAction(

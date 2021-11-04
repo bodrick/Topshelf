@@ -10,7 +10,6 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
-using System;
 using System.Diagnostics;
 using Topshelf.Caching;
 
@@ -38,13 +37,15 @@ namespace Topshelf.Logging
         {
             Trace.Flush();
 
-            if (_listener != null)
+            if (_listener == null)
             {
-                Trace.Listeners.Remove(_listener);
-                _listener.Close();
-                (_listener as IDisposable)?.Dispose();
-                _listener = null;
+                return;
             }
+
+            Trace.Listeners.Remove(_listener);
+            _listener.Close();
+            _listener.Dispose();
+            _listener = null;
         }
 
         private static TraceListener AddDefaultConsoleTraceListener(TraceSource source)

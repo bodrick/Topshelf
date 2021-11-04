@@ -103,10 +103,6 @@ namespace System.ServiceProcess
         [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
         internal static extern bool DeleteService(IntPtr serviceHandle);
 
-        [DllImport("Kernel32", ExactSpelling = true, EntryPoint = "GetComputerNameW", SetLastError = true, CharSet = CharSet.Unicode)]
-        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-        internal static extern bool GetComputerName(StringBuilder lpBuffer, ref int nSize);
-
         [DllImport("AdvApi32", ExactSpelling = true, EntryPoint = "LookupAccountNameW", SetLastError = true, CharSet = CharSet.Unicode)]
         [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
         internal static extern bool LookupAccountName(string? systemName, string accountName, byte[] sid, int[] sidLen,

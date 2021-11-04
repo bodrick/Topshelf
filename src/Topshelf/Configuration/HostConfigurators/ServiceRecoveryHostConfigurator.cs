@@ -141,6 +141,6 @@ namespace Topshelf.Configuration.HostConfigurators
             }
         }
 
-        private void ConfigureServiceRecovery(IInstallHostSettings installSettings) => WindowsServiceRecoveryController.SetServiceRecoveryOptions(installSettings, _options);
+        private void ConfigureServiceRecovery(IInstallHostSettings installSettings) => WindowsServiceRecoveryController.SetServiceRecoveryOptions(installSettings, Options);
     }
 }

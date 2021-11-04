@@ -116,34 +116,36 @@ namespace Topshelf.Runtime.Windows
 
         public bool RunAsAdministrator()
         {
-            if (Environment.OSVersion.Version.Major == 6)
+            if (Environment.OSVersion.Version.Major != 6)
             {
-                var commandLine = CommandLine.Replace("--sudo", string.Empty, StringComparison.OrdinalIgnoreCase);
+                return false;
+            }
 
-                var assemblyLocation = Assembly.GetEntryAssembly()?.Location;
-                if (assemblyLocation == null)
-                {
-                    throw new TopshelfException("Unable to determine start assembly");
-                }
+            var commandLine = CommandLine.Replace("--sudo", string.Empty, StringComparison.OrdinalIgnoreCase);
 
-                var startInfo = new ProcessStartInfo(assemblyLocation, commandLine)
-                {
-                    Verb = "runas",
-                    UseShellExecute = true,
-                    CreateNoWindow = true,
-                };
+            var assemblyLocation = Assembly.GetEntryAssembly()?.Location;
+            if (assemblyLocation == null)
+            {
+                throw new TopshelfException("Unable to determine start assembly");
+            }
 
-                try
-                {
-                    HostLogger.Shutdown();
-                    var process = Process.Start(startInfo);
-                    process?.WaitForExit();
-                    return true;
-                }
-                catch (Win32Exception ex)
-                {
-                    _log.Debug("Process Start Exception", ex);
-                }
+            var startInfo = new ProcessStartInfo(assemblyLocation, commandLine)
+            {
+                Verb = "runas",
+                UseShellExecute = true,
+                CreateNoWindow = true,
+            };
+
+            try
+            {
+                HostLogger.Shutdown();
+                var process = Process.Start(startInfo);
+                process?.WaitForExit();
+                return true;
+            }
+            catch (Win32Exception ex)
+            {
+                _log.Debug("Process Start Exception", ex);
             }
 
             return false;
@@ -166,56 +168,52 @@ namespace Topshelf.Runtime.Windows
         public void StartService(string serviceName, TimeSpan startTimeOut)
         {
             using var sc = new ServiceController(serviceName);
-            if (sc.Status == ServiceControllerStatus.Running)
+            switch (sc.Status)
             {
-                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is already running.", serviceName);
-                return;
-            }
+                case ServiceControllerStatus.Running:
+                    _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is already running.", serviceName);
+                    return;
 
-            if (sc.Status == ServiceControllerStatus.StartPending)
-            {
-                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is already starting.", serviceName);
-                return;
-            }
+                case ServiceControllerStatus.StartPending:
+                    _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is already starting.", serviceName);
+                    return;
 
-            if (sc.Status is ServiceControllerStatus.Stopped or ServiceControllerStatus.Paused)
-            {
-                sc.Start();
-                sc.WaitForStatus(ServiceControllerStatus.Running, startTimeOut);
-            }
-            else
-            {
-                // Status is StopPending, ContinuePending or PausedPending, print warning
-                _log.WarnFormat(CultureInfo.CurrentCulture, "The {0} service can't be started now as it has the status {1}. Try again later...", serviceName,
-                    sc.Status.ToString());
+                case ServiceControllerStatus.Stopped or ServiceControllerStatus.Paused:
+                    sc.Start();
+                    sc.WaitForStatus(ServiceControllerStatus.Running, startTimeOut);
+                    break;
+
+                default:
+                    // Status is StopPending, ContinuePending or PausedPending, print warning
+                    _log.WarnFormat(CultureInfo.CurrentCulture, "The {0} service can't be started now as it has the status {1}. Try again later...", serviceName,
+                        sc.Status.ToString());
+                    break;
             }
         }
 
         public void StopService(string serviceName, TimeSpan stopTimeOut)
         {
             using var sc = new ServiceController(serviceName);
-            if (sc.Status == ServiceControllerStatus.Stopped)
+            switch (sc.Status)
             {
-                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is not running.", serviceName);
-                return;
-            }
+                case ServiceControllerStatus.Stopped:
+                    _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is not running.", serviceName);
+                    return;
 
-            if (sc.Status == ServiceControllerStatus.StopPending)
-            {
-                _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is already stopping.", serviceName);
-                return;
-            }
+                case ServiceControllerStatus.StopPending:
+                    _log.InfoFormat(CultureInfo.CurrentCulture, "The {0} service is already stopping.", serviceName);
+                    return;
 
-            if (sc.Status is ServiceControllerStatus.Running or ServiceControllerStatus.Paused)
-            {
-                sc.Stop();
-                sc.WaitForStatus(ServiceControllerStatus.Stopped, stopTimeOut);
-            }
-            else
-            {
-                // Status is StartPending, ContinuePending or PausedPending, print warning
-                _log.WarnFormat(CultureInfo.CurrentCulture, "The {0} service can't be stopped now as it has the status {1}. Try again later...", serviceName,
-                    sc.Status.ToString());
+                case ServiceControllerStatus.Running or ServiceControllerStatus.Paused:
+                    sc.Stop();
+                    sc.WaitForStatus(ServiceControllerStatus.Stopped, stopTimeOut);
+                    break;
+
+                default:
+                    // Status is StartPending, ContinuePending or PausedPending, print warning
+                    _log.WarnFormat(CultureInfo.CurrentCulture, "The {0} service can't be stopped now as it has the status {1}. Try again later...", serviceName,
+                        sc.Status.ToString());
+                    break;
             }
         }
 

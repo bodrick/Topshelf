@@ -20,20 +20,20 @@ namespace Topshelf.Configuration.ServiceConfigurators
 {
     public class DelegateServiceConfigurator<T> : ServiceConfiguratorBase, IServiceConfigurator<T>, IConfigurator where T : class
     {
-        private Func<T, IHostControl, bool> _continue;
-        private Action<T, IHostControl, int> _customCommandReceived;
+        private Func<T, IHostControl, bool>? _continue;
+        private Action<T, IHostControl, int>? _customCommandReceived;
         private bool _customCommandReceivedConfigured;
-        private ServiceFactory<T> _factory;
-        private Func<T, IHostControl, bool> _pause;
+        private ServiceFactory<T>? _factory;
+        private Func<T, IHostControl, bool>? _pause;
         private bool _pauseConfigured;
-        private Func<T, IHostControl, IPowerEventArguments, bool> _powerEvent;
+        private Func<T, IHostControl, IPowerEventArguments, bool>? _powerEvent;
         private bool _powerEventConfigured;
         private bool _sessionChangeConfigured;
-        private Action<T, IHostControl, ISessionChangedArguments> _sessionChanged;
-        private Action<T, IHostControl> _shutdown;
+        private Action<T, IHostControl, ISessionChangedArguments>? _sessionChanged;
+        private Action<T, IHostControl>? _shutdown;
         private bool _shutdownConfigured;
-        private Func<T, IHostControl, bool> _start;
-        private Func<T, IHostControl, bool> _stop;
+        private Func<T, IHostControl, bool>? _start;
+        private Func<T, IHostControl, bool>? _stop;
 
         public IServiceBuilder Build() => new DelegateServiceBuilder<T>(_factory, _start, _stop, _pause, _continue, _shutdown,
                 _sessionChanged, _powerEvent, _customCommandReceived, Events);
