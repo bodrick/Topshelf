@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+    <RunConfiguration>
+        <!-- Timeout in ms, 5 minutes -->
+        <TestSessionTimeout>300000</TestSessionTimeout>
+        <!-- Directory for test run reports. E.g. trx, coverage etc. -->
+        <ResultsDirectory>.\TestResults\</ResultsDirectory>
+        <!-- 0 = As many processes as possible, limited by number of cores on machine, 1 = Sequential (1 process), 2-> Given number of processes up to limit by number of cores on machine-->
+        <MaxCpuCount>0</MaxCpuCount>
+        <DisableParallelization>false</DisableParallelization>
+        <DisableAppDomain>false</DisableAppDomain>
+        <CollectSourceInformation>true</CollectSourceInformation>
+    </RunConfiguration>
+    <LoggerRunSettings>
+        <Loggers>
+            <Logger friendlyName="trx" />
+            <Logger friendlyName="html" />
+            <Logger friendlyName="console">
+                <Configuration>
+                    <Verbosity>Minimal</Verbosity>
+                </Configuration>
+            </Logger>
+        </Loggers>
+    </LoggerRunSettings>
+    <DataCollectionRunSettings>
+        <DataCollectors>
+            <DataCollector friendlyName="XPlat Code Coverage">
+                <Configuration>
+                    <Format>cobertura</Format>
+                </Configuration>
+            </DataCollector>
+        </DataCollectors>
+    </DataCollectionRunSettings>
+</RunSettings>

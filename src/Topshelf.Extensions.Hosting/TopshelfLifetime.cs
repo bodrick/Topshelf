@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -7,8 +6,7 @@ namespace Topshelf.Extensions.Hosting
 {
     public class TopshelfLifetime : IHostLifetime
     {
-        public TopshelfLifetime(IHostApplicationLifetime hostApplicationLifetime, IServiceProvider services) =>
-            HostApplicationLifetime = hostApplicationLifetime ?? throw new ArgumentNullException(nameof(hostApplicationLifetime));
+        public TopshelfLifetime(IHostApplicationLifetime hostApplicationLifetime) => HostApplicationLifetime = hostApplicationLifetime;
 
         private IHostApplicationLifetime HostApplicationLifetime { get; }
 

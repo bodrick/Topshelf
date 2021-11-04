@@ -412,7 +412,7 @@ namespace Topshelf.Tests
                 x.ApplyCommandLine("explode");
             }));
 
-            Assert.That(exception.Message.Contains("explode"), Is.True);
+            Assert.That(exception?.Message, Does.Contain("explode"));
         }
 
         [Test]

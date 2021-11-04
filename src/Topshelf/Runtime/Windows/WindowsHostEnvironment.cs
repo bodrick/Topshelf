@@ -39,6 +39,11 @@ namespace Topshelf.Runtime.Windows
         {
             get
             {
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    return false;
+                }
+
                 var identity = WindowsIdentity.GetCurrent();
                 var principal = new WindowsPrincipal(identity);
                 return principal.IsInRole(WindowsBuiltInRole.Administrator);
@@ -49,9 +54,14 @@ namespace Topshelf.Runtime.Windows
         {
             get
             {
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    return false;
+                }
+
                 try
                 {
-                    var process = GetParent(Process.GetCurrentProcess());
+                    var process = Kernel32.GetParentProcess();
                     if (process?.ProcessName == "services")
                     {
                         _log.Debug("Started by the Windows services process");
@@ -73,6 +83,11 @@ namespace Topshelf.Runtime.Windows
         public void InstallService(IInstallHostSettings settings, Action<IInstallHostSettings> beforeInstall, Action afterInstall,
             Action beforeRollback, Action afterRollback)
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                throw new PlatformNotSupportedException("Not running windows");
+            }
+
             using var installer = new HostServiceInstaller(settings);
 
             void BeforeInstall(InstallEventArgs _)
@@ -106,16 +121,26 @@ namespace Topshelf.Runtime.Windows
             installer.InstallService(BeforeInstall, AfterInstall, BeforeRollback, AfterRollback);
         }
 
-        public bool IsServiceInstalled(string serviceName) => Type.GetType("Mono.Runtime") == null && IsServiceListed(serviceName);
+        public bool IsServiceInstalled(string serviceName) => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && IsServiceListed(serviceName);
 
         public bool IsServiceStopped(string serviceName)
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return true;
+            }
+
             using var sc = new ServiceController(serviceName);
             return sc.Status == ServiceControllerStatus.Stopped;
         }
 
         public bool RunAsAdministrator()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                throw new PlatformNotSupportedException("Not running windows");
+            }
+
             if (Environment.OSVersion.Version.Major != 6)
             {
                 return false;
@@ -219,56 +244,15 @@ namespace Topshelf.Runtime.Windows
 
         public void UninstallService(IHostSettings settings, Action beforeUninstall, Action afterUninstall)
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                throw new PlatformNotSupportedException("Not running windows");
+            }
+
             using var installer = new HostServiceInstaller(settings);
             void BeforeUninstall(InstallEventArgs _) => beforeUninstall();
             void AfterUninstall(InstallEventArgs _) => afterUninstall();
             installer.UninstallService(BeforeUninstall, AfterUninstall);
-        }
-
-        private Process? GetParent(Process child)
-        {
-            if (child == null)
-            {
-                throw new ArgumentNullException(nameof(child));
-            }
-
-            try
-            {
-                var parentPid = 0;
-
-                var hnd = Kernel32.CreateToolhelp32Snapshot(Kernel32.TH32CS_SNAPPROCESS, 0);
-
-                if (hnd == IntPtr.Zero)
-                {
-                    return null;
-                }
-
-                var processInfo = new Kernel32.PROCESSENTRY32 { dwSize = (uint)Marshal.SizeOf(typeof(Kernel32.PROCESSENTRY32)) };
-
-                if (!Kernel32.Process32First(hnd, ref processInfo))
-                {
-                    return null;
-                }
-
-                do
-                {
-                    if (child.Id == processInfo.th32ProcessID)
-                    {
-                        parentPid = (int)processInfo.th32ParentProcessID;
-                    }
-                } while (parentPid == 0 && Kernel32.Process32Next(hnd, ref processInfo));
-
-                if (parentPid > 0)
-                {
-                    return Process.GetProcessById(parentPid);
-                }
-            }
-            catch (Exception ex)
-            {
-                _log.Error("Unable to get parent process (ignored)", ex);
-            }
-
-            return null;
         }
 
         private bool IsServiceListed(string serviceName)

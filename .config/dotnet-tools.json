@@ -7,6 +7,12 @@
       "commands": [
         "minver"
       ]
+    },
+    "dotnet-reportgenerator-globaltool": {
+      "version": "4.8.13",
+      "commands": [
+        "reportgenerator"
+      ]
     }
   }
 }

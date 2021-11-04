@@ -33,11 +33,6 @@ namespace Topshelf
         {
             try
             {
-                if (configureCallback == null)
-                {
-                    throw new ArgumentNullException(nameof(configureCallback));
-                }
-
                 var configurator = new HostConfigurator();
 
                 var declaringType = configureCallback.Method.DeclaringType;

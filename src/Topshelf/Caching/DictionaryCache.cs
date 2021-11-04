@@ -150,16 +150,14 @@ namespace Topshelf.Caching
             }
         }
 
-        public bool Find(Predicate<TValue> predicate, out TValue result)
+        public bool Find(Predicate<TValue> predicate, [NotNullWhen(true)] out TValue? result)
         {
+            result = default;
             foreach (var value in _values.Where(value => predicate(value.Value)))
             {
                 result = value.Value;
-                return true;
             }
-
-            result = default(TValue);
-            return false;
+            return EqualityComparer<TValue>.Default.Equals(result, default);
         }
 
         public TValue Get(TKey key) => Get(key, _missingValueProvider);

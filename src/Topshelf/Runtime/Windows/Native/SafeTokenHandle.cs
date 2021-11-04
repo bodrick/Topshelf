@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.InteropServices;
-using System.Security;
 using Microsoft.Win32.SafeHandles;
 
 namespace Topshelf.Runtime.Windows
@@ -11,9 +10,8 @@ namespace Topshelf.Runtime.Windows
 
         protected override bool ReleaseHandle() => CloseHandle(handle);
 
-        [DllImport("kernel32.dll")]
-        [SuppressUnmanagedCodeSecurity]
-        [return: MarshalAs(UnmanagedType.Bool)]
+        [DllImport("Kernel32", ExactSpelling = true, SetLastError = true)]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
         private static extern bool CloseHandle(IntPtr handle);
     }
 }

@@ -26,7 +26,7 @@ namespace Topshelf.Runtime.Windows
         public const int SERVICE_CONFIG_FAILURE_ACTIONS_FLAG = 4;
 
         [Flags]
-        public enum ACCESS_MASK : uint
+        private enum ACCESS_MASK : uint
         {
             SPECIFIC_RIGHTS_ALL = 0x0000FFFF,
             DELETE = 0x00010000,

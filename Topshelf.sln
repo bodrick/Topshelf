@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{75D5FED8-96D8-4460-82DF-595A5F4B8114}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		coverage.runsettings = coverage.runsettings
 		Directory.Build.props = Directory.Build.props
 		nuget.config = nuget.config
 	EndProjectSection
@@ -31,6 +32,17 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Topshelf.Tests", "tests\Topshelf.Tests\Topshelf.Tests.csproj", "{38EE5D36-CAC1-4A25-843D-B2C9DEB79249}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A172CF80-BE3F-4594-BF76-7150E0B1FEBE}"
+	ProjectSection(SolutionItems) = preProject
+		tests\.runsettings = tests\.runsettings
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{38AFAF6A-A28B-4D4D-9A10-D4DDCC255CB6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleTopshelfService", "samples\SampleTopshelfService\SampleTopshelfService.csproj", "{476370C6-CA0D-426A-B8B7-99065179D298}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RunGenericHostAsTopshelfService", "samples\RunGenericHostAsTopshelfService\RunGenericHostAsTopshelfService.csproj", "{231634E7-309B-46FE-A131-0D2FA4496D12}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DisposeHostWhenServiceStopped", "samples\DisposeHostWhenServiceStopped\DisposeHostWhenServiceStopped.csproj", "{E1E36AC9-6EA6-4CDF-8040-D299CD2AFFF0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -78,6 +90,18 @@ Global
 		{38EE5D36-CAC1-4A25-843D-B2C9DEB79249}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38EE5D36-CAC1-4A25-843D-B2C9DEB79249}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38EE5D36-CAC1-4A25-843D-B2C9DEB79249}.Release|Any CPU.Build.0 = Release|Any CPU
+		{476370C6-CA0D-426A-B8B7-99065179D298}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{476370C6-CA0D-426A-B8B7-99065179D298}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{476370C6-CA0D-426A-B8B7-99065179D298}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{476370C6-CA0D-426A-B8B7-99065179D298}.Release|Any CPU.Build.0 = Release|Any CPU
+		{231634E7-309B-46FE-A131-0D2FA4496D12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{231634E7-309B-46FE-A131-0D2FA4496D12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{231634E7-309B-46FE-A131-0D2FA4496D12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{231634E7-309B-46FE-A131-0D2FA4496D12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1E36AC9-6EA6-4CDF-8040-D299CD2AFFF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1E36AC9-6EA6-4CDF-8040-D299CD2AFFF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1E36AC9-6EA6-4CDF-8040-D299CD2AFFF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1E36AC9-6EA6-4CDF-8040-D299CD2AFFF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,6 +109,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{675AD881-E869-45B3-9F64-4217D1EB33B1} = {A172CF80-BE3F-4594-BF76-7150E0B1FEBE}
 		{38EE5D36-CAC1-4A25-843D-B2C9DEB79249} = {A172CF80-BE3F-4594-BF76-7150E0B1FEBE}
+		{476370C6-CA0D-426A-B8B7-99065179D298} = {38AFAF6A-A28B-4D4D-9A10-D4DDCC255CB6}
+		{231634E7-309B-46FE-A131-0D2FA4496D12} = {38AFAF6A-A28B-4D4D-9A10-D4DDCC255CB6}
+		{E1E36AC9-6EA6-4CDF-8040-D299CD2AFFF0} = {38AFAF6A-A28B-4D4D-9A10-D4DDCC255CB6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DF857ED9-FBAA-438F-881E-A8BB738CA86C}

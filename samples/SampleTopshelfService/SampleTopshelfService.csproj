@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net5.0-windows</TargetFrameworks>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <IsPackable>false</IsPackable>
     <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
   </PropertyGroup>
@@ -10,7 +10,8 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Topshelf.Serilog\Topshelf.Serilog.csproj" />
-    <ProjectReference Include="..\Topshelf\Topshelf.csproj" />
+    <ProjectReference Include="..\..\src\Topshelf.Serilog\Topshelf.Serilog.csproj" />
+    <ProjectReference Include="..\..\src\Topshelf\Topshelf.csproj" />
   </ItemGroup>
+  
 </Project>

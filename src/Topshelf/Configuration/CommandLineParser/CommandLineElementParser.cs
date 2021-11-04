@@ -29,17 +29,12 @@ namespace Topshelf.Configuration.CommandLineParser
             All = from element in _parsers.FirstMatch() select element;
         }
 
-        public static Parser<IEnumerable<ICommandLineElement>, ICommandLineElement> AnyElement => input => input.Any()
-            ? new Result<IEnumerable<ICommandLineElement>, ICommandLineElement>(input.First(),
-                input.Skip(1))
-            : null;
-
         private Parser<IEnumerable<ICommandLineElement>, TResult> All { get; }
 
         public void Add(Parser<IEnumerable<ICommandLineElement>, TResult> parser) => _parsers.Add(parser);
 
         public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> Argument() =>
-            AnyElement.Where(c => c is ArgumentElement).Select(c => (IArgumentElement)c);
+            GetAnyElement().Where(c => c is ArgumentElement).Select(c => (IArgumentElement)c);
 
         public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> Argument(string value) =>
             Argument().Where(arg => string.Equals(arg.Id, value, StringComparison.OrdinalIgnoreCase));
@@ -48,7 +43,7 @@ namespace Topshelf.Configuration.CommandLineParser
             Argument().Where(arg => predicate(arg));
 
         public Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Definition() =>
-            AnyElement.Where(c => c is DefinitionElement).Select(c => (IDefinitionElement)c);
+            GetAnyElement().Where(c => c is DefinitionElement).Select(c => (IDefinitionElement)c);
 
         public Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Definition(string key) =>
             Definition().Where(def => def.Key == key);
@@ -62,13 +57,12 @@ namespace Topshelf.Configuration.CommandLineParser
             while (result != null)
             {
                 yield return result.Value;
-
                 result = All(result.Rest);
             }
         }
 
         public Parser<IEnumerable<ICommandLineElement>, ISwitchElement> Switch() =>
-            AnyElement.Where(c => c is SwitchElement).Select(c => (ISwitchElement)c);
+            GetAnyElement().Where(c => c is SwitchElement).Select(c => (ISwitchElement)c);
 
         public Parser<IEnumerable<ICommandLineElement>, ISwitchElement> Switch(string key) =>
             Switch().Where(sw => string.Equals(sw.Key, key, StringComparison.OrdinalIgnoreCase));
@@ -77,7 +71,15 @@ namespace Topshelf.Configuration.CommandLineParser
             Switch().Where(sw => keys.Contains(sw.Key));
 
         public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> ValidPath() =>
-            AnyElement.Where(c => c is ArgumentElement element && IsValidPath(element.Id)).Select(c => (IArgumentElement)c);
+            GetAnyElement().Where(c => c is ArgumentElement element && IsValidPath(element.Id)).Select(c => (IArgumentElement)c);
+
+        private static Parser<IEnumerable<ICommandLineElement>, ICommandLineElement> GetAnyElement() => input =>
+        {
+            var inputList = input.ToList();
+            return inputList.Count > 0
+                ? new Result<IEnumerable<ICommandLineElement>, ICommandLineElement>(inputList[0], inputList.Skip(1))
+                : null;
+        };
 
         private static bool IsValidPath(string path)
         {

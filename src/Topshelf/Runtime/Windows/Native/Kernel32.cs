@@ -11,47 +11,94 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable IdentifierTypo
 
-#pragma warning disable S101,IDE1006
+#pragma warning disable S101,IDE1006,S1144
 
 namespace Topshelf.Runtime.Windows
 {
     internal static class Kernel32
     {
-        public const uint TH32CS_SNAPPROCESS = 2;
-        public const int MAX_PATH = 260;
+        private const uint TH32CS_SNAPPROCESS = 2;
+        private const int MAX_PATH = 260;
 
         [DllImport("Kernel32", ExactSpelling = true, SetLastError = true)]
         [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-        public static extern IntPtr CreateToolhelp32Snapshot(uint dwFlags, uint th32ProcessID);
+        private static extern IntPtr CreateToolhelp32Snapshot(uint dwFlags, uint th32ProcessID);
 
         [DllImport("Kernel32", ExactSpelling = true, SetLastError = true)]
         [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-        public static extern bool Process32First(IntPtr hSnapshot, ref PROCESSENTRY32 lppe);
+        private static extern bool Process32First(IntPtr hSnapshot, ref PROCESSENTRY32 lppe);
 
         [DllImport("Kernel32", ExactSpelling = true, SetLastError = true)]
         [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-        public static extern bool Process32Next(IntPtr hSnapshot, ref PROCESSENTRY32 lppe);
+        private static extern bool Process32Next(IntPtr hSnapshot, ref PROCESSENTRY32 lppe);
+
+        [DllImport("Kernel32", ExactSpelling = true, SetLastError = true)]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+        private static extern bool CloseHandle(IntPtr handle);
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct PROCESSENTRY32
+        private struct PROCESSENTRY32
         {
-            public uint dwSize;
-            public uint cntUsage;
-            public uint th32ProcessID;
-            public IntPtr th32DefaultHeapID;
-            public uint th32ModuleID;
-            public uint cntThreads;
-            public uint th32ParentProcessID;
-            public int pcPriClassBase;
-            public uint dwFlags;
+            internal uint dwSize;
+            internal uint cntUsage;
+            internal uint th32ProcessID;
+            internal IntPtr th32DefaultHeapID;
+            internal uint th32ModuleID;
+            internal uint cntThreads;
+            internal uint th32ParentProcessID;
+            internal int pcPriClassBase;
+            internal uint dwFlags;
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)]
-            public string szExeFile;
+            internal string szExeFile;
+        }
+
+        internal static Process? GetParentProcess()
+        {
+            var snapshotHandle = IntPtr.Zero;
+            try
+            {
+                // Get a list of all processes
+                snapshotHandle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+
+                if (snapshotHandle == IntPtr.Zero)
+                {
+                    return null;
+                }
+
+                var processInfo = new PROCESSENTRY32 { dwSize = (uint)Marshal.SizeOf(typeof(PROCESSENTRY32)) };
+
+                if (!Process32First(snapshotHandle, ref processInfo))
+                {
+                    return null;
+                }
+
+                var currentProcessId = Environment.ProcessId;
+                do
+                {
+                    if (currentProcessId == processInfo.th32ProcessID)
+                    {
+                        return Process.GetProcessById((int)processInfo.th32ParentProcessID);
+                    }
+                }
+                while (Process32Next(snapshotHandle, ref processInfo));
+            }
+            catch
+            {
+                // Ignored
+            }
+            finally
+            {
+                CloseHandle(snapshotHandle);
+            }
+
+            return null;
         }
     }
 }

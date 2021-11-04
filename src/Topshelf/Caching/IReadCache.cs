@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Topshelf.Caching
 {
@@ -42,7 +43,7 @@ namespace Topshelf.Caching
         /// <param name="predicate">The predicate to run against each value</param>
         /// <param name="result">The matching value</param>
         /// <returns>True if a matching value was found, otherwise false</returns>
-        bool Find(Predicate<TValue> predicate, out TValue result);
+        bool Find(Predicate<TValue> predicate, [NotNullWhen(true)] out TValue? result);
 
         /// <summary>
         /// Gets all values that are stored in the cache

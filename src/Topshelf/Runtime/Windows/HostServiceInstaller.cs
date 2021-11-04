@@ -48,25 +48,10 @@ namespace Topshelf.Runtime.Windows
         public void InstallService(Action<InstallEventArgs> beforeInstall, Action<InstallEventArgs> afterInstall,
             Action<InstallEventArgs> beforeRollback, Action<InstallEventArgs> afterRollback)
         {
-            if (beforeInstall != null)
-            {
-                _installer.BeforeInstall += (_, args) => beforeInstall(args);
-            }
-
-            if (afterInstall != null)
-            {
-                _installer.AfterInstall += (_, args) => afterInstall(args);
-            }
-
-            if (beforeRollback != null)
-            {
-                _installer.BeforeRollback += (_, args) => beforeRollback(args);
-            }
-
-            if (afterRollback != null)
-            {
-                _installer.AfterRollback += (_, args) => afterRollback(args);
-            }
+            _installer.BeforeInstall += (_, args) => beforeInstall(args);
+            _installer.AfterInstall += (_, args) => afterInstall(args);
+            _installer.BeforeRollback += (_, args) => beforeRollback(args);
+            _installer.AfterRollback += (_, args) => afterRollback(args);
 
             Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
@@ -75,15 +60,8 @@ namespace Topshelf.Runtime.Windows
 
         public void UninstallService(Action<InstallEventArgs> beforeUninstall, Action<InstallEventArgs> afterUninstall)
         {
-            if (beforeUninstall != null)
-            {
-                _installer.BeforeUninstall += (_, args) => beforeUninstall(args);
-            }
-
-            if (afterUninstall != null)
-            {
-                _installer.AfterUninstall += (_, args) => afterUninstall(args);
-            }
+            _installer.BeforeUninstall += (_, args) => beforeUninstall(args);
+            _installer.AfterUninstall += (_, args) => afterUninstall(args);
 
             Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
