@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <PackageId>Topshelf.Autofac</PackageId>
+    <Title>Topshelf.Autofac</Title>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Authors>Alexandr Nikitin</Authors>
+    <Company />
+    <PackageLicenseUrl>https://github.com/alexandrnikitin/Topshelf.Autofac/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/alexandrnikitin/Topshelf.Autofac/</PackageProjectUrl>
+    <Description>Topshelf.Autofac provides extensions to construct your service class from your Autofac IoC container.</Description>
+    <PackageReleaseNotes>Remove delay signing of the assembly</PackageReleaseNotes>
+    <PackageTags>Topshelf Autofac</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="6.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Topshelf\Topshelf.csproj" />
+  </ItemGroup>
+
+</Project>
