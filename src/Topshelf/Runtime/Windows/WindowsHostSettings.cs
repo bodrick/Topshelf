@@ -11,6 +11,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
+using System.Collections.Specialized;
 
 namespace Topshelf.Runtime.Windows
 {
@@ -18,6 +19,7 @@ namespace Topshelf.Runtime.Windows
     public class WindowsHostSettings : IHostSettings
     {
         public const string InstanceSeparator = "$";
+        private readonly NameValueCollection _serviceArguments = new();
         private string _description;
         private string _displayName;
 
@@ -51,6 +53,8 @@ namespace Topshelf.Runtime.Windows
         public bool CanSessionChanged { get; set; }
         public bool CanShutdown { get; set; }
 
+        public bool CanStop { get; set; } = true;
+
         public string Description
         {
             get => string.IsNullOrEmpty(_description) ? DisplayName : _description;
@@ -76,6 +80,7 @@ namespace Topshelf.Runtime.Windows
         public string InstanceName { get; set; }
         public string Name { get; set; }
 
+        public NameValueCollection ServiceArguments => _serviceArguments;
         public string ServiceName => string.IsNullOrEmpty(InstanceName) ? Name : Name + InstanceSeparator + InstanceName;
 
         public TimeSpan StartTimeOut { get; set; }

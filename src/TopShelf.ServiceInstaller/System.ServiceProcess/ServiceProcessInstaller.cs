@@ -330,31 +330,33 @@ namespace System.ServiceProcess
 
         private void GetLoginInfo()
         {
-            if (Context != null && !DesignMode && !_haveLoginInfo)
+            if (Context == null || DesignMode || _haveLoginInfo)
             {
-                _haveLoginInfo = true;
-                if (_serviceAccount != ServiceAccount.User)
-                {
-                    return;
-                }
-                if (Context.Parameters.ContainsKey("username"))
-                {
-                    _username = Context.Parameters["username"];
-                }
-                if (Context.Parameters.ContainsKey("password"))
-                {
-                    _password = Context.Parameters["password"];
-                }
-                if (!string.IsNullOrEmpty(_username) && _password != null)
-                {
-                    return;
-                }
-                if (!Context.Parameters.ContainsKey("unattended"))
-                {
-                    throw new PlatformNotSupportedException();
-                }
-                throw new InvalidOperationException(Res.GetString(Res.UnattendedCannotPrompt, Context.Parameters["assemblypath"] ?? string.Empty));
+                return;
             }
+
+            _haveLoginInfo = true;
+            if (_serviceAccount != ServiceAccount.User)
+            {
+                return;
+            }
+            if (Context.Parameters.ContainsKey("username"))
+            {
+                _username = Context.Parameters["username"];
+            }
+            if (Context.Parameters.ContainsKey("password"))
+            {
+                _password = Context.Parameters["password"];
+            }
+            if (!string.IsNullOrEmpty(_username) && _password != null)
+            {
+                return;
+            }
+            if (!Context.Parameters.ContainsKey("unattended"))
+            {
+                throw new PlatformNotSupportedException();
+            }
+            throw new InvalidOperationException(Res.GetString(Res.UnattendedCannotPrompt, Context.Parameters["assemblypath"] ?? string.Empty));
         }
     }
 }

@@ -44,6 +44,8 @@ namespace Topshelf.Configuration.HostConfigurators
         /// <param name="configurator"> </param>
         void AddConfigurator(IHostBuilderConfigurator configurator);
 
+        void AddServiceArgument(string name, string value);
+
         /// <summary>
         /// Parses the command line options and applies them to the host configurator
         /// </summary>
@@ -88,6 +90,8 @@ namespace Topshelf.Configuration.HostConfigurators
         /// </summary>
         /// <param name="callback">The action to run when an exception occurs.</param>
         void OnException(Action<Exception> callback);
+
+        void SetCanStop(bool canStop);
 
         /// <summary>
         ///   Specifies the description of the service that is displayed in the service control manager

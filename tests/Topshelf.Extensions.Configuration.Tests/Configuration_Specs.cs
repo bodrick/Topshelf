@@ -469,6 +469,10 @@ namespace Topshelf.Extensions.Configuration.Tests
 
             public void AddCommandLineSwitch(string name, Action<bool> callback) => throw new NotImplementedException();
 
+            public void AddServiceArgument(string name, string value) => throw new NotImplementedException();
+
+            public void SetCanStop(bool canStop) => throw new NotImplementedException();
+
             public void AddConfigurator(IHostBuilderConfigurator configurator) => Configuratior = configurator;
 
             public void ApplyCommandLine() => throw new NotImplementedException();

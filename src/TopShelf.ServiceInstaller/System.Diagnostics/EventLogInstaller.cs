@@ -110,16 +110,16 @@ namespace System.Diagnostics
         {
             if (component is not EventLog eventLog)
             {
-                throw new ArgumentException(Res.GetString(Res.NotAnEventLog));
+                throw new ArgumentException(Res.GetString(Res.NotAnEventLog), nameof(component));
             }
 
-            if (!string.IsNullOrEmpty(eventLog.Log) && !string.IsNullOrEmpty(eventLog.Source))
+            if (string.IsNullOrEmpty(eventLog.Log) || string.IsNullOrEmpty(eventLog.Source))
             {
-                Log = eventLog.Log;
-                Source = eventLog.Source;
-                return;
+                throw new ArgumentException(Res.GetString(Res.IncompleteEventLog), nameof(component));
             }
-            throw new ArgumentException(Res.GetString(Res.IncompleteEventLog));
+
+            Log = eventLog.Log;
+            Source = eventLog.Source;
         }
 
         /// <summary>Performs the installation and writes event log information to the registry.</summary>
@@ -138,7 +138,7 @@ namespace System.Diagnostics
             stateSaver["logExists"] = EventLog.Exists(Log, ".");
             var alreadyRegistered = EventLog.SourceExists(Source, ".");
             stateSaver["alreadyRegistered"] = alreadyRegistered;
-            if (alreadyRegistered && EventLog.LogNameFromSourceName(Source, ".") == Log)
+            if (alreadyRegistered && string.Equals(EventLog.LogNameFromSourceName(Source, "."), Log, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
@@ -148,13 +148,45 @@ namespace System.Diagnostics
         /// <summary>Determines whether an installer and another specified installer refer to the same source.</summary>
         /// <returns>true if this installer and the installer specified by the <paramref name="otherInstaller" /> parameter would install or uninstall the same source; otherwise, false.</returns>
         /// <param name="otherInstaller">The installer to compare. </param>
-        public override bool IsEquivalentInstaller(ComponentInstaller otherInstaller)
+        public override bool IsEquivalentInstaller(ComponentInstaller otherInstaller) =>
+            otherInstaller is EventLogInstaller eventLogInstaller && string.Equals(eventLogInstaller.Source, Source, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>Removes an installation by removing event log information from the registry.</summary>
+        /// <param name="savedState">An <see cref="IDictionary" /> that contains the pre-installation state of the computer. </param>
+        public override void Uninstall(IDictionary? savedState)
         {
-            if (otherInstaller is not EventLogInstaller eventLogInstaller)
+            base.Uninstall(savedState);
+            if (UninstallAction != UninstallAction.Remove)
             {
-                return false;
+                return;
             }
-            return eventLogInstaller.Source == Source;
+
+            Context?.LogMessage(Res.GetString(Res.RemovingEventLog, Source));
+            if (EventLog.SourceExists(Source, "."))
+            {
+                if (!string.Equals(Log, Source, StringComparison.OrdinalIgnoreCase))
+                {
+                    EventLog.DeleteEventSource(Source, ".");
+                }
+            }
+            else
+            {
+                Context?.LogMessage(Res.GetString(Res.LocalSourceNotRegisteredWarning, Source));
+            }
+
+            using var key = Registry.LocalMachine.OpenSubKey("SYSTEM\\CurrentControlSet\\Services\\EventLog", false);
+            using var logKey = key?.OpenSubKey(Log, false);
+            if (logKey == null)
+            {
+                return;
+            }
+
+            var keyNames = logKey.GetSubKeyNames();
+            if (keyNames.Length == 0 || (keyNames.Length == 1 && string.Equals(keyNames[0], Log, StringComparison.OrdinalIgnoreCase)))
+            {
+                Context?.LogMessage(Res.GetString(Res.DeletingEventLog, Log));
+                EventLog.Delete(Log, ".");
+            }
         }
 
         /// <summary>Restores the computer to the state it was in before the installation by rolling back the event log information that the installation procedure wrote to the registry.</summary>
@@ -163,77 +195,33 @@ namespace System.Diagnostics
         {
             base.Rollback(savedState);
             Context?.LogMessage(Res.GetString(Res.RestoringEventLog, Source));
-            if (savedState["baseInstalledAndPlatformOK"] != null)
+            if (savedState["baseInstalledAndPlatformOK"] == null)
             {
-                var logExists = (bool)(savedState["logExists"] ?? false);
-                if (!logExists)
-                {
-                    EventLog.Delete(Log, ".");
-                }
-                else
-                {
-                    bool alreadyRegistered;
-                    var alreadyRegisteredObj = savedState["alreadyRegistered"];
-                    if (alreadyRegisteredObj == null)
-                    {
-                        alreadyRegistered = false;
-                    }
-                    else
-                    {
-                        alreadyRegistered = (bool)alreadyRegisteredObj;
-                    }
-
-                    if (!alreadyRegistered && EventLog.SourceExists(Source, "."))
-                    {
-                        // delete the source we installed, assuming it succeeded. Then put back whatever used to be there.
-                        EventLog.DeleteEventSource(Source, ".");
-                    }
-                }
+                return;
             }
-        }
 
-        /// <summary>Removes an installation by removing event log information from the registry.</summary>
-        /// <param name="savedState">An <see cref="IDictionary" /> that contains the pre-installation state of the computer. </param>
-        public override void Uninstall(IDictionary? savedState)
-        {
-            base.Uninstall(savedState);
-            if (UninstallAction == UninstallAction.Remove)
+            var logExists = (bool)(savedState["logExists"] ?? false);
+            if (!logExists)
             {
-                Context?.LogMessage(Res.GetString(Res.RemovingEventLog, Source));
-                if (EventLog.SourceExists(Source, "."))
+                EventLog.Delete(Log, ".");
+            }
+            else
+            {
+                bool alreadyRegistered;
+                var alreadyRegisteredObj = savedState["alreadyRegistered"];
+                if (alreadyRegisteredObj == null)
                 {
-                    if (!string.Equals(Log, Source, StringComparison.OrdinalIgnoreCase))
-                    {
-                        EventLog.DeleteEventSource(Source, ".");
-                    }
+                    alreadyRegistered = false;
                 }
                 else
                 {
-                    Context?.LogMessage(Res.GetString(Res.LocalSourceNotRegisteredWarning, Source));
+                    alreadyRegistered = (bool)alreadyRegisteredObj;
                 }
-                var key = Registry.LocalMachine;
-                RegistryKey? logKey = null;
-                try
+
+                if (!alreadyRegistered && EventLog.SourceExists(Source, "."))
                 {
-                    key = key.OpenSubKey("SYSTEM\\CurrentControlSet\\Services\\EventLog", false);
-                    if (key != null)
-                    {
-                        logKey = key.OpenSubKey(Log, false);
-                    }
-                    if (logKey != null)
-                    {
-                        var keyNames = logKey.GetSubKeyNames();
-                        if (keyNames.Length == 0 || (keyNames.Length == 1 && string.Equals(keyNames[0], Log, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            Context?.LogMessage(Res.GetString(Res.DeletingEventLog, Log));
-                            EventLog.Delete(Log, ".");
-                        }
-                    }
-                }
-                finally
-                {
-                    key?.Close();
-                    logKey?.Close();
+                    // delete the source we installed, assuming it succeeded. Then put back whatever used to be there.
+                    EventLog.DeleteEventSource(Source, ".");
                 }
             }
         }

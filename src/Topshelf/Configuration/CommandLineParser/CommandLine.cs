@@ -32,19 +32,19 @@ namespace Topshelf.Configuration.CommandLineParser
 
             var applicationPath = Environment.GetCommandLineArgs()[0];
 
-            if (line == applicationPath)
+            if (string.Equals(line, applicationPath, StringComparison.OrdinalIgnoreCase))
             {
                 return string.Empty;
             }
 
-            if (line[..applicationPath.Length] == applicationPath)
+            if (string.Equals(line[..applicationPath.Length], applicationPath, StringComparison.OrdinalIgnoreCase))
             {
                 return line[applicationPath.Length..];
             }
 
             var quotedApplicationPath = "\"" + applicationPath + "\"";
 
-            if (line[..quotedApplicationPath.Length] == quotedApplicationPath)
+            if (string.Equals(line[..quotedApplicationPath.Length], quotedApplicationPath, StringComparison.OrdinalIgnoreCase))
             {
                 return line[quotedApplicationPath.Length..];
             }

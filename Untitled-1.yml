@@ -1,0 +1,39 @@
+dotnet test --collect:"XPlat Code Coverage"
+dotnet new -i NUnit3.DotNetNew.Template
+dotnet new nunit
+dotnet new tool-manifest
+dotnet tool install dotnet-reportgenerator-globaltool
+reportgenerator -reports:OpenCover.xml -targetdir:coveragereport -reporttypes:Html
+dotnet reportgenerator
+dotnet test --collect:"XPlat Code Coverage" --results-directory coveragereport
+dotnet reportgenerator -reports:coveragereport\*\*.xml -targetdir:report -reporttypes:Html
+dotnet test --collect:"XPlat Code Coverage"
+dotnet test --collect:"XPlat Code Coverage" --DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=json,cobertura,lcov,teamcity,opencover
+dotnet reportgenerator
+dotnet test /p:CollectCoverage=true /p:CoverletOutput='./results/'
+dotnet test --collect "XPlat Code Coverage" --settings .\tests\coverlet.runsettings -c Release /p:CodeCov=true
+dotnet test /p:CollectCoverage=true  /p:CoverletOutput=../CoverageResults/ /p:MergeWith="../CoverageResults/coverage.json" /p:CoverletOutputFormat=\"opencover,json\" -m:1
+dotnet test /p:CollectCoverage=true  /p:CoverletOutput=../CoverageResults/ /p:MergeWith="../CoverageResults/coverage.json" /p:CoverletOutputFormat="opencover,json" -m:1
+dotnet test /p:CollectCoverage=true  /p:CoverletOutput=../CoverageResults/
+dotnet test /p:CollectCoverage=true
+dotnet test --configuration Release --logger:trx /p:CollectCoverage=true /p:CoverletOutputFormat="json%2clcov"
+dotnet test /p:CollectCoverage=true
+dotnet tool install -g dotnet-reportgenerator-globaltool
+dotnet test /p:CollectCoverage=true
+dotnet test --collect:"XPlat Code Coverage"
+dotnet test --collect:"XPlat Code Coverage"
+dotnet test
+dotnet test
+dotnet test -s .\tests\.runsettings
+dotnet test --settings coverage.runsettings
+dotnet test --collect:"XPlat Code Coverage" /p:DeterministicSourcePaths=true
+dotnet test /p:CollectCoverage=true /p:CopyLocalLockFileAssemblies=true
+dotnet tool install dotnet-reportgenerator-globaltool
+dotnet reportgenerator
+dotnet test
+dotnet test /p:CollectCoverage=true  /p:CoverletOutput=../CoverageResults/ /p:MergeWith="../CoverageResults/coverage.json" /p:CoverletOutputFormat=\"opencover,json\" -m:1
+dotnet test /p:CollectCoverage=true  /p:CoverletOutput=../CoverageResults/
+dotnet test /p:CollectCoverage=true  /p:CoverletOutput=../CoverageResults/ /p:MergeWith="../CoverageResults/coverage.json" -m:1
+dotnet test /p:CollectCoverage=true  /p:CoverletOutput=../CoverageResults/ /p:MergeWith="../CoverageResults/coverage.json" -m:1dotnet test /p:CollectCoverage=true /p:CoverletOutput='./results/'
+dotnet test /p:CollectCoverage=true /p:CoverletOutput='./results/'
+

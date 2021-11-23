@@ -36,6 +36,17 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- 
+      Workaround for changing severity of rules with Location.None - e.g. CA1014
+        - see https://github.com/dotnet/roslyn/issues/37876#issuecomment-738042719
+      Needed until those types of rules can be disabled in a Global Analyzer Config 
+        - when https://github.com/dotnet/roslyn/issues/48634 is implemented.
+      # CA1014: Mark assemblies with CLSCompliantAttribute
+    -->
+    <NoWarn>$(NoWarn);CA1014</NoWarn>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <Deterministic>true</Deterministic>
@@ -52,14 +63,49 @@
     <SourceRoot Include="$(MSBuildThisFileDirectory)/" />
   </ItemGroup>
 
+<ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Meziantou.Analyzer" Version="1.0.678">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.0.64">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Roslynator.Analyzers" Version="3.2.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Roslynator.CodeAnalysis.Analyzers" Version="1.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="1.2.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="IDisposableAnalyzers" Version="4.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="AsyncFixer" Version="1.5.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.32.0.39516">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
   <ItemGroup>
     <SourceLinkAzureDevOpsServerGitHost Include="lat-devops.tlt.psu.edu" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
-    <PackageReference Include="Microsoft.SourceLink.AzureDevOpsServer.Git" Version="1.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.0.63">
+    <PackageReference Include="Microsoft.SourceLink.AzureDevOpsServer.Git" Version="1.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

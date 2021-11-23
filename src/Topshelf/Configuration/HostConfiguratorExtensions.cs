@@ -29,7 +29,7 @@ namespace Topshelf.Configuration
                     .FirstOrDefault();
 
             public static string ToServiceNameSafeString(this string input) =>
-                CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input).Replace(" ", string.Empty);
+                CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input).Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase);
 
             public static TReturn TryGetProperty<TInput, TReturn>(this TInput attribute, Func<TInput, TReturn> accessor)
                 where TInput : Attribute => accessor(attribute);

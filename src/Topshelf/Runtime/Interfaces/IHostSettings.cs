@@ -11,6 +11,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 using System;
+using System.Collections.Specialized;
 
 namespace Topshelf.Runtime
 {
@@ -44,6 +45,8 @@ namespace Topshelf.Runtime
         /// </summary>
         bool CanShutdown { get; }
 
+        bool CanStop { get; }
+
         /// <summary>
         ///   The description of the service that is displayed in the service control manager
         /// </summary>
@@ -69,6 +72,8 @@ namespace Topshelf.Runtime
         ///   The name of the service
         /// </summary>
         string Name { get; }
+
+        NameValueCollection ServiceArguments { get; }
 
         /// <summary>
         ///   Returns the Windows service name, including the instance name, which is registered with the SCM Example: myservice$bob

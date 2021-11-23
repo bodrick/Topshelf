@@ -24,7 +24,7 @@ namespace System.Configuration.Install
         {
             if (item == _owner)
             {
-                throw new ArgumentException(Res.GetString(Res.CantAddSelf));
+                throw new ArgumentException(Res.GetString(Res.CantAddSelf), nameof(item));
             }
 
             item.Parent = _owner;
@@ -41,7 +41,7 @@ namespace System.Configuration.Install
         {
             if (item == _owner)
             {
-                throw new ArgumentException(Res.GetString(Res.CantAddSelf));
+                throw new ArgumentException(Res.GetString(Res.CantAddSelf), nameof(item));
             }
 
             this[index].Parent = null;

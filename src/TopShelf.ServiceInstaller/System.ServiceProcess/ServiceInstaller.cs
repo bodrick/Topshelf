@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Configuration.Install;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -17,6 +18,7 @@ namespace System.ServiceProcess
         private static bool _environmentChecked;
         private static bool _isWin9X;
         private readonly EventLogInstaller _eventLogInstaller;
+        private bool _disposed;
         private string _serviceName = string.Empty;
         private ServiceStartMode _startType = ServiceStartMode.Manual;
 
@@ -68,7 +70,7 @@ namespace System.ServiceProcess
             {
                 if (!ValidateServiceName(value))
                 {
-                    throw new ArgumentException(Res.GetString(Res.ServiceName, value, ServiceBase.MaxNameLength.ToString(CultureInfo.CurrentCulture)));
+                    throw new ArgumentException(Res.GetString(Res.ServiceName, value, ServiceBase.MaxNameLength.ToString(CultureInfo.CurrentCulture)), nameof(value));
                 }
                 _serviceName = value;
                 _eventLogInstaller.Source = value;
@@ -96,14 +98,14 @@ namespace System.ServiceProcess
             {
                 if (!Enum.IsDefined(typeof(ServiceStartMode), value))
                 {
-                    throw new InvalidEnumArgumentException("value", (int)value, typeof(ServiceStartMode));
+                    throw new InvalidEnumArgumentException(nameof(value), (int)value, typeof(ServiceStartMode));
                 }
                 if (value is not 0 and not ServiceStartMode.System)
                 {
                     _startType = value;
                     return;
                 }
-                throw new ArgumentException(Res.GetString(Res.ServiceStartType, value));
+                throw new ArgumentException(Res.GetString(Res.ServiceStartType, value), nameof(value));
             }
         }
 
@@ -114,7 +116,7 @@ namespace System.ServiceProcess
         {
             if (component is not ServiceBase serviceBase)
             {
-                throw new ArgumentException(Res.GetString(Res.NotAService));
+                throw new ArgumentException(Res.GetString(Res.NotAService), nameof(component));
             }
 
             ServiceName = serviceBase.ServiceName;
@@ -189,7 +191,7 @@ namespace System.ServiceProcess
                 // foo is simply the path to the executable.
                 // Therefore, it is best to quote if there are no quotes,
                 // and best to not quote if there are quotes.
-                if (!moduleFileName.Contains('"'))
+                if (!moduleFileName.Contains('"', StringComparison.OrdinalIgnoreCase))
                 {
                     moduleFileName = "\"" + moduleFileName + "\"";
                 }
@@ -314,31 +316,8 @@ namespace System.ServiceProcess
         /// <summary>Indicates whether two installers would install the same service.</summary>
         /// <returns>true if calling <see cref="Install(IDictionary)" /> on both of these installers would result in installing the same service; otherwise, false.</returns>
         /// <param name="otherInstaller">A <see cref="ComponentInstaller" /> to which you are comparing the current installer. </param>
-        public override bool IsEquivalentInstaller(ComponentInstaller otherInstaller)
-        {
-            if (otherInstaller is not ServiceInstaller serviceInstaller)
-            {
-                return false;
-            }
-            return serviceInstaller.ServiceName == ServiceName;
-        }
-
-        /// <summary>Rolls back service application information written to the registry by the installation procedure. This method is meant to be used by installation tools, which process the appropriate methods automatically.</summary>
-        /// <param name="savedState">An <see cref="IDictionary" /> that contains the context information associated with the installation. </param>
-        /// <PermissionSet>
-        ///   <IPermission class="System.Security.Permissions.FileIOPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Unrestricted="true" />
-        ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode" />
-        ///   <IPermission class="System.ServiceProcess.ServiceControllerPermission, System.ServiceProcess, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" version="1" Unrestricted="true" />
-        /// </PermissionSet>
-        protected override void Rollback(IDictionary savedState)
-        {
-            base.Rollback(savedState);
-            var obj = savedState["installed"];
-            if (obj != null && (bool)obj)
-            {
-                RemoveService();
-            }
-        }
+        public override bool IsEquivalentInstaller(ComponentInstaller otherInstaller) =>
+            otherInstaller is ServiceInstaller serviceInstaller && string.Equals(serviceInstaller.ServiceName, ServiceName, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>Uninstalls the service by removing information about it from the registry.</summary>
         /// <param name="savedState">An <see cref="IDictionary" /> that contains the context information associated with the installation. </param>
@@ -373,20 +352,55 @@ namespace System.ServiceProcess
             throw new PlatformNotSupportedException(Res.GetString(Res.CantInstallOnWin9x));
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+            if (disposing)
+            {
+                _eventLogInstaller.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }
+
+        /// <summary>Rolls back service application information written to the registry by the installation procedure. This method is meant to be used by installation tools, which process the appropriate methods automatically.</summary>
+        /// <param name="savedState">An <see cref="IDictionary" /> that contains the context information associated with the installation. </param>
+        /// <PermissionSet>
+        ///   <IPermission class="System.Security.Permissions.FileIOPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Unrestricted="true" />
+        ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="UnmanagedCode" />
+        ///   <IPermission class="System.ServiceProcess.ServiceControllerPermission, System.ServiceProcess, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" version="1" Unrestricted="true" />
+        /// </PermissionSet>
+        protected override void Rollback(IDictionary savedState)
+        {
+            base.Rollback(savedState);
+            var obj = savedState["installed"];
+            if (obj != null && (bool)obj)
+            {
+                RemoveService();
+            }
+        }
+
+        protected virtual void ThrowIfDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
+        }
+
         private static bool ValidateServiceName(string name)
         {
-            if (!string.IsNullOrEmpty(name) && name.Length <= 80)
+            if (string.IsNullOrEmpty(name) || name.Length > 80)
             {
-                foreach (var t in name)
-                {
-                    if (t is < ' ' or '/' or '\\')
-                    {
-                        return false;
-                    }
-                }
-                return true;
+                return false;
             }
-            return false;
+
+            return name.All(t => t is not (< ' ' or '/' or '\\'));
         }
 
         private void RemoveService()

@@ -11,6 +11,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
+using System.Globalization;
 using Topshelf.Configuration.CommandLineParser;
 using Topshelf.Configuration.Options;
 
@@ -21,7 +22,7 @@ namespace Topshelf.Configuration.HostConfigurators
         internal static void AddTopshelfOptions(ICommandLineElementParser<IOption> x) =>
             x.Add((from arg in x.Argument("command")
                    from cmd in x.Argument()
-                   where int.TryParse(cmd.Id, out _)
+                   where int.TryParse(cmd.Id, NumberStyles.Any, CultureInfo.InvariantCulture, out _)
                    select (IOption)new CommandOption(cmd.Id))
                 .Or(x.Argument("help").Select(_ => (IOption)new HelpOption()))
                 .Or(x.Argument("run").Select(_ => (IOption)new RunOption()))
@@ -47,6 +48,7 @@ namespace Topshelf.Configuration.HostConfigurators
                 .Or(x.Switch("localsystem").Select(_ => (IOption)new LocalSystemOption()))
                 .Or(x.Switch("localservice").Select(_ => (IOption)new LocalServiceOption()))
                 .Or(x.Switch("networkservice").Select(_ => (IOption)new NetworkServiceOption()))
+                .Or(from serviceArg in x.Definition("arg") select (IOption)new ServiceArgOption(serviceArg.Value))
             );
 
         internal static void AddUnknownOptions(ICommandLineElementParser<IOption> x) =>

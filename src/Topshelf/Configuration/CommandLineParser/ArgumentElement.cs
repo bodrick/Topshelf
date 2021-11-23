@@ -48,7 +48,7 @@ namespace Topshelf.Configuration.CommandLineParser
             return obj is ArgumentElement argumentElement && Equals(argumentElement);
         }
 
-        public override int GetHashCode() => Id.GetHashCode();
+        public override int GetHashCode() => Id.GetHashCode(StringComparison.OrdinalIgnoreCase);
 
         public override string ToString() => "ARGUMENT: " + Id;
     }

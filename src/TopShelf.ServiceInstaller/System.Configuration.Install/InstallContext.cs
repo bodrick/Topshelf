@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
@@ -11,7 +12,7 @@ namespace System.Configuration.Install
         {
         }
 
-        public InstallContext(string? logFilePath, string[]? commandLine)
+        public InstallContext(string? logFilePath, IList<string>? commandLine)
         {
             Parameters = ParseCommandLine(commandLine);
             if (Parameters["logfile"] == null && logFilePath != null)
@@ -67,6 +68,36 @@ namespace System.Configuration.Install
             Console.WriteLine(message);
         }
 
+        private static StringDictionary ParseCommandLine(IList<string>? args)
+        {
+            var options = new StringDictionary();
+            if (args == null)
+            {
+                return options;
+            }
+
+            for (var i = 0; i < args.Count; i++)
+            {
+                if (args[i].StartsWith("/", StringComparison.OrdinalIgnoreCase) ||
+                    args[i].StartsWith("-", StringComparison.OrdinalIgnoreCase))
+                {
+                    args[i] = args[i][1..];
+                }
+
+                var equalsPos = args[i].IndexOf('=', StringComparison.OrdinalIgnoreCase);
+                if (equalsPos < 0)
+                {
+                    options[args[i].ToLower(CultureInfo.InvariantCulture)] = string.Empty;
+                }
+                else
+                {
+                    options[args[i][..equalsPos].ToLower(CultureInfo.InvariantCulture)] = args[i][(equalsPos + 1)..];
+                }
+            }
+
+            return options;
+        }
+
         private void LogMessageHelper(string? message)
         {
             StreamWriter? log = null;
@@ -82,37 +113,8 @@ namespace System.Configuration.Install
             finally
             {
                 log?.Close();
+                log?.Dispose();
             }
-        }
-
-        private static StringDictionary ParseCommandLine(string[]? args)
-        {
-            var options = new StringDictionary();
-            if (args == null)
-            {
-                return options;
-            }
-
-            for (var i = 0; i < args.Length; i++)
-            {
-                if (args[i].StartsWith("/", StringComparison.OrdinalIgnoreCase) ||
-                    args[i].StartsWith("-", StringComparison.OrdinalIgnoreCase))
-                {
-                    args[i] = args[i][1..];
-                }
-
-                var equalsPos = args[i].IndexOf('=');
-                if (equalsPos < 0)
-                {
-                    options[args[i].ToLower(CultureInfo.InvariantCulture)] = string.Empty;
-                }
-                else
-                {
-                    options[args[i][..equalsPos].ToLower(CultureInfo.InvariantCulture)] = args[i][(equalsPos + 1)..];
-                }
-            }
-
-            return options;
         }
     }
 }

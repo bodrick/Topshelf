@@ -46,10 +46,10 @@ namespace Topshelf.Configuration.CommandLineParser
             GetAnyElement().Where(c => c is DefinitionElement).Select(c => (IDefinitionElement)c);
 
         public Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Definition(string key) =>
-            Definition().Where(def => def.Key == key);
+            Definition().Where(def => string.Equals(def.Key, key, StringComparison.OrdinalIgnoreCase));
 
         public Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Definitions(params string[] keys) =>
-            Definition().Where(def => keys.Contains(def.Key));
+            Definition().Where(def => keys.Contains(def.Key, StringComparer.OrdinalIgnoreCase));
 
         public IEnumerable<TResult> Parse(IEnumerable<ICommandLineElement> elements)
         {
@@ -68,7 +68,7 @@ namespace Topshelf.Configuration.CommandLineParser
             Switch().Where(sw => string.Equals(sw.Key, key, StringComparison.OrdinalIgnoreCase));
 
         public Parser<IEnumerable<ICommandLineElement>, ISwitchElement> Switches(params string[] keys) =>
-            Switch().Where(sw => keys.Contains(sw.Key));
+            Switch().Where(sw => keys.Contains(sw.Key, StringComparer.OrdinalIgnoreCase));
 
         public Parser<IEnumerable<ICommandLineElement>, IArgumentElement> ValidPath() =>
             GetAnyElement().Where(c => c is ArgumentElement element && IsValidPath(element.Id)).Select(c => (IArgumentElement)c);

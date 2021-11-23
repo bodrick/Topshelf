@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Text;
 
 namespace System.Configuration.Install
@@ -76,25 +77,6 @@ namespace System.Configuration.Install
 
         public InstallContext? Context { get; set; }
 
-        [ResDescription("Desc_Installer_HelpText")]
-        protected virtual string HelpText
-        {
-            get
-            {
-                var stringBuilder = new StringBuilder();
-                foreach (var t in Installers)
-                {
-                    var helpText = t.HelpText;
-                    if (helpText.Length > 0)
-                    {
-                        stringBuilder.Append("\r\n")
-                            .Append(helpText);
-                    }
-                }
-                return stringBuilder.ToString();
-            }
-        }
-
         public InstallerCollection Installers => _installers ??= new InstallerCollection(this);
 
         [TypeConverter(typeof(InstallerParentConverter))]
@@ -137,81 +119,21 @@ namespace System.Configuration.Install
             }
         }
 
-        protected void Commit(IDictionary savedState)
+        [ResDescription("Desc_Installer_HelpText")]
+        protected virtual string HelpText
         {
-            if (savedState == null)
+            get
             {
-                throw new ArgumentException(Res.GetString(Res.InstallNullParameter, "savedState"));
+                var stringBuilder = new StringBuilder();
+                foreach (var helpText in Installers.Select(f => f.HelpText))
+                {
+                    if (helpText.Length > 0)
+                    {
+                        stringBuilder.Append("\r\n").Append(helpText);
+                    }
+                }
+                return stringBuilder.ToString();
             }
-
-            if (savedState["_reserved_lastInstallerAttempted"] != null && savedState["_reserved_nestedSavedStates"] != null)
-            {
-                Exception? savedException = null;
-                try
-                {
-                    OnCommitting(savedState);
-                }
-                catch (Exception e)
-                {
-                    WriteEventHandlerError(Res.GetString(Res.InstallSeverityWarning), "OnCommitting", e);
-                    Context?.LogMessage(Res.GetString(Res.InstallCommitException));
-                    savedException = e;
-                }
-
-                var lastInstallerAttempted = (int)(savedState["_reserved_lastInstallerAttempted"] ?? 0);
-                if (savedState["_reserved_nestedSavedStates"] is IDictionary[] array && lastInstallerAttempted + 1 == array.Length && lastInstallerAttempted < Installers.Count)
-                {
-                    foreach (var installer in Installers)
-                    {
-                        installer.Context = Context;
-                    }
-
-                    for (var j = 0; j <= lastInstallerAttempted; j++)
-                    {
-                        try
-                        {
-                            Installers[j].Commit(array[j]);
-                        }
-                        catch (Exception e)
-                        {
-                            if (!IsWrappedException(e))
-                            {
-                                Context?.LogMessage(Res.GetString(Res.InstallLogCommitException, Installers[j].ToString()));
-                                LogException(e, Context);
-                                Context?.LogMessage(Res.GetString(Res.InstallCommitException));
-                            }
-                            savedException = e;
-                        }
-                    }
-                    savedState["_reserved_nestedSavedStates"] = array;
-                    savedState.Remove("_reserved_lastInstallerAttempted");
-                    try
-                    {
-                        OnCommitted(savedState);
-                    }
-                    catch (Exception e)
-                    {
-                        WriteEventHandlerError(Res.GetString(Res.InstallSeverityWarning), "OnCommitted", e);
-                        Context?.LogMessage(Res.GetString(Res.InstallCommitException));
-                        savedException = e;
-                    }
-                    if (savedException == null)
-                    {
-                        return;
-                    }
-                    var wrappedException = savedException;
-                    if (!IsWrappedException(savedException))
-                    {
-                        wrappedException = new InstallException(Res.GetString(Res.InstallCommitException), savedException)
-                        {
-                            Source = WrappedExceptionSource
-                        };
-                    }
-                    throw wrappedException;
-                }
-                throw new ArgumentException(Res.GetString(Res.InstallDictionaryCorrupted, "savedState"));
-            }
-            throw new ArgumentException(Res.GetString(Res.InstallDictionaryMissingValues, "savedState"));
         }
 
         public virtual void Install(IDictionary stateSaver)
@@ -275,78 +197,6 @@ namespace System.Configuration.Install
             }
         }
 
-        protected virtual void Rollback(IDictionary savedState)
-        {
-            if (savedState == null)
-            {
-                throw new ArgumentException(Res.GetString(Res.InstallNullParameter, "savedState"));
-            }
-            if (savedState["_reserved_lastInstallerAttempted"] != null && savedState["_reserved_nestedSavedStates"] != null)
-            {
-                Exception? savedException = null;
-                try
-                {
-                    OnBeforeRollback(savedState);
-                }
-                catch (Exception e)
-                {
-                    WriteEventHandlerError(Res.GetString(Res.InstallSeverityWarning), "OnBeforeRollback", e);
-                    Context?.LogMessage(Res.GetString(Res.InstallRollbackException));
-                    savedException = e;
-                }
-                var lastInstallerAttempted = (int)(savedState["_reserved_lastInstallerAttempted"] ?? 0);
-                if (savedState["_reserved_nestedSavedStates"] is IDictionary[] nestedSavedStates && lastInstallerAttempted + 1 == nestedSavedStates.Length && lastInstallerAttempted < Installers.Count)
-                {
-                    for (var i = Installers.Count - 1; i >= 0; i--)
-                    {
-                        Installers[i].Context = Context;
-                    }
-                    for (var i = lastInstallerAttempted; i >= 0; i--)
-                    {
-                        try
-                        {
-                            Installers[i].Rollback(nestedSavedStates[i]);
-                        }
-                        catch (Exception e)
-                        {
-                            if (!IsWrappedException(e))
-                            {
-                                Context?.LogMessage(Res.GetString(Res.InstallLogRollbackException, Installers[i].ToString()));
-                                LogException(e, Context);
-                                Context?.LogMessage(Res.GetString(Res.InstallRollbackException));
-                            }
-                            savedException = e;
-                        }
-                    }
-                    try
-                    {
-                        OnAfterRollback(savedState);
-                    }
-                    catch (Exception e)
-                    {
-                        WriteEventHandlerError(Res.GetString(Res.InstallSeverityWarning), "OnAfterRollback", e);
-                        Context?.LogMessage(Res.GetString(Res.InstallRollbackException));
-                        savedException = e;
-                    }
-                    if (savedException == null)
-                    {
-                        return;
-                    }
-                    var wrappedException = savedException;
-                    if (!IsWrappedException(savedException))
-                    {
-                        wrappedException = new InstallException(Res.GetString(Res.InstallRollbackException), savedException)
-                        {
-                            Source = WrappedExceptionSource
-                        };
-                    }
-                    throw wrappedException;
-                }
-                throw new ArgumentException(Res.GetString(Res.InstallDictionaryCorrupted, "savedState"));
-            }
-            throw new ArgumentException(Res.GetString(Res.InstallDictionaryMissingValues, "savedState"));
-        }
-
         public virtual void Uninstall(IDictionary? savedState)
         {
             Exception? savedException = null;
@@ -372,7 +222,7 @@ namespace System.Configuration.Install
                 nestedSavedStates = savedState["_reserved_nestedSavedStates"] as IDictionary[];
                 if (nestedSavedStates == null || nestedSavedStates.Length != Installers.Count)
                 {
-                    throw new ArgumentException(Res.GetString(Res.InstallDictionaryCorrupted, "savedState"));
+                    throw new ArgumentException(Res.GetString(Res.InstallDictionaryCorrupted, "savedState"), nameof(savedState));
                 }
             }
             else
@@ -417,18 +267,20 @@ namespace System.Configuration.Install
                 savedException = e;
             }
 
-            if (savedException != null)
+            if (savedException == null)
             {
-                var wrappedException = savedException;
-                if (!IsWrappedException(savedException))
-                {
-                    wrappedException = new InstallException(Res.GetString(Res.InstallUninstallException), savedException)
-                    {
-                        Source = WrappedExceptionSource
-                    };
-                }
-                throw wrappedException;
+                return;
             }
+
+            var wrappedException = savedException;
+            if (!IsWrappedException(savedException))
+            {
+                wrappedException = new InstallException(Res.GetString(Res.InstallUninstallException), savedException)
+                {
+                    Source = WrappedExceptionSource
+                };
+            }
+            throw wrappedException;
         }
 
         internal static void LogException(Exception e, InstallContext? context)
@@ -458,22 +310,167 @@ namespace System.Configuration.Install
             }
         }
 
-        private bool InstallerTreeContains(Installer target)
+        protected void Commit(IDictionary savedState)
         {
-            if (Installers.Contains(target))
+            if (savedState == null)
             {
-                return true;
+                throw new ArgumentException(Res.GetString(Res.InstallNullParameter, "savedState"), nameof(savedState));
+            }
+
+            if (savedState["_reserved_lastInstallerAttempted"] == null || savedState["_reserved_nestedSavedStates"] == null)
+            {
+                throw new ArgumentException(Res.GetString(Res.InstallDictionaryMissingValues, "savedState"), nameof(savedState));
+            }
+
+            Exception? savedException = null;
+            try
+            {
+                OnCommitting(savedState);
+            }
+            catch (Exception e)
+            {
+                WriteEventHandlerError(Res.GetString(Res.InstallSeverityWarning), "OnCommitting", e);
+                Context?.LogMessage(Res.GetString(Res.InstallCommitException));
+                savedException = e;
+            }
+
+            var lastInstallerAttempted = (int)(savedState["_reserved_lastInstallerAttempted"] ?? 0);
+            if (savedState["_reserved_nestedSavedStates"] is not IDictionary[] array || lastInstallerAttempted + 1 != array.Length ||
+                lastInstallerAttempted >= Installers.Count)
+            {
+                throw new ArgumentException(Res.GetString(Res.InstallDictionaryCorrupted, "savedState"), nameof(savedState));
             }
 
             foreach (var installer in Installers)
             {
-                if (installer.InstallerTreeContains(target))
+                installer.Context = Context;
+            }
+
+            for (var j = 0; j <= lastInstallerAttempted; j++)
+            {
+                try
                 {
-                    return true;
+                    Installers[j].Commit(array[j]);
+                }
+                catch (Exception e)
+                {
+                    if (!IsWrappedException(e))
+                    {
+                        Context?.LogMessage(Res.GetString(Res.InstallLogCommitException, Installers[j].ToString()));
+                        LogException(e, Context);
+                        Context?.LogMessage(Res.GetString(Res.InstallCommitException));
+                    }
+                    savedException = e;
                 }
             }
-            return false;
+            savedState["_reserved_nestedSavedStates"] = array;
+            savedState.Remove("_reserved_lastInstallerAttempted");
+            try
+            {
+                OnCommitted(savedState);
+            }
+            catch (Exception e)
+            {
+                WriteEventHandlerError(Res.GetString(Res.InstallSeverityWarning), "OnCommitted", e);
+                Context?.LogMessage(Res.GetString(Res.InstallCommitException));
+                savedException = e;
+            }
+            if (savedException == null)
+            {
+                return;
+            }
+            var wrappedException = savedException;
+            if (!IsWrappedException(savedException))
+            {
+                wrappedException = new InstallException(Res.GetString(Res.InstallCommitException), savedException)
+                {
+                    Source = WrappedExceptionSource
+                };
+            }
+            throw wrappedException;
         }
+
+        protected virtual void Rollback(IDictionary savedState)
+        {
+            if (savedState == null)
+            {
+                throw new ArgumentException(Res.GetString(Res.InstallNullParameter, "savedState"), nameof(savedState));
+            }
+
+            if (savedState["_reserved_lastInstallerAttempted"] == null || savedState["_reserved_nestedSavedStates"] == null)
+            {
+                throw new ArgumentException(Res.GetString(Res.InstallDictionaryMissingValues, "savedState"), nameof(savedState));
+            }
+
+            Exception? savedException = null;
+            try
+            {
+                OnBeforeRollback(savedState);
+            }
+            catch (Exception e)
+            {
+                WriteEventHandlerError(Res.GetString(Res.InstallSeverityWarning), "OnBeforeRollback", e);
+                Context?.LogMessage(Res.GetString(Res.InstallRollbackException));
+                savedException = e;
+            }
+
+            var lastInstallerAttempted = (int)(savedState["_reserved_lastInstallerAttempted"] ?? 0);
+            if (savedState["_reserved_nestedSavedStates"] is not IDictionary[] nestedSavedStates ||
+                lastInstallerAttempted + 1 != nestedSavedStates.Length || lastInstallerAttempted >= Installers.Count)
+            {
+                throw new ArgumentException(Res.GetString(Res.InstallDictionaryCorrupted, "savedState"), nameof(savedState));
+            }
+
+            for (var i = Installers.Count - 1; i >= 0; i--)
+            {
+                Installers[i].Context = Context;
+            }
+            for (var i = lastInstallerAttempted; i >= 0; i--)
+            {
+                try
+                {
+                    Installers[i].Rollback(nestedSavedStates[i]);
+                }
+                catch (Exception e)
+                {
+                    if (!IsWrappedException(e))
+                    {
+                        Context?.LogMessage(Res.GetString(Res.InstallLogRollbackException, Installers[i].ToString()));
+                        LogException(e, Context);
+                        Context?.LogMessage(Res.GetString(Res.InstallRollbackException));
+                    }
+                    savedException = e;
+                }
+            }
+            try
+            {
+                OnAfterRollback(savedState);
+            }
+            catch (Exception e)
+            {
+                WriteEventHandlerError(Res.GetString(Res.InstallSeverityWarning), "OnAfterRollback", e);
+                Context?.LogMessage(Res.GetString(Res.InstallRollbackException));
+                savedException = e;
+            }
+            if (savedException == null)
+            {
+                return;
+            }
+            var wrappedException = savedException;
+            if (!IsWrappedException(savedException))
+            {
+                wrappedException = new InstallException(Res.GetString(Res.InstallRollbackException), savedException)
+                {
+                    Source = WrappedExceptionSource
+                };
+            }
+            throw wrappedException;
+        }
+
+        private static bool IsWrappedException(Exception e) => e is InstallException && string.Equals(e.Source, WrappedExceptionSource, StringComparison.OrdinalIgnoreCase) && e.TargetSite?.ReflectedType == typeof(Installer);
+
+        private bool InstallerTreeContains(Installer target) =>
+            Installers.Contains(target) || Installers.Any(installer => installer.InstallerTreeContains(target));
 
         /// <summary>Raises the <see cref="AfterInstall" /> event.</summary>
         /// <param name="savedState">An <see cref="IDictionary" /> that contains the state of the computer after all the installers contained in the <see cref="Installers" /> property have completed their installations. </param>
@@ -504,8 +501,6 @@ namespace System.Configuration.Install
         /// <summary>Raises the <see cref="Committing" /> event.</summary>
         /// <param name="savedState">An <see cref="IDictionary" /> that contains the state of the computer before the installers in the <see cref="Installers" /> property are committed. </param>
         private void OnCommitting(IDictionary savedState) => _beforeCommitHandler?.Invoke(this, new InstallEventArgs(savedState));
-
-        private static bool IsWrappedException(Exception e) => e is InstallException && e.Source == WrappedExceptionSource && e.TargetSite?.ReflectedType == typeof(Installer);
 
         private void WriteEventHandlerError(string severity, string eventName, Exception e)
         {

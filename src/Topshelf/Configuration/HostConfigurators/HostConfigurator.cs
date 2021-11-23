@@ -66,6 +66,8 @@ namespace Topshelf.Configuration.HostConfigurators
 
         public void AddConfigurator(IHostBuilderConfigurator configurator) => _configurators.Add(configurator);
 
+        public void AddServiceArgument(string name, string value) => _settings.ServiceArguments[name] = value;
+
         public void ApplyCommandLine()
         {
             if (_commandLineApplied)
@@ -124,6 +126,8 @@ namespace Topshelf.Configuration.HostConfigurators
 
         public void OnException(Action<Exception> callback) => _settings.ExceptionCallback = callback;
 
+        public void SetCanStop(bool canStop) => _settings.CanStop = canStop;
+
         public void SetDescription(string description) => _settings.Description = description;
 
         public void SetDisplayName(string name) => _settings.DisplayName = name;
@@ -175,12 +179,12 @@ namespace Topshelf.Configuration.HostConfigurators
 
             yield return this.Success("Name", _settings.Name);
 
-            if (_settings.Name != _settings.DisplayName)
+            if (!string.Equals(_settings.Name, _settings.DisplayName, StringComparison.OrdinalIgnoreCase))
             {
                 yield return this.Success("DisplayName", _settings.DisplayName);
             }
 
-            if (_settings.Name != _settings.Description)
+            if (!string.Equals(_settings.Name, _settings.Description, StringComparison.OrdinalIgnoreCase))
             {
                 yield return this.Success("Description", _settings.Description);
             }

@@ -103,6 +103,11 @@ namespace Topshelf.Runtime.Windows
                 arguments += $" -servicename \"{settings.Name}\"";
             }
 
+            foreach (var argName in settings.ServiceArguments.AllKeys)
+            {
+                arguments += $" -{argName} \"{settings.ServiceArguments[argName]}\"";
+            }
+
             return new HostInstaller(settings, arguments, installers);
         }
 

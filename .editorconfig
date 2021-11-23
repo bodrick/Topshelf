@@ -451,37 +451,14 @@ dotnet_code_quality_unused_parameters = non_public
 # RCS1175: Unused this parameter.
 dotnet_diagnostic.RCS1175.severity = none
 
-##########################################
-# License
-##########################################
-# The following applies as to the .editorconfig file ONLY, and is
-# included below for reference, per the requirements of the license
-# corresponding to this .editorconfig file.
-# See: https://github.com/RehanSaeed/EditorConfig
-#
-# MIT License
-#
-# Copyright (c) 2017-2019 Muhammad Rehan Saeed
-# Copyright (c) 2019 Henry Gabryjelski
-#
-# Permission is hereby granted, free of charge, to any
-# person obtaining a copy of this software and associated
-# documentation files (the "Software"), to deal in the
-# Software without restriction, including without limitation
-# the rights to use, copy, modify, merge, publish, distribute,
-# sublicense, and/or sell copies of the Software, and to permit
-# persons to whom the Software is furnished to do so, subject
-# to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-# OTHER DEALINGS IN THE SOFTWARE.
-##########################################
+# MA0003: Add argument name to improve readability
+dotnet_diagnostic.MA0003.severity = none
+
+# MA0007: Add a comma after the last value
+dotnet_diagnostic.MA0007.severity = none
+
+# MA0048: File name must match type name
+dotnet_diagnostic.MA0048.severity = none
+
+# CA1062: Validate arguments of public methods
+dotnet_code_quality.CA1062.exclude_extension_method_this_parameter = true

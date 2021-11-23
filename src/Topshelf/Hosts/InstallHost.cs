@@ -12,6 +12,7 @@
 // specific language governing permissions and limitations under the License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using Topshelf.Configuration;
@@ -128,19 +129,18 @@ namespace Topshelf.Hosts
             /// True if the service handles power change events
             /// </summary>
             public bool CanHandlePowerEvent => _settings.CanHandlePowerEvent;
-
             public bool CanPauseAndContinue => _settings.CanPauseAndContinue;
             public bool CanSessionChanged => _settings.CanSessionChanged;
             public bool CanShutdown => _settings.CanShutdown;
-
+            public bool CanStop => _settings.CanStop;
             public Credentials Credentials { get; set; }
-
             public string[] Dependencies { get; }
             public string Description => _settings.Description;
             public string DisplayName => _settings.DisplayName;
             public Action<Exception>? ExceptionCallback => _settings.ExceptionCallback;
             public string InstanceName => _settings.InstanceName;
             public string Name => _settings.Name;
+            public NameValueCollection ServiceArguments => _settings.ServiceArguments;
             public string ServiceName => _settings.ServiceName;
             public HostStartMode StartMode { get; }
 

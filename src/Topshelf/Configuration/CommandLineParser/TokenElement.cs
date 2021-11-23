@@ -48,7 +48,7 @@ namespace Topshelf.Configuration.CommandLineParser
             return obj is TokenElement tokenElement && Equals(tokenElement);
         }
 
-        public override int GetHashCode() => Token.GetHashCode();
+        public override int GetHashCode() => Token.GetHashCode(StringComparison.OrdinalIgnoreCase);
 
         public override string ToString() => "TOKEN: " + Token;
     }

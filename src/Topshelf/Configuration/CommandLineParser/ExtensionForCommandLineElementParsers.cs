@@ -21,7 +21,9 @@ namespace Topshelf.Configuration.CommandLineParser
         public static Parser<IEnumerable<ICommandLineElement>, ISwitchElement> Optional(string key, bool defaultValue) => input =>
         {
             var switchElements = input.ToList();
-            var query = switchElements.Where(x => x is SwitchElement switchElement && switchElement.Key == key).Cast<ISwitchElement>()
+            var query = switchElements
+                .Where(x => x is SwitchElement switchElement &&
+                            string.Equals(switchElement.Key, key, System.StringComparison.OrdinalIgnoreCase)).Cast<ISwitchElement>()
                 .ToList();
 
             if (query.Count > 0)
@@ -35,7 +37,9 @@ namespace Topshelf.Configuration.CommandLineParser
         public static Parser<IEnumerable<ICommandLineElement>, IDefinitionElement> Optional(string key, string defaultValue) => input =>
         {
             var commandLineElements = input.ToList();
-            var query = commandLineElements.Where(x => x is DefinitionElement definitionElement && definitionElement.Key == key)
+            var query = commandLineElements.Where(x =>
+                    x is DefinitionElement definitionElement &&
+                    string.Equals(definitionElement.Key, key, System.StringComparison.OrdinalIgnoreCase))
                 .Cast<IDefinitionElement>().ToList();
 
             if (query.Count > 0)
